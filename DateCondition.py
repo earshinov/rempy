@@ -171,17 +171,17 @@ class SimpleDateCondition(object):
       for _ in self.__yieldMonths(date, back):
         if not isinstance(_, self.__YieldTerminator):
           yield _
-        #else:
-        #  yield self.__YieldTerminator()
+        else:
+          return
     else:
-      break_ = False
-      while not break_:
+      while True:
         for _ in self.__yieldMonths(date, back):
           if not isinstance(_, self.__YieldTerminator):
             yield _
           else:
-            if _.nextDate() is not None:
-              date = _.nextDate()
+            nextDate = _.nextDate()
+            if nextDate is not None:
+              date = nextDate
             else:
               month = self.month
               day = self.day
@@ -196,6 +196,7 @@ class SimpleDateCondition(object):
                 date = datetime.date(date.year, 1, 1) - datetime.timedelta(days=1)
               else:
                 date = datetime.date(date.year-1, month+1, 1) - datetime.timedelta(days=1)
+            break
 
 
   def __yieldMonths(self, date, back):
@@ -207,29 +208,30 @@ class SimpleDateCondition(object):
           yield _
         else:
           yield self.__YieldTerminator()
+          return
     else:
-      break_ = False
-      while not break_:
+      while True:
         for _ in self.__yieldDays(date, back):
           if not isinstance(_, self.__YieldTerminator):
             yield _
           else:
             nextDate = _.nextDate()
             if nextDate is not None:
-              if date.year != nextDate.year:
-                yield _
-                break_ = True
-              else:
+              if date.year == nextDate.year:
                 date = nextDate
+                break
+              else:
+                yield _
+                return
             else:
               if not back and date.month == 12:
                 day = self.day if self.day is not None else 1
                 yield self.__YieldTerminator(nextDate=datetime.date(date.year+1, 1, day));
-                break_ = True
+                return
               elif back and date.month == 1:
                 day = self.day if self.day is not None else 31
                 yield self.__YieldTerminator(nextDate=datetime.date(date.year-1, 12, day));
-                break_ = True
+                return
               else:
                 date = datetime.date(date.year, date.month + delta, date.day)
                 break
@@ -238,7 +240,7 @@ class SimpleDateCondition(object):
   def __yieldDays(self, date, back):
     timedelta = datetime.timedelta(days=1)
     step = (lambda x: x + timedelta) if not back else (lambda x: x - timedelta)
-    op = operator.gt if not back else operator.lt
+    op = operator.lt if not back else operator.gt
 
     if self.day is not None:
       yield date
@@ -247,9 +249,9 @@ class SimpleDateCondition(object):
       while True:
         yield date
         nextDate = step(date)
-        if op(nextDate.month, date.month) or op(nextDate.year, date.year):
+        if op(date.month, nextDate.month) or op(date.year, nextDate.year):
           yield self.__YieldTerminator(nextDate)
-          break
+          return
         else:
           date = nextDate
 
@@ -258,6 +260,8 @@ class SimpleDateCondition(object):
 
     def setUp(self):
       self.startDate = datetime.date(2010, 1, 10)
+
+    # Basic: forward scanning
 
     def test_000(self):
       gen = SimpleDateCondition(None, None, None).scan(self.startDate)
@@ -281,13 +285,39 @@ class SimpleDateCondition(object):
       self.assertEqual(dates[0], datetime.date(2011, 1, 8))
       self.assertEqual(dates[1], datetime.date(2012, 1, 8))
 
-    def test_110(self):
-      dates = list(SimpleDateCondition(2010, 1, None).scanBack(self.startDate))
-      self.assertEqual(len(dates), 10)
-
-    def test_100(self):
+    def test_100_success(self):
+      dates = list(SimpleDateCondition(2009, None, None).scan(self.startDate))
+      self.assertEqual(dates, [])
+    def test_100_failure(self):
       dates = list(SimpleDateCondition(2010, None, None).scan(self.startDate))
       self.assertEqual(len(dates), 365-9)
+
+    def test_101_full(self):
+      dates = list(SimpleDateCondition(2010, None, 10).scan(self.startDate))
+      self.assertEqual(len(dates), 12)
+    def test_101_partial(self):
+      dates = list(SimpleDateCondition(2010, None, 9).scan(self.startDate))
+      self.assertEqual(len(dates), 11)
+
+    def test_110(self):
+      dates = list(SimpleDateCondition(2010, 1, None).scan(self.startDate))
+      self.assertEqual(len(dates), 31-9)
+
+    def test_111_success(self):
+      dates = list(SimpleDateCondition(2010, 2, 10).scan(self.startDate))
+      self.assertEqual(dates, [datetime.date(2010, 2, 10)])
+    def test_111_failure(self):
+      dates = list(SimpleDateCondition(2010, 1, 8).scan(self.startDate))
+      self.assertEqual(dates, [])
+
+    # Basic: backward scanning
+
+    def test_000_back(self):
+      gen = SimpleDateCondition(None, None, None).scanBack(self.startDate)
+      dates = list(itertools.islice(gen, 11))
+      self.assertEqual(dates[ 0], self.startDate)
+      self.assertEqual(dates[-2], datetime.date(2010, 1, 1))
+      self.assertEqual(dates[-1], datetime.date(2009, 12, 31))
 
 
 if __name__ == '__main__':
