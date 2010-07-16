@@ -6,6 +6,19 @@ import operator
 import unittest
 
 
+def all(iterable, unary_predicate):
+  for i in iterable:
+    if not unary_predicate(i):
+      return False
+  return True
+
+def any(iterable, unary_predicate):
+  for i in iterable:
+    if unary_predicate(i):
+      return True
+  return False
+
+
 class PreciseDateCondition(object):
 
   def __init__(self, year, month, day):
@@ -81,26 +94,66 @@ class SimpleDateCondition(object):
 
 
   def __scan(self, startDate, back=False):
-    delta = 1 if not back else -1
+    DAY_START = -1
+
     op = operator.lt if not back else operator.gt
+    delta = 1 if not back else -1
+
+    month_start = 1 if not back else 12
+    month_end = 12 if not back else 1
+
+    addMonth = False
+    addYear = False
 
     day = self.day
     if day is None:
       day = startDate.day
+    if op(day, startDate.day):
+      addMonth = True
 
     month = self.month
     if month is None:
       month = startDate.month
-      if op(day, startDate.day):
-        month = month+1
+    if op(month, startDate.month):
+      addYear = True
+    if op(startDate.month, month):
+      addMonth = False
+      if self.day is None:
+        day = DAY_START
+    if addMonth:
+      if self.month is None and month != month_end:
+        month = month + delta
+      else:
+        addYear = True
 
     year = self.year
     if year is None:
       year = startDate.year
-      if op(month, startDate.month) or month == startDate.month and op(day, startDate.day):
-        year = year+1
+    if op(year, startDate.year):
+      return;
+    if op(startDate.year, year):
+      if self.month is None:
+        month = month_start
+      if self.day is None:
+        day = DAY_START
+    if addYear:
+      if self.year is None:
+        year = year + delta
+      else:
+        return
 
-    date = datetime.date(year, month, day)
+    if day == DAY_START and back:
+      if month == 12:
+        year = year+1
+        month = 1
+      else:
+        month = month+1
+      date = datetime.date(year, month, 1) - datetime.timedelta(days=1)
+    else:
+      if day == DAY_START:
+        day = 1
+      date = datetime.date(year, month, day)
+
     for _ in self.__yieldYears(date, back): yield _
 
 
@@ -216,8 +269,15 @@ class SimpleDateCondition(object):
       date = next(itertools.islice(gen, 13, None))
       self.assertEqual(date, datetime.date(2011, 2, 17))
 
+    def test_010(self):
+      gen = SimpleDateCondition(None, 2, None).scan(self.startDate)
+      dates = list(itertools.islice(gen, 56))
+      self.assertTrue(all(dates[:28], lambda x: x.year == 2010 and x.month == 2))
+      self.assertTrue(all(dates[28:], lambda x: x.year == 2011 and x.month == 2))
+
     def test_011(self):
-      dates = list(itertools.islice(SimpleDateCondition(None, 1, 8).scan(self.startDate), 2))
+      gen = SimpleDateCondition(None, 1, 8).scan(self.startDate);
+      dates = list(itertools.islice(gen, 2))
       self.assertEqual(dates[0], datetime.date(2011, 1, 8))
       self.assertEqual(dates[1], datetime.date(2012, 1, 8))
 
