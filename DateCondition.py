@@ -104,6 +104,7 @@ class SimpleDateCondition(object):
 
     addMonth = False
     addYear = False
+    adjust = False
 
     day = self.day
     if day is None:
@@ -111,6 +112,7 @@ class SimpleDateCondition(object):
     if op(day, startDate.day):
       addMonth = True
 
+    adjust = False
     month = self.month
     if month is None:
       month = startDate.month
@@ -118,29 +120,37 @@ class SimpleDateCondition(object):
       addYear = True
     if op(startDate.month, month):
       addMonth = False
-      if self.day is None:
-        day = DAY_START
+      adjust = True
     if addMonth:
       if self.month is None and month != month_end:
         month = month + delta
+        adjust = True
       else:
         addYear = True
+    if adjust:
+      if self.day is None:
+        day = DAY_START
 
+    adjust = False
     year = self.year
     if year is None:
       year = startDate.year
     if op(year, startDate.year):
       return;
     if op(startDate.year, year):
+      addYear = False
+      adjust = True
+    if addYear:
+      if self.year is None:
+        year = year + delta
+        adjust = True
+      else:
+        return
+    if adjust:
       if self.month is None:
         month = month_start
       if self.day is None:
         day = DAY_START
-    if addYear:
-      if self.year is None:
-        year = year + delta
-      else:
-        return
 
     if day == DAY_START and back:
       if month == 12:
@@ -318,6 +328,12 @@ class SimpleDateCondition(object):
       self.assertEqual(dates[ 0], self.startDate)
       self.assertEqual(dates[-2], datetime.date(2010, 1, 1))
       self.assertEqual(dates[-1], datetime.date(2009, 12, 31))
+
+    def test_001(self):
+      gen = SimpleDateCondition(None, None, 17).scanBack(self.startDate)
+      dates = list(itertools.islice(gen, 13))
+      self.assertEqual(dates[0], datetime.date(2009, 12, 17))
+      self.assertEqual(dates[12], datetime.date(2008, 12, 17))
 
 
 if __name__ == '__main__':
