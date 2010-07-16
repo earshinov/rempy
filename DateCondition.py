@@ -296,11 +296,11 @@ class SimpleDateCondition(object):
       self.assertEqual(dates[1], datetime.date(2012, 1, 8))
 
     def test_100_success(self):
-      dates = list(SimpleDateCondition(2009, None, None).scan(self.startDate))
-      self.assertEqual(dates, [])
-    def test_100_failure(self):
       dates = list(SimpleDateCondition(2010, None, None).scan(self.startDate))
       self.assertEqual(len(dates), 365-9)
+    def test_100_failure(self):
+      dates = list(SimpleDateCondition(2009, None, None).scan(self.startDate))
+      self.assertEqual(dates, [])
 
     def test_101_full(self):
       dates = list(SimpleDateCondition(2010, None, 10).scan(self.startDate))
@@ -329,11 +329,48 @@ class SimpleDateCondition(object):
       self.assertEqual(dates[-2], datetime.date(2010, 1, 1))
       self.assertEqual(dates[-1], datetime.date(2009, 12, 31))
 
-    def test_001(self):
+    def test_001_back(self):
       gen = SimpleDateCondition(None, None, 17).scanBack(self.startDate)
       dates = list(itertools.islice(gen, 13))
       self.assertEqual(dates[0], datetime.date(2009, 12, 17))
       self.assertEqual(dates[12], datetime.date(2008, 12, 17))
+
+    def test_010_back(self):
+      gen = SimpleDateCondition(None, 2, None).scanBack(self.startDate)
+      dates = list(itertools.islice(gen, 56))
+      self.assertTrue(all(dates[:28], lambda x: x.year == 2009 and x.month == 2))
+      self.assertTrue(all(dates[28:], lambda x: x.year == 2008 and x.month == 2))
+
+    def test_011_back(self):
+      gen = SimpleDateCondition(None, 1, 8).scanBack(self.startDate);
+      dates = list(itertools.islice(gen, 2))
+      self.assertEqual(dates[0], datetime.date(2010, 1, 8))
+      self.assertEqual(dates[1], datetime.date(2009, 1, 8))
+
+    def test_100_back_success(self):
+      dates = list(SimpleDateCondition(2010, None, None).scanBack(self.startDate))
+      self.assertEqual(len(dates), 10)
+    def test_100_back_failure(self):
+      dates = list(SimpleDateCondition(2011, None, None).scanBack(self.startDate))
+      self.assertEqual(dates, [])
+
+    def test_101_back_full(self):
+      dates = list(SimpleDateCondition(2009, None, 10).scanBack(self.startDate))
+      self.assertEqual(len(dates), 12)
+    def test_101_back_partial(self):
+      dates = list(SimpleDateCondition(2010, None, 10).scanBack(self.startDate))
+      self.assertEqual(dates, [self.startDate])
+
+    def test_110_back(self):
+      dates = list(SimpleDateCondition(2010, 1, None).scanBack(self.startDate))
+      self.assertEqual(len(dates), 10)
+
+    def test_111_back_success(self):
+      dates = list(SimpleDateCondition(2006, 5, 17).scanBack(self.startDate))
+      self.assertEqual(dates, [datetime.date(2006, 5, 17)])
+    def test_111_back_failure(self):
+      dates = list(SimpleDateCondition(2012, 1, 11).scanBack(self.startDate))
+      self.assertEqual(dates, [])
 
 
 if __name__ == '__main__':
