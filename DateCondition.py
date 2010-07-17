@@ -133,7 +133,7 @@ class SimpleDateCondition(object):
     if self.day is not None or self.weekdays is None or self.weekdays == []:
       self.weekdays_diff = None
     else:
-      # "cache" for __dayGenerator()
+      # "cache" for WeekdaysDayGeneratorHelper()
       self.weekdays_diff = []
       for i in xrange(len(self.weekdays) - 1):
         increment = self.weekdays[i + 1] - self.weekdays[i]
@@ -152,7 +152,6 @@ class SimpleDateCondition(object):
 
     if self.weekdays == []:
       return
-
 
     op = operator.lt if not back else operator.gt
     delta = 1 if not back else -1
@@ -285,61 +284,77 @@ class SimpleDateCondition(object):
       (year, month) = (yield None); yield None
 
 
-  def __dayGenerator(self, date, back):
-    delta = 1 if not back else -1
-
+  class DayGeneratorHelper(object):
     initiallyCheckWeekday = False
 
-    if self.weekdays is None:
+    @staticmethod
+    def new(cond, back):
+      if cond.weekdays is not None:
+        return SimpleDateCondition.WeekdaysDayGeneratorHelper(cond, back)
+      else:
+        return SimpleDateCondition.SimpleDayGeneratorHelper(back)
 
-      checkWeekday = lambda date: date
-      timedelta = datetime.timedelta(days=1)
-      step = (lambda date: date + timedelta) if not back else (lambda date: date - timedelta)
+    def checkWeekday(self, date):
+      raise NotImplementedError()
 
-    else:
+    def step(self, date):
+      raise NotImplementedError()
 
-      class Closures(object):
+  class SimpleDayGeneratorHelper(DayGeneratorHelper):
 
-        def __init__(self, cond):
-          super(Closures, self).__init__()
-          self.cond = cond
-          self.weekdays_diff_index = None
+    def __init__(self, back):
+      super(SimpleDateCondition.SimpleDayGeneratorHelper, self).__init__()
+      self.timedelta = datetime.timedelta(days=1 if not back else -1)
 
-        def checkWeekday(self, date):
-          # this fails when self.weekdays == []
-          # the condition is checked in __scan()
-          date_weekday = date.weekday()
-          if not back:
-            i = bisect.bisect_left(self.cond.weekdays, date_weekday)
-            increment = 7 if (i == len(self.cond.weekdays)) else 0
-            i = i % len(self.cond.weekdays)
-          else:
-            i = bisect.bisect_right(self.cond.weekdays, date_weekday)
-            increment = -7 if (i == 0) else 0
-            i = (i-1) % len(self.cond.weekdays)
-          increment += self.cond.weekdays[i] - date_weekday
+    def checkWeekday(self, date):
+      return date
 
-          self.weekdays_diff_index = i if not back \
-            else (i-1) % len(self.cond.weekdays)
-          return date + datetime.timedelta(days=increment)
+    def step(self, date):
+      return date + self.timedelta
 
-        def step(self, date):
-          timedelta = self.cond.weekdays_diff[self.weekdays_diff_index]
-          self.weekdays_diff_index += delta
-          self.weekdays_diff_index %= len(self.cond.weekdays_diff)
-          return date + timedelta if not back else date - timedelta
+  class WeekdaysDayGeneratorHelper(DayGeneratorHelper):
+    initiallyCheckWeekday = True
 
-      closures = Closures(self)
-      checkWeekday, step = closures.checkWeekday, closures.step
-      initiallyCheckWeekday = True
+    def __init__(self, cond, back):
+      super(SimpleDateCondition.WeekdaysDayGeneratorHelper, self).__init__()
+      self.cond = cond
+      self.back = back
+      self.weekdays_diff_index = None
+
+    def checkWeekday(self, date):
+      # this fails when self.cond.weekdays == []
+      # the condition is checked in __scan()
+      date_weekday = date.weekday()
+      if not self.back:
+        i = bisect.bisect_left(self.cond.weekdays, date_weekday)
+        increment = 7 if (i == len(self.cond.weekdays)) else 0
+        i = i % len(self.cond.weekdays)
+      else:
+        i = bisect.bisect_right(self.cond.weekdays, date_weekday)
+        increment = -7 if (i == 0) else 0
+        i = (i-1) % len(self.cond.weekdays)
+      increment += self.cond.weekdays[i] - date_weekday
+
+      self.weekdays_diff_index = i if not self.back \
+        else (i-1) % len(self.cond.weekdays)
+      return date + datetime.timedelta(days=increment)
+
+    def step(self, date):
+      timedelta = self.cond.weekdays_diff[self.weekdays_diff_index]
+      self.weekdays_diff_index += 1 if not self.back else -1
+      self.weekdays_diff_index %= len(self.cond.weekdays_diff)
+      return date + timedelta if not self.back else date - timedelta
+
+  def __dayGenerator(self, date, back):
+    helper = self.DayGeneratorHelper.new(self, back)
 
     first = True
     while True:
-      if first and initiallyCheckWeekday:
-        nextDate = checkWeekday(date)
+      if first and helper.initiallyCheckWeekday:
+        nextDate = helper.checkWeekday(date)
       else:
         yield date
-        nextDate = step(date)
+        nextDate = helper.step(date)
       first = False
 
       while date != nextDate:
@@ -348,7 +363,7 @@ class SimpleDateCondition(object):
           if year != nextDate.year or month != nextDate.month:
             date = datetime.date(year, month, 1) if not back \
               else lastDayOfMonth(year, month)
-            nextDate = checkWeekday(date)
+            nextDate = helper.checkWeekday(date)
             continue
         date = nextDate
 
