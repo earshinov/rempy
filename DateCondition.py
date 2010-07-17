@@ -19,6 +19,15 @@ def any(iterable, unary_predicate):
   return False
 
 
+def lastDayOfMonth(year, month):
+      if month == 12:
+        year = year+1
+        month = 1
+      else:
+        month = month+1
+      return datetime.date(year, month, 1) - datetime.timedelta(days=1)
+
+
 class PreciseDateCondition(object):
 
   def __init__(self, year, month, day):
@@ -120,15 +129,6 @@ class SimpleDateCondition(object):
       else:
         return (addYear(year), month)
 
-    def lastDayOfMonth(year, month):
-      if month == 12:
-        year = year+1
-        month = 1
-      else:
-        month = month+1
-      date = datetime.date(year, month, 1) - datetime.timedelta(days=1)
-      return date.day
-
 
     try:
       year = self.year
@@ -153,7 +153,7 @@ class SimpleDateCondition(object):
         if atStartDate:
           day = startDate.day
         else:
-          day = 1 if not back else lastDayOfMonth(year, month)
+          day = 1 if not back else lastDayOfMonth(year, month).day
       elif op(day, startDate.day) and atStartDate:
         (year, month) = addMonth(year, month)
     except EmptyResultException:
@@ -161,106 +161,80 @@ class SimpleDateCondition(object):
 
 
     date = datetime.date(year, month, day)
-    for _ in self.__yieldYears(date, back): yield _
+    daygen = self.__dayGenerator(date, back) if self.day is None \
+      else self.__fixedDayGenerator(date)
+    mongen = self.__monthGenerator(daygen, date, back) if self.month is None \
+      else self.__fixedMonthGenerator(daygen, date)
+    yeargen = self.__yearGenerator(mongen, date, back) if self.year is None \
+      else self.__fixedYearGenerator(mongen, date)
+    for date in yeargen: yield date
 
 
-  class __YieldTerminator(object):
+  def __fixedYearGenerator(self, monthGenerator, date):
+    for _ in monthGenerator:
+      if _ is None:
+        return
+      else:
+        yield _
 
-    def __init__(self, nextDate = None):
-      self.__nextDate = nextDate
-
-    def nextDate(self):
-      return self.__nextDate
-
-
-  def __yieldYears(self, date, back):
-    if self.year is not None:
-      for _ in self.__yieldMonths(date, back):
-        if not isinstance(_, self.__YieldTerminator):
-          yield _
+  def __yearGenerator(self, monthGenerator, date, back):
+    year = date.year
+    while True:
+      for _ in monthGenerator:
+        if _ is None:
+          year += 1 if not back else -1
+          monthGenerator.send(year)
         else:
-          return
-    else:
-      while True:
-        for _ in self.__yieldMonths(date, back):
-          if not isinstance(_, self.__YieldTerminator):
-            yield _
-          else:
-            nextDate = _.nextDate()
-            if nextDate is not None:
-              date = nextDate
-            else:
-              month = self.month
-              day = self.day
-              if not back:
-                month = month if month is not None else 1
-                day = day if day is not None else 1
-                date = datetime.date(date.year+1, month, day)
-              elif day is not None:
-                month = month if month is not None else 12
-                date = datetime.date(date.year-1, month, day)
-              elif month is None or month == 12:
-                date = datetime.date(date.year, 1, 1) - datetime.timedelta(days=1)
-              else:
-                date = datetime.date(date.year-1, month+1, 1) - datetime.timedelta(days=1)
-            break
+          yield _
 
+  def __fixedMonthGenerator(self, dayGenerator, date):
+    for _ in dayGenerator:
+      if _ is None:
+        year = (yield _); yield None
+        assert year is not None
+        dayGenerator.send((year, date.month))
+      else:
+        yield _
 
-  def __yieldMonths(self, date, back):
+  def __monthGenerator(self, dayGenerator, date, back):
     delta = 1 if not back else -1
+    month_start = 1 if not back else 12
+    month_end = 12 if not back else 1
 
-    if self.month is not None:
-      for _ in self.__yieldDays(date, back):
-        if not isinstance(_, self.__YieldTerminator):
-          yield _
+    year = date.year
+    month = date.month
+    for _ in dayGenerator:
+      if _ is None:
+        if month != month_end:
+          month += delta
         else:
-          yield self.__YieldTerminator()
-          return
-    else:
-      while True:
-        for _ in self.__yieldDays(date, back):
-          if not isinstance(_, self.__YieldTerminator):
-            yield _
-          else:
-            nextDate = _.nextDate()
-            if nextDate is not None:
-              if date.year == nextDate.year:
-                date = nextDate
-                break
-              else:
-                yield _
-                return
-            else:
-              if not back and date.month == 12:
-                day = self.day if self.day is not None else 1
-                yield self.__YieldTerminator(nextDate=datetime.date(date.year+1, 1, day));
-                return
-              elif back and date.month == 1:
-                day = self.day if self.day is not None else 31
-                yield self.__YieldTerminator(nextDate=datetime.date(date.year-1, 12, day));
-                return
-              else:
-                date = datetime.date(date.year, date.month + delta, date.day)
-                break
+          year = (yield _); yield None
+          assert year is not None
+          month = month_start
+        dayGenerator.send((year, month))
+      else:
+        yield _
 
+  def __fixedDayGenerator(self, date):
+    (year, month, day) = (date.year, date.month, date.day)
+    while True:
+      yield datetime.date(year, month, day)
+      (year, month) = (yield None); yield None
 
-  def __yieldDays(self, date, back):
+  def __dayGenerator(self, date, back):
     timedelta = datetime.timedelta(days=1)
     step = (lambda x: x + timedelta) if not back else (lambda x: x - timedelta)
-    op = operator.lt if not back else operator.gt
 
-    if self.day is not None:
+    while True:
       yield date
-      yield self.__YieldTerminator()
-    else:
-      while True:
-        yield date
-        nextDate = step(date)
-        if op(date.month, nextDate.month) or op(date.year, nextDate.year):
-          yield self.__YieldTerminator(nextDate)
-          return
-        else:
-          date = nextDate
+      nextDate = step(date)
+      if date.month != nextDate.month:
+        (year, month) = (yield None); yield None
+        if year != nextDate.year or month != nextDate.month:
+          date = datetime.date(year, month, 1) if not back \
+            else lastDayOfMonth(year, month)
+          continue
+      date = nextDate
 
 
   class Test(unittest.TestCase):
