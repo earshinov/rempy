@@ -142,10 +142,10 @@ class SimpleDateCondition(object):
       self.weekdays_diff.append(datetime.timedelta(days=increment))
 
   def scan(self, startDate):
-    for date in self.__scan(startDate): yield date
+    return self.__scan(startDate)
 
   def scanBack(self, startDate):
-    for date in self.__scan(startDate, back=True): yield date
+    return self.__scan(startDate, back=True)
 
 
   def __scan(self, startDate, back=False):
@@ -581,6 +581,66 @@ class RepeatedDateCondition(object):
       cond = RepeatedDateCondition(PreciseDateCondition(2001, 5, 14), 2)
       dates = list(cond.scan(self.startDate))
       self.assertEqual(dates, [])
+
+
+class SatisfyDateCondition(object):
+
+  # dateCondition can be None
+  def __init__(self, dateCondition, satisfy):
+    super(SatisfyDateCondition, self).__init__()
+    self.cond = dateCondition
+    self.satisfy = satisfy
+
+  def scan(self, startDate):
+    return self.__scan(startDate)
+
+  def scanBack(self, startDate):
+    return self.__scan(startDate, back=True)
+
+  def __scan(self, startDate, back=False):
+    if self.cond is None:
+      date = startDate
+      timedelta = datetime.timedelta(days=1 if not back else -1)
+      while True:
+        if self.satisfy(date):
+          yield date
+        date = date + timedelta
+    else:
+      gen = self.cond.scan(startDate) if not back else self.cond.scanBack(startDate)
+      for date in gen:
+        if self.satisfy(date):
+          yield date
+
+
+  class Test(unittest.TestCase):
+
+    def setUp(self):
+      self.startDate = datetime.date(2010, 7, 16)
+
+    def test_basic(self):
+      everyMonday = SimpleDateCondition(2010, None, None, weekdays=[0])
+      everySecondMonday = SatisfyDateCondition(everyMonday, self.__Odd())
+      gen = everySecondMonday.scan(datetime.date(2010, 1, 1))
+      the2ndMonday = gen.next()
+      self.assertEqual(the2ndMonday, datetime.date(2010, 1, 11))
+      the20thMonday = next(itertools.islice(gen, 8, None))
+      self.assertEqual(the20thMonday, datetime.date(2010, 5, 17))
+
+    def test_none(self):
+      everySecondDay = SatisfyDateCondition(None, self.__Odd())
+      gen = everySecondDay.scanBack(datetime.date(2009, 12, 31))
+      the6thDayBack = next(itertools.islice(gen, 2, None))
+      self.assertEqual(the6thDayBack, datetime.date(2009, 12, 26))
+
+    class __Odd(object):
+
+      def __init__(self):
+        object.__init__(self)
+        self.switch = 0
+
+      def __call__(self, date):
+        self.switch = 1 - self.switch
+        return self.switch == 0
 
 
 if __name__ == '__main__':
