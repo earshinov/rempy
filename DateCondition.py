@@ -94,7 +94,6 @@ class SimpleDateCondition(object):
 
 
   def __scan(self, startDate, back=False):
-    DAY_START = -1
 
     op = operator.lt if not back else operator.gt
     delta = 1 if not back else -1
@@ -102,68 +101,66 @@ class SimpleDateCondition(object):
     month_start = 1 if not back else 12
     month_end = 12 if not back else 1
 
-    addMonth = False
-    addYear = False
-    adjust = False
 
-    day = self.day
-    if day is None:
-      day = startDate.day
-    if op(day, startDate.day):
-      addMonth = True
+    class EmptyResultException(Exception):
+      pass
 
-    adjust = False
-    month = self.month
-    if month is None:
-      month = startDate.month
-    if op(month, startDate.month):
-      addYear = True
-    if op(startDate.month, month):
-      addMonth = False
-      adjust = True
-    if addMonth:
-      if self.month is None and month != month_end:
-        month = month + delta
-        adjust = True
-      else:
-        addYear = True
-    if adjust:
-      if self.day is None:
-        day = DAY_START
-
-    adjust = False
-    year = self.year
-    if year is None:
-      year = startDate.year
-    if op(year, startDate.year):
-      return;
-    if op(startDate.year, year):
-      addYear = False
-      adjust = True
-    if addYear:
+    def addYear(year):
       if self.year is None:
-        year = year + delta
-        adjust = True
+        return year + delta
       else:
-        return
-    if adjust:
-      if self.month is None:
-        month = month_start
-      if self.day is None:
-        day = DAY_START
+        raise EmptyResultException
 
-    if day == DAY_START and back:
+    def addMonth(year, month):
+      if self.month is None:
+        if month == month_end:
+          return (addYear(year), month_start)
+        else:
+          return (year, month + delta)
+      else:
+        return (addYear(year), month)
+
+    def lastDayOfMonth(year, month):
       if month == 12:
         year = year+1
         month = 1
       else:
         month = month+1
       date = datetime.date(year, month, 1) - datetime.timedelta(days=1)
-    else:
-      if day == DAY_START:
-        day = 1
-      date = datetime.date(year, month, day)
+      return date.day
 
+
+    try:
+      year = self.year
+      if year is None:
+        year = startDate.year
+      elif op(year, startDate.year):
+        return
+
+      atStartDate = (year == startDate.year)
+      month = self.month
+      if month is None:
+        if atStartDate:
+          month = startDate.month
+        else:
+          month = month_start
+      elif op(month, startDate.month) and year == startDate.year:
+        year = addYear(year)
+
+      atStartDate = (year == startDate.year and month == startDate.month)
+      day = self.day
+      if day is None:
+        if atStartDate:
+          day = startDate.day
+        else:
+          day = 1 if not back else lastDayOfMonth(year, month)
+      elif op(day, startDate.day) and atStartDate:
+        (year, month) = addMonth(year, month)
+    except EmptyResultException:
+      return
+
+
+    date = datetime.date(year, month, day)
     for _ in self.__yieldYears(date, back): yield _
 
 
@@ -314,8 +311,8 @@ class SimpleDateCondition(object):
       self.assertEqual(len(dates), 31-9)
 
     def test_111_success(self):
-      dates = list(SimpleDateCondition(2010, 2, 10).scan(self.startDate))
-      self.assertEqual(dates, [datetime.date(2010, 2, 10)])
+      dates = list(SimpleDateCondition(2011, 2, 10).scan(self.startDate))
+      self.assertEqual(dates, [datetime.date(2011, 2, 10)])
     def test_111_failure(self):
       dates = list(SimpleDateCondition(2010, 1, 8).scan(self.startDate))
       self.assertEqual(dates, [])
