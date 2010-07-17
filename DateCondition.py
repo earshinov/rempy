@@ -541,5 +541,47 @@ class SimpleDateCondition(object):
       ])
 
 
+class RepeatedDateCondition(object):
+
+  def __init__(self, preciseDateCondition, period):
+    super(RepeatedDateCondition, self).__init__()
+    assert period > 0
+    self.cond = preciseDateCondition
+    self.timedelta = datetime.timedelta(days=period)
+
+  def scan(self, startDate):
+    gen = self.cond.scan(startDate)
+    date = gen.next()
+    while True:
+      yield date
+      date = date + self.timedelta
+
+  def scanBack(self, startDate):
+    gen = self.cond.scanBack(startDate)
+    date = gen.next()
+    while True:
+      yield date
+      date = date - self.timedelta
+
+
+  class Test(unittest.TestCase):
+
+    def setUp(self):
+      self.startDate = datetime.date(2010, 7, 16)
+
+    def test_success(self):
+      cond = RepeatedDateCondition(PreciseDateCondition(2015, 2, 2), 30)
+      dates = list(itertools.islice(cond.scan(self.startDate), 2))
+      self.assertEqual(dates, [
+        datetime.date(2015, 2, 2),
+        datetime.date(2015, 3, 4),
+      ])
+
+    def test_failure(self):
+      cond = RepeatedDateCondition(PreciseDateCondition(2001, 5, 14), 2)
+      dates = list(cond.scan(self.startDate))
+      self.assertEqual(dates, [])
+
+
 if __name__ == '__main__':
   unittest.main()
