@@ -87,13 +87,20 @@ class PreciseDateCondition(object):
       self.assertEqual(list(ret), [])
 
 
+class NonExistingDaysHandling:
+  WRAP = 0
+  SKIP = 1
+  RAISE = 2
+
 class SimpleDateCondition(object):
 
-  def __init__(self, year=None, month=None, day=None):
+  def __init__(self, year=None, month=None, day=None,
+      nonexistingDaysHandling=NonExistingDaysHandling.WRAP):
     super(SimpleDateCondition, self).__init__()
     self.year = year
     self.month = month
     self.day = day
+    self.nonexistingDaysHandling = nonexistingDaysHandling
 
   def scan(self, startDate):
     for date in self.__scan(startDate): yield date
@@ -162,7 +169,7 @@ class SimpleDateCondition(object):
 
     date = datetime.date(year, month, day)
     daygen = self.__dayGenerator(date, back) if self.day is None \
-      else self.__fixedDayGenerator(date)
+      else self.__fixedDayGenerator(date, self.nonexistingDaysHandling)
     mongen = self.__monthGenerator(daygen, date, back) if self.month is None \
       else self.__fixedMonthGenerator(daygen, date)
     yeargen = self.__yearGenerator(mongen, date, back) if self.year is None \
@@ -215,10 +222,22 @@ class SimpleDateCondition(object):
       else:
         yield _
 
-  def __fixedDayGenerator(self, date):
+  def __fixedDayGenerator(self, date, nonexistingDaysHandling):
     (year, month, day) = (date.year, date.month, date.day)
     while True:
-      yield datetime.date(year, month, day)
+      try:
+        date = datetime.date(year, month, day)
+      except ValueError:
+        case = nonexistingDaysHandling
+        enum = NonExistingDaysHandling
+        if case == enum.WRAP:
+          date = lastDayOfMonth(year, month)
+        elif case == enum.SKIP:
+          date = None
+        elif case == enum.RAISE:
+          raise
+      if date is not None:
+        yield date
       (year, month) = (yield None); yield None
 
   def __dayGenerator(self, date, back):
@@ -342,6 +361,24 @@ class SimpleDateCondition(object):
     def test_111_back_failure(self):
       dates = list(SimpleDateCondition(2012, 1, 11).scanBack(self.startDate))
       self.assertEqual(dates, [])
+
+    # Special
+
+    def test_nonexisting_wrap(self):
+      dates = list(self.__nonexistingDays(NonExistingDaysHandling.WRAP))
+      self.assertEqual(len(dates), 12)
+      self.assertEqual(dates[1], datetime.date(2010, 2, 28))
+    def test_nonexisting_skip(self):
+      gen = self.__nonexistingDays(NonExistingDaysHandling.SKIP);
+      months = list(date.month for date in gen)
+      self.assertEquals(months, [1,3,5,7,8,10,12])
+    def test_nonexisting_raise(self):
+      self.assertRaises(ValueError, lambda: \
+        list(self.__nonexistingDays(NonExistingDaysHandling.RAISE)))
+
+    def __nonexistingDays(self, nonexistingDaysHandling):
+      cond = SimpleDateCondition(2010, None, 31, nonexistingDaysHandling)
+      for date in cond.scan(datetime.date(2010, 1, 1)): yield date
 
 
 if __name__ == '__main__':
