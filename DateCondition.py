@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import bisect
 import datetime
 import itertools
 import operator
@@ -28,23 +29,36 @@ def lastDayOfMonth(year, month):
       return datetime.date(year, month, 1) - datetime.timedelta(days=1)
 
 
+# <http://docs.python.org/faq/programming.html#how-do-you-remove-duplicates-from-a-list>
+def sortedUnique(mylist):
+  if mylist == []:
+    return
+  last = mylist[-1]
+  for i in xrange(len(mylist)-2, -1, -1):
+    if last == mylist[i]:
+      del mylist[i]
+    else:
+      last = mylist[i]
+
+
 class PreciseDateCondition(object):
 
-  def __init__(self, year, month, day):
+  def __init__(self, year, month, day, weekdays=None):
     super(PreciseDateCondition, self).__init__()
-    self.date = datetime.date(year, month, day)
+    date = datetime.date(year, month, day)
+    self.date = date if (weekdays is None or date.weekday() in weekdays) else None
 
   @staticmethod
-  def fromDate(date):
-    return PreciseDateCondition(date.year, date.month, date.day)
+  def fromDate(date, weekdays=None):
+    return PreciseDateCondition(date.year, date.month, date.day, weekdays)
 
 
   def scan(self, startDate):
-    if self.date >= startDate:
+    if self.date is not None and self.date >= startDate:
       yield self.date
 
   def scanBack(self, startDate):
-    if self.date <= startDate:
+    if self.date is not None and self.date <= startDate:
       yield self.date
 
 
@@ -77,6 +91,16 @@ class PreciseDateCondition(object):
       date = datetime.date(2010, 12, 31)
       self.__assertFailure(date, PreciseDateCondition.fromDate(date).scanBack(self.startDate))
 
+    def test_weekdays_success(self):
+      date = datetime.date(2010, 9, 1)
+      cond = PreciseDateCondition.fromDate(date, weekdays=[0,2,6])
+      self.__assertSuccess(date, cond.scan(self.startDate))
+
+    def test_weekdays_failure(self):
+      date = datetime.date(2010, 9, 1)
+      cond = PreciseDateCondition.fromDate(date, weekdays=[1,3])
+      self.__assertFailure(date, cond.scan(self.startDate))
+
 
     def __assertSuccess(self, date, ret):
       dates = list(ret)
@@ -94,13 +118,28 @@ class NonExistingDaysHandling:
 
 class SimpleDateCondition(object):
 
-  def __init__(self, year=None, month=None, day=None,
+  def __init__(self, year=None, month=None, day=None, weekdays=None,
       nonexistingDaysHandling=NonExistingDaysHandling.WRAP):
     super(SimpleDateCondition, self).__init__()
     self.year = year
     self.month = month
     self.day = day
+    self.weekdays = weekdays
+    if self.weekdays is not None:
+      self.weekdays.sort()
+      sortedUnique(self.weekdays)
     self.nonexistingDaysHandling = nonexistingDaysHandling
+
+    if self.day is not None or self.weekdays is None or self.weekdays == []:
+      self.weekdays_diff = None
+    else:
+      # "cache" for __dayGenerator()
+      self.weekdays_diff = []
+      for i in xrange(len(self.weekdays) - 1):
+        increment = self.weekdays[i + 1] - self.weekdays[i]
+        self.weekdays_diff.append(datetime.timedelta(days=increment))
+      increment = self.weekdays[0] + 7 - self.weekdays[-1]
+      self.weekdays_diff.append(datetime.timedelta(days=increment))
 
   def scan(self, startDate):
     for date in self.__scan(startDate): yield date
@@ -110,6 +149,10 @@ class SimpleDateCondition(object):
 
 
   def __scan(self, startDate, back=False):
+
+    if self.weekdays == []:
+      return
+
 
     op = operator.lt if not back else operator.gt
     delta = 1 if not back else -1
@@ -169,7 +212,7 @@ class SimpleDateCondition(object):
 
     date = datetime.date(year, month, day)
     daygen = self.__dayGenerator(date, back) if self.day is None \
-      else self.__fixedDayGenerator(date, self.nonexistingDaysHandling)
+      else self.__fixedDayGenerator(date)
     mongen = self.__monthGenerator(daygen, date, back) if self.month is None \
       else self.__fixedMonthGenerator(daygen, date)
     yeargen = self.__yearGenerator(mongen, date, back) if self.year is None \
@@ -222,13 +265,13 @@ class SimpleDateCondition(object):
       else:
         yield _
 
-  def __fixedDayGenerator(self, date, nonexistingDaysHandling):
+  def __fixedDayGenerator(self, date):
     (year, month, day) = (date.year, date.month, date.day)
     while True:
       try:
         date = datetime.date(year, month, day)
       except ValueError:
-        case = nonexistingDaysHandling
+        case = self.nonexistingDaysHandling
         enum = NonExistingDaysHandling
         if case == enum.WRAP:
           date = lastDayOfMonth(year, month)
@@ -237,23 +280,77 @@ class SimpleDateCondition(object):
         elif case == enum.RAISE:
           raise
       if date is not None:
-        yield date
+        if self.weekdays is None or date.weekday() in self.weekdays:
+          yield date
       (year, month) = (yield None); yield None
 
-  def __dayGenerator(self, date, back):
-    timedelta = datetime.timedelta(days=1)
-    step = (lambda x: x + timedelta) if not back else (lambda x: x - timedelta)
 
+  def __dayGenerator(self, date, back):
+    delta = 1 if not back else -1
+
+    initiallyCheckWeekday = False
+
+    if self.weekdays is None:
+
+      checkWeekday = lambda date: date
+      timedelta = datetime.timedelta(days=1)
+      step = (lambda date: date + timedelta) if not back else (lambda date: date - timedelta)
+
+    else:
+
+      class Closures(object):
+
+        def __init__(self, cond):
+          super(Closures, self).__init__()
+          self.cond = cond
+          self.weekdays_diff_index = None
+
+        def checkWeekday(self, date):
+          # this fails when self.weekdays == []
+          # the condition is checked in __scan()
+          date_weekday = date.weekday()
+          if not back:
+            i = bisect.bisect_left(self.cond.weekdays, date_weekday)
+            increment = 7 if (i == len(self.cond.weekdays)) else 0
+            i = i % len(self.cond.weekdays)
+          else:
+            i = bisect.bisect_right(self.cond.weekdays, date_weekday)
+            increment = -7 if (i == 0) else 0
+            i = (i-1) % len(self.cond.weekdays)
+          increment += self.cond.weekdays[i] - date_weekday
+
+          self.weekdays_diff_index = i if not back \
+            else (i-1) % len(self.cond.weekdays)
+          return date + datetime.timedelta(days=increment)
+
+        def step(self, date):
+          timedelta = self.cond.weekdays_diff[self.weekdays_diff_index]
+          self.weekdays_diff_index += delta
+          self.weekdays_diff_index %= len(self.cond.weekdays_diff)
+          return date + timedelta if not back else date - timedelta
+
+      closures = Closures(self)
+      checkWeekday, step = closures.checkWeekday, closures.step
+      initiallyCheckWeekday = True
+
+    first = True
     while True:
-      yield date
-      nextDate = step(date)
-      if date.month != nextDate.month:
-        (year, month) = (yield None); yield None
-        if year != nextDate.year or month != nextDate.month:
-          date = datetime.date(year, month, 1) if not back \
-            else lastDayOfMonth(year, month)
-          continue
-      date = nextDate
+      if first and initiallyCheckWeekday:
+        nextDate = checkWeekday(date)
+      else:
+        yield date
+        nextDate = step(date)
+      first = False
+
+      while date != nextDate:
+        if date.month != nextDate.month:
+          (year, month) = (yield None); yield None
+          if year != nextDate.year or month != nextDate.month:
+            date = datetime.date(year, month, 1) if not back \
+              else lastDayOfMonth(year, month)
+            nextDate = checkWeekday(date)
+            continue
+        date = nextDate
 
 
   class Test(unittest.TestCase):
@@ -362,7 +459,7 @@ class SimpleDateCondition(object):
       dates = list(SimpleDateCondition(2012, 1, 11).scanBack(self.startDate))
       self.assertEqual(dates, [])
 
-    # Special
+    # Special: handling of non-existing days
 
     def test_nonexisting_wrap(self):
       dates = list(self.__nonexistingDays(NonExistingDaysHandling.WRAP))
@@ -377,8 +474,56 @@ class SimpleDateCondition(object):
         list(self.__nonexistingDays(NonExistingDaysHandling.RAISE)))
 
     def __nonexistingDays(self, nonexistingDaysHandling):
-      cond = SimpleDateCondition(2010, None, 31, nonexistingDaysHandling)
+      cond = SimpleDateCondition(2010, None, 31,
+        nonexistingDaysHandling=nonexistingDaysHandling)
       for date in cond.scan(datetime.date(2010, 1, 1)): yield date
+
+    # Special: week days
+
+    def test_weekdays_empty(self):
+      dates = list(SimpleDateCondition(None, None, None, weekdays=[]).scan(self.startDate))
+      self.assertEqual(dates, [])
+
+    def test_weekdays(self):
+      cond = SimpleDateCondition(None, None, None, weekdays=[2,6,0])
+      dates = list(itertools.islice(cond.scan(datetime.date(2009, 12, 25)), 5))
+      self.assertEqual(dates, [
+        datetime.date(2009, 12, 27),
+        datetime.date(2009, 12, 28),
+        datetime.date(2009, 12, 30),
+        datetime.date(2010, 01, 3),
+        datetime.date(2010, 01, 4),
+      ])
+    def test_weekdays_startDayMatch(self):
+      cond = SimpleDateCondition(2010, 1, None, weekdays=[5,6])
+      dates = list(itertools.islice(cond.scan(self.startDate), 1))
+      self.assertEqual(dates, [self.startDate])
+
+    def test_weekdays_back(self):
+      cond = SimpleDateCondition(None, None, None, weekdays=[0,1])
+      dates = list(itertools.islice(cond.scanBack(self.startDate), 5))
+      self.assertEqual(dates, [
+        datetime.date(2010, 1, 5),
+        datetime.date(2010, 1, 4),
+        datetime.date(2009, 12, 29),
+        datetime.date(2009, 12, 28),
+        datetime.date(2009, 12, 22),
+      ])
+    def test_weekdays_back_startDayMatch(self):
+      cond = SimpleDateCondition(None, 1, None, weekdays=[1,6])
+      dates = list(itertools.islice(cond.scanBack(self.startDate), 1))
+      self.assertEqual(dates, [self.startDate])
+
+    def test_weekdays_fixedMonth(self):
+      cond = SimpleDateCondition(None, 1, None, weekdays=[3])
+      dates = list(itertools.islice(cond.scan(self.startDate), 5))
+      self.assertEqual(dates, [
+        datetime.date(2010, 1, 14),
+        datetime.date(2010, 1, 21),
+        datetime.date(2010, 1, 28),
+        datetime.date(2011, 1, 6),
+        datetime.date(2011, 1, 13),
+      ])
 
 
 if __name__ == '__main__':
