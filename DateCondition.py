@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import bisect
+import copy
 import datetime
 import itertools
 import operator
@@ -118,8 +119,6 @@ class NonExistingDaysHandling:
 
 class SimpleDateCondition(object):
 
-  # Note that non-exiting start date passed to scan() or scanBack() will always
-  # cause an exception, independently of nonexistingDaysHandling.
   def __init__(self, year=None, month=None, day=None, weekdays=None,
       nonexistingDaysHandling=NonExistingDaysHandling.WRAP):
     super(SimpleDateCondition, self).__init__()
@@ -154,16 +153,16 @@ class SimpleDateCondition(object):
     if self.weekdays == []:
       return
 
-    date = self.__findStartDate(startDate, back)
-    if date is None:
+    unsafeDate = self.__findStartDate(startDate, back)
+    if unsafeDate is None:
       return
 
-    daygen = self.__dayGenerator(date, back) if self.day is None \
-      else self.__fixedDayGenerator(date)
-    mongen = self.__monthGenerator(daygen, date, back) if self.month is None \
-      else self.__fixedMonthGenerator(daygen, date)
-    yeargen = self.__yearGenerator(mongen, date, back) if self.year is None \
-      else self.__fixedYearGenerator(mongen, date)
+    daygen = self.__dayGenerator(unsafeDate, back) if self.day is None \
+      else self.__fixedDayGenerator(unsafeDate)
+    mongen = self.__monthGenerator(daygen, unsafeDate, back) if self.month is None \
+      else self.__fixedMonthGenerator(daygen, unsafeDate)
+    yeargen = self.__yearGenerator(mongen, unsafeDate, back) if self.year is None \
+      else self.__fixedYearGenerator(mongen, unsafeDate)
     for date in yeargen: yield date
 
   def __findStartDate(self, startDate, back):
@@ -218,20 +217,20 @@ class SimpleDateCondition(object):
       elif op(day, startDate.day) and atStartDate:
         (year, month) = addMonth(year, month)
 
-      return datetime.date(year, month, day)
+      return self.UnsafeDate(year, month, day)
     except EmptyResult:
       return None
 
 
-  def __fixedYearGenerator(self, monthGenerator, date):
+  def __fixedYearGenerator(self, monthGenerator, unsafeDate):
     for _ in monthGenerator:
       if _ is None:
         return
       else:
         yield _
 
-  def __yearGenerator(self, monthGenerator, date, back):
-    year = date.year
+  def __yearGenerator(self, monthGenerator, unsafeDate, back):
+    year = unsafeDate.year
     while True:
       for _ in monthGenerator:
         if _ is None:
@@ -240,22 +239,22 @@ class SimpleDateCondition(object):
         else:
           yield _
 
-  def __fixedMonthGenerator(self, dayGenerator, date):
+  def __fixedMonthGenerator(self, dayGenerator, unsafeDate):
+    month = unsafeDate.month
     for _ in dayGenerator:
       if _ is None:
         year = (yield _); yield None
         assert year is not None
-        dayGenerator.send((year, date.month))
+        dayGenerator.send((year, month))
       else:
         yield _
 
-  def __monthGenerator(self, dayGenerator, date, back):
+  def __monthGenerator(self, dayGenerator, unsafeDate, back):
     delta = 1 if not back else -1
     month_start = 1 if not back else 12
     month_end = 12 if not back else 1
 
-    year = date.year
-    month = date.month
+    year, month = (unsafeDate.year, unsafeDate.month)
     for _ in dayGenerator:
       if _ is None:
         if month != month_end:
@@ -268,28 +267,14 @@ class SimpleDateCondition(object):
       else:
         yield _
 
-
-  def __fixedDayGenerator(self, date):
-    (year, month, day) = (date.year, date.month, date.day)
+  def __fixedDayGenerator(self, unsafeDate_):
+    unsafeDate = copy.copy(unsafeDate_)
     while True:
-      date = self.__wrapDate(year, month, day)
+      date = self.__wrapDate(unsafeDate)
       if date is not None:
         if self.weekdays is None or date.weekday() in self.weekdays:
           yield date
-      (year, month) = (yield None); yield None
-
-  def __wrapDate(self, year, month, day):
-    try:
-      return datetime.date(year, month, day)
-    except ValueError:
-      case = self.nonexistingDaysHandling
-      enum = NonExistingDaysHandling
-      if case == enum.WRAP:
-        return lastDayOfMonth(year, month)
-      elif case == enum.SKIP:
-        return None
-      elif case == enum.RAISE:
-        raise
+      (unsafeDate.year, unsafeDate.month) = (yield None); yield None
 
 
   class DayGeneratorHelper(object):
@@ -353,17 +338,24 @@ class SimpleDateCondition(object):
       self.weekdays_diff_index %= len(self.cond.weekdays_diff)
       return date + timedelta if not self.back else date - timedelta
 
-  def __dayGenerator(self, date, back):
+  def __dayGenerator(self, unsafeDate, back):
     helper = self.DayGeneratorHelper.new(self, back)
 
     first = True
     while True:
-      if first and helper.initiallyCheckWeekday:
-        nextDate = helper.checkWeekday(date)
+      if first:
+        date, skip = self.__wrapDate_noFail(unsafeDate)
+        if helper.initiallyCheckWeekday:
+          nextDate = helper.checkWeekday(date)
+          if date == nextDate and skip:
+            nextDate = helper.step(nextDate)
+        else:
+          if not skip: yield date
+          nextDate = helper.step(date)
+        first = False
       else:
         yield date
         nextDate = helper.step(date)
-      first = False
 
       while date != nextDate:
         if date.month != nextDate.month:
@@ -374,6 +366,36 @@ class SimpleDateCondition(object):
             nextDate = helper.checkWeekday(date)
             continue
         date = nextDate
+
+
+  class UnsafeDate(object):
+
+    def __init__(self, year, month, day):
+      super(SimpleDateCondition.UnsafeDate, self).__init__()
+      self.year = year
+      self.month = month
+      self.day = day
+
+  def __wrapDate(self, unsafeDate):
+    try:
+      return datetime.date(unsafeDate.year, unsafeDate.month, unsafeDate.day)
+    except ValueError:
+      case = self.nonexistingDaysHandling
+      enum = NonExistingDaysHandling
+      if case == enum.WRAP:
+        return lastDayOfMonth(unsafeDate.year, unsafeDate.month)
+      elif case == enum.SKIP:
+        return None
+      elif case == enum.RAISE:
+        raise
+
+  # returns tuple (date, skip)
+  def __wrapDate_noFail(self, unsafeDate):
+    date = self.__wrapDate(unsafeDate)
+    if date is None:
+      return (lastDayOfMonth(unsafeDate.year, unsafeDate.month), True)
+    else:
+      return (date, False)
 
 
   class Test(unittest.TestCase):
@@ -499,7 +521,33 @@ class SimpleDateCondition(object):
     def __nonexistingDays(self, nonexistingDaysHandling):
       cond = SimpleDateCondition(2010, None, 31,
         nonexistingDaysHandling=nonexistingDaysHandling)
-      for date in cond.scan(datetime.date(2010, 1, 1)): yield date
+      for date in cond.scan(self.startDate): yield date
+
+    def test_nonexisting_start_wrap(self):
+      cond = SimpleDateCondition(None, 2, 29)
+      dates = list(itertools.islice(cond.scan(self.startDate), 4))
+      self.assertEqual(dates, [
+        datetime.date(2010, 2, 28),
+        datetime.date(2011, 2, 28),
+        datetime.date(2012, 2, 29),
+        datetime.date(2013, 2, 28),
+      ])
+    def test_nonexisting_start_skip(self):
+      cond = SimpleDateCondition(None, 2, 29,
+        nonexistingDaysHandling=NonExistingDaysHandling.SKIP)
+      dates = list(itertools.islice(cond.scan(self.startDate), 2))
+      self.assertEqual(dates, [
+        datetime.date(2012, 2, 29),
+        datetime.date(2016, 2, 29),
+      ])
+    def test_nonexisting_start_weekday(self):
+      cond = SimpleDateCondition(None, 2, 29, weekdays=[6],
+        nonexistingDaysHandling=NonExistingDaysHandling.SKIP)
+      dates = list(itertools.islice(cond.scan(self.startDate), 2))
+      self.assertEqual(dates, [
+        datetime.date(2032, 2, 29),
+        datetime.date(2060, 2, 29),
+      ])
 
     # Special: week days
 
