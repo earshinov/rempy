@@ -752,6 +752,26 @@ class CombinedDateCondition(DateCondition):
         datetime.date(2011, 4, 25),
       ])
 
+    def test_combinedShift(self):
+      cond = CombinedDateCondition(
+        SimpleDateCondition(None, None, 13, weekdays=[4]),
+        ShiftDateCondition(-4))
+      mondaysPrecedingFriday13th = cond.scan(self.startDate)
+      self.assertEqual(list(itertools.islice(mondaysPrecedingFriday13th, 2)), [
+        datetime.date(2010, 8, 9),
+        datetime.date(2011, 5, 9),
+      ])
+
+    def test_combinedRepeat(self):
+      dates = CombinedDateCondition(
+        SimpleDateCondition(2010, 9, 23),
+        RepeatDateCondition(10)).scan(self.startDate)
+      self.assertEqual(list(itertools.islice(dates, 3)), [
+        datetime.date(2010, 9, 23),
+        datetime.date(2010, 10, 3),
+        datetime.date(2010, 10, 13),
+      ])
+
 
 if __name__ == '__main__':
   unittest.main()
