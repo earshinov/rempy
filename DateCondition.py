@@ -42,12 +42,21 @@ def sortedUnique(mylist):
       last = mylist[i]
 
 
+class DateCondition(object):
+
+  def scan(self, startDate):
+    return []
+
+  def scanBack(self, startDate):
+    return []
+
+
 class NonExistingDaysHandling:
   WRAP = 0
   SKIP = 1
   RAISE = 2
 
-class SimpleDateCondition(object):
+class SimpleDateCondition(DateCondition):
 
   def __init__(self, year=None, month=None, day=None, weekdays=None,
       nonexistingDaysHandling=NonExistingDaysHandling.WRAP):
@@ -564,7 +573,7 @@ class SimpleDateCondition(object):
       self.assertEqual(dates, [])
 
 
-class RepeatDateCondition(object):
+class RepeatDateCondition(DateCondition):
 
   def __init__(self, period):
     super(RepeatDateCondition, self).__init__()
@@ -597,7 +606,7 @@ class RepeatDateCondition(object):
       ])
 
 
-class ShiftDateCondition(object):
+class ShiftDateCondition(DateCondition):
 
   def __init__(self, shift):
     super(ShiftDateCondition, self).__init__()
@@ -610,7 +619,7 @@ class ShiftDateCondition(object):
     yield startDate + self.timedelta
 
 
-class SatisfyDateCondition(object):
+class SatisfyDateCondition(DateCondition):
 
   # dateCondition can be None
   def __init__(self, cond, satisfy):
@@ -670,7 +679,7 @@ class SatisfyDateCondition(object):
         return self.switch == 0
 
 
-class LimitedDateCondition(object):
+class LimitedDateCondition(DateCondition):
 
   def __init__(self, cond, from_=None, until=None, maxMatches=None):
     super(LimitedDateCondition, self).__init__()
@@ -700,7 +709,7 @@ class LimitedDateCondition(object):
     return gen
 
 
-class CombinedDateCondition(object):
+class CombinedDateCondition(DateCondition):
 
   def __init__(self, cond, cond2, scanBack=False):
     super(CombinedDateCondition, self).__init__()
