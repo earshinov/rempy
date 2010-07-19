@@ -118,6 +118,8 @@ class NonExistingDaysHandling:
 
 class SimpleDateCondition(object):
 
+  # Note that non-exiting start date passed to scan() or scanBack() will always
+  # cause an exception, independently of nonexistingDaysHandling.
   def __init__(self, year=None, month=None, day=None, weekdays=None,
       nonexistingDaysHandling=NonExistingDaysHandling.WRAP):
     super(SimpleDateCondition, self).__init__()
@@ -149,25 +151,36 @@ class SimpleDateCondition(object):
 
 
   def __scan(self, startDate, back=False):
-
     if self.weekdays == []:
       return
 
+    date = self.__findStartDate(startDate, back)
+    if date is None:
+      return
+
+    daygen = self.__dayGenerator(date, back) if self.day is None \
+      else self.__fixedDayGenerator(date)
+    mongen = self.__monthGenerator(daygen, date, back) if self.month is None \
+      else self.__fixedMonthGenerator(daygen, date)
+    yeargen = self.__yearGenerator(mongen, date, back) if self.year is None \
+      else self.__fixedYearGenerator(mongen, date)
+    for date in yeargen: yield date
+
+  def __findStartDate(self, startDate, back):
     op = operator.lt if not back else operator.gt
     delta = 1 if not back else -1
 
     month_start = 1 if not back else 12
     month_end = 12 if not back else 1
 
-
-    class EmptyResultException(Exception):
+    class EmptyResult(Exception):
       pass
 
     def addYear(year):
       if self.year is None:
         return year + delta
       else:
-        raise EmptyResultException
+        raise EmptyResult()
 
     def addMonth(year, month):
       if self.month is None:
@@ -178,13 +191,12 @@ class SimpleDateCondition(object):
       else:
         return (addYear(year), month)
 
-
     try:
       year = self.year
       if year is None:
         year = startDate.year
       elif op(year, startDate.year):
-        return
+        return None
 
       atStartDate = (year == startDate.year)
       month = self.month
@@ -205,18 +217,10 @@ class SimpleDateCondition(object):
           day = 1 if not back else lastDayOfMonth(year, month).day
       elif op(day, startDate.day) and atStartDate:
         (year, month) = addMonth(year, month)
-    except EmptyResultException:
-      return
 
-
-    date = datetime.date(year, month, day)
-    daygen = self.__dayGenerator(date, back) if self.day is None \
-      else self.__fixedDayGenerator(date)
-    mongen = self.__monthGenerator(daygen, date, back) if self.month is None \
-      else self.__fixedMonthGenerator(daygen, date)
-    yeargen = self.__yearGenerator(mongen, date, back) if self.year is None \
-      else self.__fixedYearGenerator(mongen, date)
-    for date in yeargen: yield date
+      return datetime.date(year, month, day)
+    except EmptyResult:
+      return None
 
 
   def __fixedYearGenerator(self, monthGenerator, date):
@@ -264,24 +268,28 @@ class SimpleDateCondition(object):
       else:
         yield _
 
+
   def __fixedDayGenerator(self, date):
     (year, month, day) = (date.year, date.month, date.day)
     while True:
-      try:
-        date = datetime.date(year, month, day)
-      except ValueError:
-        case = self.nonexistingDaysHandling
-        enum = NonExistingDaysHandling
-        if case == enum.WRAP:
-          date = lastDayOfMonth(year, month)
-        elif case == enum.SKIP:
-          date = None
-        elif case == enum.RAISE:
-          raise
+      date = self.__wrapDate(year, month, day)
       if date is not None:
         if self.weekdays is None or date.weekday() in self.weekdays:
           yield date
       (year, month) = (yield None); yield None
+
+  def __wrapDate(self, year, month, day):
+    try:
+      return datetime.date(year, month, day)
+    except ValueError:
+      case = self.nonexistingDaysHandling
+      enum = NonExistingDaysHandling
+      if case == enum.WRAP:
+        return lastDayOfMonth(year, month)
+      elif case == enum.SKIP:
+        return None
+      elif case == enum.RAISE:
+        raise
 
 
   class DayGeneratorHelper(object):
