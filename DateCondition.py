@@ -549,24 +549,20 @@ class SimpleDateCondition(object):
       ])
 
 
-class RepeatedDateCondition(object):
+class RepeatDateCondition(object):
 
-  def __init__(self, preciseDateCondition, period):
-    super(RepeatedDateCondition, self).__init__()
-    assert period > 0
-    self.cond = preciseDateCondition
+  def __init__(self, period):
+    super(RepeatDateCondition, self).__init__()
     self.timedelta = datetime.timedelta(days=period)
 
   def scan(self, startDate):
-    gen = self.cond.scan(startDate)
-    date = gen.next()
+    date = startDate
     while True:
       yield date
       date = date + self.timedelta
 
   def scanBack(self, startDate):
-    gen = self.cond.scanBack(startDate)
-    date = gen.next()
+    date = startDate
     while True:
       yield date
       date = date - self.timedelta
@@ -577,26 +573,34 @@ class RepeatedDateCondition(object):
     def setUp(self):
       self.startDate = datetime.date(2010, 7, 16)
 
-    def test_success(self):
-      cond = RepeatedDateCondition(PreciseDateCondition(2015, 2, 2), 30)
+    def test_basic(self):
+      cond = RepeatDateCondition(30)
       dates = list(itertools.islice(cond.scan(self.startDate), 2))
       self.assertEqual(dates, [
-        datetime.date(2015, 2, 2),
-        datetime.date(2015, 3, 4),
+        datetime.date(2010, 7, 16),
+        datetime.date(2010, 8, 15),
       ])
 
-    def test_failure(self):
-      cond = RepeatedDateCondition(PreciseDateCondition(2001, 5, 14), 2)
-      dates = list(cond.scan(self.startDate))
-      self.assertEqual(dates, [])
+
+class ShiftDateCondition(object):
+
+  def __init__(self, shift):
+    super(ShiftDateCondition, self).__init__()
+    self.timedelta = datetime.timedelta(days=shift)
+
+  def scan(self, startDate):
+    yield startDate + self.timedelta
+
+  def scanBack(self, startDate):
+    yield startDate + self.timedelta
 
 
 class SatisfyDateCondition(object):
 
   # dateCondition can be None
-  def __init__(self, dateCondition, satisfy):
+  def __init__(self, cond, satisfy):
     super(SatisfyDateCondition, self).__init__()
-    self.cond = dateCondition
+    self.cond = cond
     self.satisfy = satisfy
 
   def scan(self, startDate):
@@ -649,6 +653,80 @@ class SatisfyDateCondition(object):
       def __call__(self, date):
         self.switch = 1 - self.switch
         return self.switch == 0
+
+
+class LimitedDateCondition(object):
+
+  def __init__(self, cond, from_=None, until=None, maxMatches=None):
+    super(LimitedDateCondition, self).__init__()
+    self.cond = cond
+    self.from_ = from_
+    self.until = until
+    self.maxMatches = maxMatches
+
+  def scan(self, startDate):
+    if self.from_ is not None:
+      startDate = max(startDate, self.from_)
+    gen = self.cond.scan(startDate)
+    if self.until is not None:
+      gen = itertools.takewhile(lambda date: date <= self.until, gen)
+    if self.maxMatches is not None:
+      gen = itertools.islice(gen, self.maxMatches)
+    return gen
+
+  def scanBack(self, startDate):
+    if self.until is not None:
+      startDate = min(startDate, self.until)
+    gen = self.cond.scanBack(startDate)
+    if self.from_ is not None:
+      gen = itertools.takewhile(lambda date: date <= self.until, gen)
+    if self.maxMatches is not None:
+      gen = itertools.islice(gen, self.maxMatches)
+    return gen
+
+
+class CombinedDateCondition(object):
+
+  def __init__(self, cond, cond2, scanBack=False):
+    super(CombinedDateCondition, self).__init__()
+    self.cond = cond
+    self.cond2 = cond2
+    self.back = scanBack
+
+  def scan(self, startDate):
+    for date in self.cond.scan(startDate):
+      for date2 in self.__applyCond2(date):
+        yield date2
+
+  def scanBack(self, startDate):
+    for date in self.cond.scanBack(startDate):
+      for date2 in self.__applyCond2(date):
+        yield date2
+
+  def __applyCond2(self, date):
+    gen = self.cond2.scan(date) if not self.back \
+      else self.cond2.scanBack(date)
+    for date2 in gen:
+      yield date2
+
+
+  class Test(unittest.TestCase):
+
+    def setUp(self):
+      self.startDate = datetime.date(2010, 3, 31)
+
+    def test_lastWeekday(self):
+      cond = CombinedDateCondition(
+        SimpleDateCondition(None, 4, 30),
+        LimitedDateCondition(
+          SimpleDateCondition(None, None, None, weekdays=[0]),
+          maxMatches = 1),
+        scanBack=True)
+      lastAprilMondays = list(itertools.islice(cond.scan(self.startDate), 2))
+      self.assertEqual(lastAprilMondays, [
+        datetime.date(2010, 4, 26),
+        datetime.date(2011, 4, 25),
+      ])
 
 
 if __name__ == '__main__':
