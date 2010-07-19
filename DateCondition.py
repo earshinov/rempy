@@ -5,6 +5,7 @@ import copy
 import datetime
 import itertools
 import operator
+import re
 import unittest
 
 
@@ -29,6 +30,57 @@ def lastDayOfMonth(year, month):
     month = month+1
   return datetime.date(year, month, 1) - datetime.timedelta(days=1)
 
+class UnsafeDate(object):
+
+  def __init__(self, year, month, day):
+    super(UnsafeDate, self).__init__()
+    self.year = year
+    self.month = month
+    self.day = day
+
+  @staticmethod
+  def fromDate(date):
+    return UnsafeDate(date.year, date.month, date.day)
+
+  def __cmp__(self, other):
+    if self.year < other.year: return -1
+    elif self.year > other.year: return 1
+    if self.month < other.month: return -1
+    elif self.month > other.month: return 1
+    return self.day - other.day
+
+class NonExistingDaysHandling:
+  WRAP = 0
+  SKIP = 1
+  RAISE = 2
+
+def wrapDate(unsafeDate, nonexistingDaysHandling=NonExistingDaysHandling.WRAP):
+  try:
+    return datetime.date(unsafeDate.year, unsafeDate.month, unsafeDate.day)
+  except ValueError:
+    case = nonexistingDaysHandling
+    enum = NonExistingDaysHandling
+    if case == enum.WRAP:
+      return lastDayOfMonth(unsafeDate.year, unsafeDate.month)
+    elif case == enum.SKIP:
+      return None
+    elif case == enum.RAISE:
+      raise
+
+# returns tuple (date, skip)
+def wrapDate_noFail(unsafeDate, nonexistingDaysHandling):
+  date = wrapDate(unsafeDate, nonexistingDaysHandling=NonExistingDaysHandling.WRAP)
+  if date is None:
+    return (lastDayOfMonth(unsafeDate.year, unsafeDate.month), True)
+  else:
+    return (date, False)
+
+DATE_REGEXP = re.compile('(\d+)-(\d+)-(\d+)$')
+def parseDate(string):
+  m = DATE_REGEXP.match(string)
+  return None if m is None \
+    else UnsafeDate(*(int(group) for group in m.groups()))
+
 
 # <http://docs.python.org/faq/programming.html#how-do-you-remove-duplicates-from-a-list>
 def sortedUnique(mylist):
@@ -42,6 +94,10 @@ def sortedUnique(mylist):
       last = mylist[i]
 
 
+class FormatError(Exception):
+  pass
+
+
 class DateCondition(object):
 
   def scan(self, startDate):
@@ -50,11 +106,224 @@ class DateCondition(object):
   def scanBack(self, startDate):
     return []
 
+  # Unlike remind, we require that week days are specified at the beginning
+  # (they can't be mixed with year, month and day). Also, two-digit years are
+  # not supported.
+  @staticmethod
+  def fromString(string):
+    tokens = (token.lower() for token in string.split())
 
-class NonExistingDaysHandling:
-  WRAP = 0
-  SKIP = 1
-  RAISE = 2
+    weekdays = None
+    day = None
+    month = None
+    year = None
+
+    try:
+      token = tokens.next()
+      if token == 'rem':
+        token = tokens.next()
+
+      weekday_names = (
+        ('mon', 'monday'),
+        ('tue', 'tuesday'),
+        ('wed', 'wednesday'),
+        ('thu', 'thursday'),
+        ('fri', 'friday'),
+        ('sat', 'saturday'),
+        ('sun', 'sunday'),
+      )
+
+      weekdays_set = set()
+      found = True
+      while found:
+        found = False
+        for weekday, names in enumerate(weekday_names):
+          if token in names:
+            weekdays_set.add(weekday)
+            found = True; token = tokens.next()
+      if len(weekdays_set) > 0:
+        weekdays = list(weekdays_set)
+
+      months = (
+        ('jan', 'january'),
+        ('feb', 'february'),
+        ('mar', 'march'),
+        ('apr', 'april'),
+        ('may'),
+        ('jun', 'june'),
+        ('jul', 'july'),
+        ('aug', 'august'),
+        ('sep', 'september'),
+        ('oct', 'october'),
+        ('nov', 'november'),
+        ('dec', 'december')
+      )
+
+      while True:
+        if token[0].isdigit():
+          try:
+            i = int(token)
+          except ValueError:
+            d = parseDate(token)
+            if d is None:
+              raise FormatError('at "%s": Can\'t parse' % token)
+            year, month, day = d.year, d.month, d.day
+          else:
+            if i < 1000:
+              if day is not None:
+                raise FormatError('at "%s": Day already specified' % token)
+              day = i
+            else:
+              if year is not None:
+                raise FormatError('at "%s": Year already specified' % token)
+              year = i
+        elif token[0].isalpha():
+          found_mon = None
+          for mon, names in enumerate(months):
+            if token in names:
+              found_mon = mon
+          if found_mon is None:
+            break
+          if month is not None:
+            raise FormatError('at "%s": Month already specified' % token)
+          month = found_mon + 1
+        else:
+          break
+        token = tokens.next()
+    except StopIteration:
+      token = None
+      pass
+
+    if day is not None and weekdays is not None:
+      # handle this case like remind
+      cond = CombinedDateCondition(
+        SimpleDateCondition(year, month, day),
+        LimitedDateCondition(maxMatches=1, cond=SimpleDateCondition(weekdays=weekdays)))
+    else:
+      cond = SimpleDateCondition(year, month, day, weekdays)
+    if token is None:
+      return cond
+
+    try:
+      if token[0] == '-':
+        error = False
+        try:
+          start = 2 if token[1] == '-' else 1
+          shift = int(token[start:])
+        except IndexError:
+          error = True
+        except ValueError:
+          error = True
+        if error:
+          raise FormatError('at "%s": Can\'t parse delta' % token)
+        else:
+          cond = CombinedDateCondition(cond, ShiftDateCondition(-shift))
+        token = tokens.next()
+
+      if token[0] == '*':
+        error = False
+        try:
+          repeat = int(token[1:])
+        except ValueError:
+          error = True
+        if repeat <= 0:
+          error = True
+        if error:
+          raise FormatError('at "%s": Can\'t parse repeat' % token)
+        if day is None or month is None or year is None:
+          raise FormatError('Repeat is allowed only for fixed dates')
+        cond = CombinedDateCondition(cond, RepeatDateCondition(repeat))
+        token = tokens.next()
+    except StopIteration:
+      return cond
+
+    from_ = None
+    until = None
+
+    try:
+      while True:
+        if token == 'from' or token == 'scanfrom':
+          if from_ is not None:
+            raise FormatError('at "%s": "From" already specified' % token)
+          try:
+            token = tokens.next()
+          except StopIteration:
+            raise FormatError('Unexpected end')
+          from_ = parseDate(token)
+          if from_ is None:
+            raise FormatError('at "%s": Can\'t parse date' % token)
+        elif token == 'until':
+          if until is not None:
+            raise FormatError('at "%s": "Until" already specified' % token)
+          try:
+            token = tokens.next()
+          except StopIteration:
+            raise FormatError('Unexpected end')
+          until = parseDate(token)
+          if until is None:
+            raise FormatError('at "%s": Can\'t parse date' % token)
+        else:
+          break
+        token = tokens.next()
+    except StopIteration:
+      token = None
+      pass
+
+    if from_ is not None or until is not None:
+      cond = LimitedDateCondition(cond, from_=from_, until=until)
+    return cond
+
+
+  class Test_fromString(unittest.TestCase):
+
+    def setUp(self):
+      self.startDate = datetime.date(2010, 1, 1)
+
+    def test_shortDateFormat(self):
+      gen = DateCondition.fromString("2010-06-12").scan(datetime.date(2010, 06, 12))
+      self.assertEqual(list(gen), [datetime.date(2010, 06, 12)])
+
+    def test_fromUntil(self):
+      str = "Mon Wed Jan FROM 2010-01-12 UNTIL 2011-01-10"
+      gen = DateCondition.fromString(str).scan(self.startDate)
+      self.assertEqual(list(gen), [
+        datetime.date(2010, 1, 13),
+        datetime.date(2010, 1, 18),
+        datetime.date(2010, 1, 20),
+        datetime.date(2010, 1, 25),
+        datetime.date(2010, 1, 27),
+        datetime.date(2011, 1,  3),
+        datetime.date(2011, 1,  5),
+        datetime.date(2011, 1, 10),
+      ])
+
+    def test_shiftRepeat(self):
+      str = "June 12 2010 --12 *5"
+      gen = DateCondition.fromString(str).scan(self.startDate)
+      self.assertEqual(list(itertools.islice(gen, 3)), [
+        datetime.date(2010, 5, 31),
+        datetime.date(2010, 6, 5),
+        datetime.date(2010, 6, 10),
+      ])
+
+    def test_nonfixedRepeat(self):
+      str = "1 Jan *4";
+      self.assertRaises(FormatError, lambda: DateCondition.fromString(str))
+
+    def test_weekdaysWithDay1(self):
+      str = "Wed 1"
+      firstWedEveryMonth = DateCondition.fromString(str).scan(self.startDate)
+      self.assertEqual(list(itertools.islice(firstWedEveryMonth, 4)), [
+        datetime.date(2010, 1, 6),
+        datetime.date(2010, 2, 3),
+        datetime.date(2010, 3, 3),
+        datetime.date(2010, 4, 7),
+      ])
+    def test_weekdaysWithDay2(self):
+      str = "Wed Fri 2010-06-12"
+      dates = list(DateCondition.fromString(str).scan(self.startDate))
+      self.assertEqual(dates, [datetime.date(2010, 6, 16)])
+
 
 class SimpleDateCondition(DateCondition):
 
@@ -73,7 +342,7 @@ class SimpleDateCondition(DateCondition):
     # handle fixed date (for efficiency, see also __scan())
     self.theMatchingDay = None
     if self.day is not None and self.month is not None and self.year is not None:
-      date = self.__wrapDate(self.UnsafeDate(self.year, self.month, self.day))
+      date = self.__wrapDate(UnsafeDate(self.year, self.month, self.day))
       if self.weekdays is None or date.weekday() in self.weekdays:
         self.theMatchingDay = date
 
@@ -87,6 +356,14 @@ class SimpleDateCondition(DateCondition):
         self.weekdays_diff.append(datetime.timedelta(days=increment))
       increment = self.weekdays[0] + 7 - self.weekdays[-1]
       self.weekdays_diff.append(datetime.timedelta(days=increment))
+
+
+  def __wrapDate(self, unsafeDate):
+    return wrapDate(unsafeDate, self.nonexistingDaysHandling)
+
+  def __wrapDate_noFail(self, unsafeDate):
+    return wrapDate_noFail(unsafeDate, self.nonexistingDaysHandling)
+
 
   def scan(self, startDate):
     return self.__scan(startDate)
@@ -176,7 +453,7 @@ class SimpleDateCondition(DateCondition):
       elif op(day, startDate.day) and atStartDate:
         (year, month) = addMonth(year, month)
 
-      return self.UnsafeDate(year, month, day)
+      return UnsafeDate(year, month, day)
     except EmptyResult:
       return None
 
@@ -333,36 +610,6 @@ class SimpleDateCondition(DateCondition):
     while True:
       yield date
       date = helper.step(date)
-
-
-  class UnsafeDate(object):
-
-    def __init__(self, year, month, day):
-      super(SimpleDateCondition.UnsafeDate, self).__init__()
-      self.year = year
-      self.month = month
-      self.day = day
-
-  def __wrapDate(self, unsafeDate):
-    try:
-      return datetime.date(unsafeDate.year, unsafeDate.month, unsafeDate.day)
-    except ValueError:
-      case = self.nonexistingDaysHandling
-      enum = NonExistingDaysHandling
-      if case == enum.WRAP:
-        return lastDayOfMonth(unsafeDate.year, unsafeDate.month)
-      elif case == enum.SKIP:
-        return None
-      elif case == enum.RAISE:
-        raise
-
-  # returns tuple (date, skip)
-  def __wrapDate_noFail(self, unsafeDate):
-    date = self.__wrapDate(unsafeDate)
-    if date is None:
-      return (lastDayOfMonth(unsafeDate.year, unsafeDate.month), True)
-    else:
-      return (date, False)
 
 
   class Test(unittest.TestCase):
@@ -681,6 +928,7 @@ class SatisfyDateCondition(DateCondition):
 
 class LimitedDateCondition(DateCondition):
 
+  # from_ and until can be UnsafeDate's
   def __init__(self, cond, from_=None, until=None, maxMatches=None):
     super(LimitedDateCondition, self).__init__()
     self.cond = cond
@@ -690,10 +938,10 @@ class LimitedDateCondition(DateCondition):
 
   def scan(self, startDate):
     if self.from_ is not None:
-      startDate = max(startDate, self.from_)
+      startDate = max(UnsafeDate.fromDate(startDate), self.from_)
     gen = self.cond.scan(startDate)
     if self.until is not None:
-      gen = itertools.takewhile(lambda date: date <= self.until, gen)
+      gen = itertools.takewhile(lambda date: UnsafeDate.fromDate(date) <= self.until, gen)
     if self.maxMatches is not None:
       gen = itertools.islice(gen, self.maxMatches)
     return gen
