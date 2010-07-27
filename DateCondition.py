@@ -3,97 +3,13 @@ import copy
 import datetime
 import itertools
 import operator
-import re
 import unittest
 
-
-def all(iterable, unary_predicate):
-  for i in iterable:
-    if not unary_predicate(i):
-      return False
-  return True
-
-def any(iterable, unary_predicate):
-  for i in iterable:
-    if unary_predicate(i):
-      return True
-  return False
-
-
-def lastDayOfMonth(year, month):
-  if month == 12:
-    year = year+1
-    month = 1
-  else:
-    month = month+1
-  return datetime.date(year, month, 1) - datetime.timedelta(days=1)
-
-class UnsafeDate(object):
-
-  def __init__(self, year, month, day):
-    super(UnsafeDate, self).__init__()
-    self.year = year
-    self.month = month
-    self.day = day
-
-  @staticmethod
-  def fromDate(date):
-    return UnsafeDate(date.year, date.month, date.day)
-
-  def __cmp__(self, other):
-    if self.year < other.year: return -1
-    elif self.year > other.year: return 1
-    if self.month < other.month: return -1
-    elif self.month > other.month: return 1
-    return self.day - other.day
-
-class NonExistingDaysHandling:
-  WRAP = 0
-  SKIP = 1
-  RAISE = 2
-
-def wrapDate(unsafeDate, nonexistingDaysHandling=NonExistingDaysHandling.WRAP):
-  try:
-    return datetime.date(unsafeDate.year, unsafeDate.month, unsafeDate.day)
-  except ValueError:
-    case = nonexistingDaysHandling
-    enum = NonExistingDaysHandling
-    if case == enum.WRAP:
-      return lastDayOfMonth(unsafeDate.year, unsafeDate.month)
-    elif case == enum.SKIP:
-      return None
-    elif case == enum.RAISE:
-      raise
-
-# returns tuple (date, skip)
-def wrapDate_noFail(unsafeDate, nonexistingDaysHandling):
-  date = wrapDate(unsafeDate, nonexistingDaysHandling=NonExistingDaysHandling.WRAP)
-  if date is None:
-    return (lastDayOfMonth(unsafeDate.year, unsafeDate.month), True)
-  else:
-    return (date, False)
-
-DATE_REGEXP = re.compile('(\d+)-(\d+)-(\d+)$')
-def parseDate(string):
-  m = DATE_REGEXP.match(string)
-  return None if m is None \
-    else UnsafeDate(*(int(group) for group in m.groups()))
-
-
-# <http://docs.python.org/faq/programming.html#how-do-you-remove-duplicates-from-a-list>
-def sortedUnique(mylist):
-  if mylist == []:
-    return
-  last = mylist[-1]
-  for i in xrange(len(mylist)-2, -1, -1):
-    if last == mylist[i]:
-      del mylist[i]
-    else:
-      last = mylist[i]
-
-
-class FormatError(Exception):
-  pass
+from utils import FormatError
+from utils.algorithms import sortedUnique
+from utils.dates import UnsafeDate, NonExistingDaysHandling
+from utils.functional import all
+import utils.dates as dateutils
 
 
 class DateCondition(object):
@@ -162,7 +78,7 @@ class DateCondition(object):
           try:
             i = int(token)
           except ValueError:
-            d = parseDate(token)
+            d = dateutils.parseIsoDate(token)
             if d is None:
               raise FormatError('at "%s": Can\'t parse' % token)
             year, month, day = d.year, d.month, d.day
@@ -247,7 +163,7 @@ class DateCondition(object):
             token = tokens.next()
           except StopIteration:
             raise FormatError('Unexpected end')
-          from_ = parseDate(token)
+          from_ = dateutils.parseIsoDate(token)
           if from_ is None:
             raise FormatError('at "%s": Can\'t parse date' % token)
         elif token == 'until':
@@ -257,7 +173,7 @@ class DateCondition(object):
             token = tokens.next()
           except StopIteration:
             raise FormatError('Unexpected end')
-          until = parseDate(token)
+          until = dateutils.parseIsoDate(token)
           if until is None:
             raise FormatError('at "%s": Can\'t parse date' % token)
         else:
@@ -357,10 +273,10 @@ class SimpleDateCondition(DateCondition):
 
 
   def __wrapDate(self, unsafeDate):
-    return wrapDate(unsafeDate, self.nonexistingDaysHandling)
+    return dateutils.wrapDate(unsafeDate, self.nonexistingDaysHandling)
 
   def __wrapDate_noFail(self, unsafeDate):
-    return wrapDate_noFail(unsafeDate, self.nonexistingDaysHandling)
+    return dateutils.wrapDate_noFail(unsafeDate, self.nonexistingDaysHandling)
 
 
   def scan(self, startDate):
@@ -447,7 +363,7 @@ class SimpleDateCondition(DateCondition):
         if atStartDate:
           day = startDate.day
         else:
-          day = 1 if not back else lastDayOfMonth(year, month).day
+          day = 1 if not back else dateutils.lastDayOfMonth(year, month).day
       elif op(day, startDate.day) and atStartDate:
         (year, month) = addMonth(year, month)
 
@@ -596,7 +512,7 @@ class SimpleDateCondition(DateCondition):
           (year, month) = (yield None); yield None
           if year != nextDate.year or month != nextDate.month:
             date = datetime.date(year, month, 1) if not back \
-              else lastDayOfMonth(year, month)
+              else dateutils.lastDayOfMonth(year, month)
             nextDate = helper.checkWeekday(date)
             continue
         date = nextDate
@@ -939,7 +855,8 @@ class LimitedDateCondition(DateCondition):
       startDate = max(UnsafeDate.fromDate(startDate), self.from_)
     gen = self.cond.scan(startDate)
     if self.until is not None:
-      gen = itertools.takewhile(lambda date: UnsafeDate.fromDate(date) <= self.until, gen)
+      gen = itertools.takewhile(lambda date: \
+        UnsafeDate.fromDate(date) <= self.until, gen)
     if self.maxMatches is not None:
       gen = itertools.islice(gen, self.maxMatches)
     return gen
