@@ -12,6 +12,7 @@ if __name__ == '__main__':
     DateCondition.SatisfyDateCondition.Test,
     DateCondition.CombinedDateCondition.Test,
     StringParser.DateConditionParser.Test,
+    StringParser.ReminderParser.Test,
   ]
   for testCase in testCases:
     subsuites.append(loader.loadTestsFromTestCase(testCase))

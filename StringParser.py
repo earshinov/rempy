@@ -358,6 +358,79 @@ class DateConditionParser(StringParser):
       self.assertRaises(FormatError, lambda: self.parser.parse(str))
 
 
+class ReminderParser(StringParser):
+
+  class _AdvanceWarningParser(object):
+
+    def __init__(self):
+      object.__init__(self)
+      self.adv = 0
+
+    def __call__(self, token):
+      error = False
+      try:
+        start = 2 if token[1] == '+' else 1
+        adv = int(token[start:].string())
+        if adv < 0:
+          raise ValueError()
+      except IndexError:
+        error = True
+      except ValueError:
+        error = True
+      if error:
+        raise FormatError('at "%s": Can\'t parse advance warning value' % token)
+      else:
+        self.adv = adv
+
+    def advanceWarningValue(self):
+      return self.adv
+
+  def __init__(self, chainFactory=DateConditionParser, chainData=None):
+    super(ReminderParser, self).__init__()
+
+    chainData = copy.copy(chainData) if chainData is not None else ChainData()
+    self.advParser = self._AdvanceWarningParser()
+    chainData.optionHandlers.append(('+', self.advParser))
+    chainData.unparsedRemainderHandlers.append(self._handleUnparsedRemainder)
+    self.chain = chainFactory(chainData=chainData)
+    self.msg = None
+
+  def _handleUnparsedRemainder(self, cond, token, tokens, string):
+    try:
+      if token == 'msg':
+        token = tokens.next()
+    except StopIteration:
+      pass
+    else:
+      self.msg = string[token.position():]
+    return (None, cond)
+
+  def parse(self, string):
+    return self.chain.parse(string)
+
+  def advanceWarningValue(self):
+    return self.advParser.advanceWarningValue()
+
+  def message(self):
+    return self.msg
+
+
+  class Test(unittest.TestCase):
+
+    def setUp(self):
+      self.parser = ReminderParser()
+
+    def test_advanceWarning(self):
+      self.parser.parse('June 12 +5')
+      self.assertEqual(self.parser.advanceWarningValue(), 5)
+      self.assertEqual(self.parser.message(), None)
+
+    def test_message(self):
+      self.parser.parse('REM Jan 1 MSG New Year')
+      self.assertEqual(self.parser.advanceWarningValue(), 0)
+      self.assertEqual(self.parser.message(), 'New Year')
+
+
 from DateCondition import *
 
 
