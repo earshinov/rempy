@@ -46,7 +46,10 @@ class ShortcutReminder(BasicReminder):
   def fromString(dateCondition, action=None, advanceWarningValue=None):
     parser = ReminderParser()
     cond = parser.parse(dateCondition)
+    return ShortcutReminder.fromParser(parser, cond, action, advanceWarningValue)
 
+  @staticmethod
+  def fromParser(parser, dateCondition, action=None, advanceWarningValue=None):
     action2 = parser.message()
     if action is None and action2 is None:
       raise FormatError('Message/action must be specified')
@@ -64,7 +67,7 @@ class ShortcutReminder(BasicReminder):
     elif adv is None:
       adv = 0
 
-    return ShortcutReminder(cond, action, adv)
+    return ShortcutReminder(dateCondition, action, adv)
 
 
 rem = ShortcutReminder.fromString
