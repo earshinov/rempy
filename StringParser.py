@@ -240,7 +240,7 @@ class DateConditionParser(StringParser):
 
     def apply(self, cond):
       return cond if self.delta == 0 else \
-        CombinedDateCondition(cond, ShiftDateCondition(-self.delta))
+        ShiftDateCondition(cond, -self.delta)
 
   class _RepeatParser(object):
 

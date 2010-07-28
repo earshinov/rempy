@@ -9,6 +9,7 @@ if __name__ == '__main__':
   testCases = [
     DateCondition.SimpleDateCondition.Test,
     DateCondition.RepeatDateCondition.Test,
+    DateCondition.ShiftDateCondition.Test,
     DateCondition.SatisfyDateCondition.Test,
     DateCondition.CombinedDateCondition.Test,
     StringParser.DateConditionParser.Test,

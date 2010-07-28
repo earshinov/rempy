@@ -555,15 +555,71 @@ class RepeatDateCondition(DateCondition):
 
 class ShiftDateCondition(DateCondition):
 
-  def __init__(self, shift):
+  def __init__(self, cond, shift):
     super(ShiftDateCondition, self).__init__()
+    self.cond = cond
     self.timedelta = datetime.timedelta(days=shift)
 
   def scan(self, startDate):
-    yield startDate + self.timedelta
+    if self.timedelta.days > 0:
+      gen = self.cond.scanBack(startDate - datetime.timedelta(days=1))
+      for date in itertools.takewhile(lambda date: date >= startDate,
+        (date + self.timedelta for date in gen)): yield date
+    gen = (date + self.timedelta for date in self.cond.scan(startDate))
+    if self.timedelta.days < 0:
+      gen = itertools.dropwhile(lambda date: date < startDate, gen)
+    for date in gen:
+      yield date
 
   def scanBack(self, startDate):
-    yield startDate + self.timedelta
+    if self.timedelta.days < 0:
+      gen = self.cond.scan(startDate + datetime.timedelta(days=1))
+      for date in itertools.takewhile(lambda date: date <= startDate,
+        (date + self.timedelta for date in gen)): yield date
+    gen = (date + self.timedelta for date in self.cond.scanBack(startDate))
+    if self.timedelta.days > 0:
+      gen = itertools.dropwhile(lambda date: date > startDate, gen)
+    for date in gen:
+      yield date
+
+
+  class Test(unittest.TestCase):
+
+    def setUp(self):
+      self.startDate = datetime.date(2010, 3, 31)
+
+    def test_basic(self):
+      cond = ShiftDateCondition(SimpleDateCondition(None, None, 13, weekdays=[4]), -4)
+      mondaysPrecedingFriday13th = cond.scan(self.startDate)
+      self.assertEqual(list(itertools.islice(mondaysPrecedingFriday13th, 2)), [
+        datetime.date(2010, 8, 9),
+        datetime.date(2011, 5, 9),
+      ])
+
+    def test_wrapStartDate(self):
+      cond = ShiftDateCondition(SimpleDateCondition(2010, 4, 1), -5)
+      self.assertEqual(list(cond.scan(self.startDate)), [])
+
+    def test_wrapStartDate2(self):
+      cond = ShiftDateCondition(SimpleDateCondition(2010, None, 20), 12)
+      dates = list(itertools.islice(cond.scan(self.startDate), 2))
+      self.assertEqual(dates, [
+        datetime.date(2010, 4, 1),
+        datetime.date(2010, 5, 2),
+      ])
+
+    def test_wrapStartDate_back(self):
+      cond = ShiftDateCondition(SimpleDateCondition(2010, None, 30), 2)
+      date = cond.scanBack(self.startDate).next()
+      self.assertEqual(date, datetime.date(2010, 3, 2))
+
+    def test_wrapStartDate_back2(self):
+      cond = ShiftDateCondition(SimpleDateCondition(None, None, 1), -2)
+      dates = list(itertools.islice(cond.scanBack(self.startDate), 2))
+      self.assertEqual(dates, [
+        datetime.date(2010, 3, 30),
+        datetime.date(2010, 2, 27),
+      ])
 
 
 class SatisfyDateCondition(DateCondition):
@@ -699,16 +755,6 @@ class CombinedDateCondition(DateCondition):
       self.assertEqual(lastAprilMondays, [
         datetime.date(2010, 4, 26),
         datetime.date(2011, 4, 25),
-      ])
-
-    def test_combinedShift(self):
-      cond = CombinedDateCondition(
-        SimpleDateCondition(None, None, 13, weekdays=[4]),
-        ShiftDateCondition(-4))
-      mondaysPrecedingFriday13th = cond.scan(self.startDate)
-      self.assertEqual(list(itertools.islice(mondaysPrecedingFriday13th, 2)), [
-        datetime.date(2010, 8, 9),
-        datetime.date(2011, 5, 9),
       ])
 
     def test_combinedRepeat(self):
