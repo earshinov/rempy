@@ -95,19 +95,6 @@ class UnsafeDate(object):
     elif self.month > other.month: return 1
     return self.day - other.day
 
-  def __lt__(self, other):
-    return self.__cmp__(other) < 0
-  def __le__(self, other):
-    return self.__cmp__(other) <= 0
-  def __eq__(self, other):
-    return self.__cmp__(other) == 0
-  def __ne__(self, other):
-    return self.__cmp__(other) != 0
-  def __ge__(self, other):
-    return self.__cmp__(other) >= 0
-  def __gt__(self, other):
-    return self.__cmp__(other) > 0
-
 
 class NonExistingDaysHandling:
   WRAP = 0

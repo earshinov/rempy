@@ -684,7 +684,6 @@ class SatisfyDateCondition(DateCondition):
 
 class LimitedDateCondition(DateCondition):
 
-  # from_ and until can be UnsafeDate's
   def __init__(self, cond, from_=None, until=None, maxMatches=None):
     super(LimitedDateCondition, self).__init__()
     self.cond = cond
@@ -694,11 +693,10 @@ class LimitedDateCondition(DateCondition):
 
   def scan(self, startDate):
     if self.from_ is not None:
-      startDate = max(dateutils.UnsafeDate.fromDate(startDate), self.from_)
+      startDate = max(startDate, self.from_)
     gen = self.cond.scan(startDate)
     if self.until is not None:
-      gen = itertools.takewhile(lambda date: \
-        UnsafeDate.fromDate(date) <= self.until, gen)
+      gen = itertools.takewhile(lambda date: date <= self.until, gen)
     if self.maxMatches is not None:
       gen = itertools.islice(gen, self.maxMatches)
     return gen
