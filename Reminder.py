@@ -5,8 +5,20 @@ from utils import FormatError
 
 class Reminder(object):
 
+  def condition(self):
+    raise NotImplementedError()
+
+  def advanceWarningValue(self):
+    raise NotImplementedError()
+
+  def advanceWarningValue(self):
+    raise NotImplementedError()
+
+
+class BasicReminder(Reminder):
+
   def __init__(self, dateCondition, action, advanceWarningValue=0):
-    super(Reminder, self).__init__()
+    super(BasicReminder, self).__init__()
     self.cond = dateCondition
     self.action = action
     self.adv = advanceWarningValue
@@ -21,7 +33,7 @@ class Reminder(object):
     self.action(date)
 
 
-class ShortcutReminder(Reminder):
+class ShortcutReminder(BasicReminder):
 
   def __init__(self, dateCondition, action, advanceWarningValue=0):
     if isinstance(dateCondition, basestring):
