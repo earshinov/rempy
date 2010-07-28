@@ -1,5 +1,6 @@
 import datetime
 import re
+import time
 import unittest
 
 
@@ -135,8 +136,5 @@ def wrapDate_noFail(unsafeDate, nonexistingDaysHandling):
     return (date, False)
 
 
-ISO_DATE_REGEXP = re.compile('(\d+)-(\d+)-(\d+)$')
 def parseIsoDate(string):
-  m = ISO_DATE_REGEXP.match(string)
-  return None if m is None \
-    else UnsafeDate(*(int(group) for group in m.groups()))
+  return datetime.date(*(time.strptime(string, '%Y-%m-%d')[0:3]))

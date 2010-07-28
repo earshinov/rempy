@@ -1,8 +1,7 @@
 import datetime
 import unittest
 
-from rempy.StringParser import StringParser, ReminderParser, ChainData
-from rempy.utils.dates import parseIsoDate
+from rempy.StringParser import StringParser, ReminderParser, ChainData, parseDate
 
 
 class DeferrableParser(StringParser):
@@ -14,9 +13,7 @@ class DeferrableParser(StringParser):
       self.done = None
 
     def __call__(self, token, tokens):
-      self.done = parseIsoDate(token.string())
-      if self.done is None:
-        raise FormatError('at "%s": Can\'t parse date' % token)
+      self.done = parseDate(token)
       try:
         token = tokens.next()
       except StopIteration:

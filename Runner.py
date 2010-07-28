@@ -102,8 +102,9 @@ OPTIONS = [ --from=DATE ] [ --to=DATE | --future=N_DAYS ]
       print USAGE
       exit()
     elif option == '--from':
-      from_ = dateutils.parseIsoDate(value)
-      if from_ is None:
+      try:
+        from_ = dateutils.parseIsoDate(value)
+      except ValueError:
         print >> sys.stderr, 'Can\'t parse date %s' % value
         exit(1)
       from_ = dateutils.wrapDate(from_)
@@ -117,8 +118,9 @@ OPTIONS = [ --from=DATE ] [ --to=DATE | --future=N_DAYS ]
       assert False, 'unhandled command-line option'
 
   if to is not None:
-    to = dateutils.parseIsoDate(to)
-    if to is None:
+    try:
+      to = dateutils.parseIsoDate(to)
+    except ValueError:
       print >> sys.stderr, 'Can\'t parse date %s' % to
       exit(1)
     to = dateutils.wrapDate(to)

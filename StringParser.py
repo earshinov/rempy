@@ -7,6 +7,13 @@ import utils.dates as dateutils
 import utils.strings as strings
 
 
+def parseDate(token):
+  try:
+    return dateutils.parseIsoDate(token.string())
+  except ValueError, e:
+    raise FormatError('at "%s": Can\'t parse date: %s' % (token, e.message))
+
+
 class ChainData(object):
 
   def __init__(self, optionHandlers=[], namedOptionHandlers={}, unparsedRemainderHandlers=[]):
@@ -167,9 +174,7 @@ class DateConditionParser(StringParser):
           try:
             i = int(token.string())
           except ValueError:
-            d = dateutils.parseIsoDate(token.string())
-            if d is None:
-              raise FormatError('at "%s": Can\'t parse' % token)
+            d = parseDate(token)
             year, month, day = d.year, d.month, d.day
           else:
             if i < 1000:
@@ -288,9 +293,7 @@ class DateConditionParser(StringParser):
     def __call__(self, token, tokens):
       if self.val is not None:
         raise FormatError('at "%s": "%s" already specified' % (token, self.name))
-      self.val = dateutils.parseIsoDate(token.string())
-      if self.val is None:
-        raise FormatError('at "%s": Can\'t parse date' % token)
+      self.val = parseDate(token)
       try:
         token = tokens.next()
       except StopIteration:
