@@ -5,7 +5,7 @@ from utils import FormatError
 
 class Reminder(object):
 
-  def condition(self):
+  def condition(self, runnerMode):
     raise NotImplementedError()
 
   def advanceWarningValue(self):
@@ -23,7 +23,7 @@ class BasicReminder(Reminder):
     self.action = action
     self.adv = advanceWarningValue
 
-  def condition(self):
+  def condition(self, runnerMode):
     return self.cond
 
   def advanceWarningValue(self):

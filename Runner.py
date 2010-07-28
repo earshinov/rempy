@@ -6,6 +6,11 @@ import sys
 import utils.dates as dateutils
 
 
+class RunnerMode:
+  REMIND = 0
+  EVENTS = 1
+
+
 class Runner(object):
 
   def __init__(self):
@@ -15,13 +20,13 @@ class Runner(object):
   def add(self, reminder):
     self.reminders.append(reminder)
 
-  def run(self, fromDate, toDate, accountAdvanceWarning):
+  def run(self, fromDate, toDate, mode):
 
     heap = []
 
     def __pushNextEvent(reminder, gen):
-      to = toDate if not accountAdvanceWarning else \
-        toDate + datetime.timedelta(days=reminder.advanceWarningValue())
+      to = toDate + datetime.timedelta(days=reminder.advanceWarningValue()) \
+        if mode == RunnerMode.REMIND else toDate
       try:
         date = gen.next()
       except StopIteration:
@@ -30,7 +35,7 @@ class Runner(object):
         heappush(heap, (date, reminder, gen))
 
     for reminder in self.reminders:
-      gen = reminder.condition().scan(fromDate)
+      gen = reminder.condition(mode).scan(fromDate)
       __pushNextEvent(reminder, gen)
     currentDate = None
     while True: # until heap is empty and heappop() raises IndexError
@@ -74,9 +79,9 @@ OPTIONS = [ --from=DATE ] [ --to=DATE | --future=N_DAYS ]
     exit(1)
 
   if args[1] == 'remind':
-    accountAdvanceWarning = True
+    mode = RunnerMode.REMIND
   elif args[1] == 'events':
-    accountAdvanceWarning = False
+    mode = RunnerMode.EVENTS
   else:
     print >> sys.stderr, 'Unknown command: "%s"' % args[1]
     print >> sys.stderr, USAGE
@@ -132,7 +137,7 @@ OPTIONS = [ --from=DATE ] [ --to=DATE | --future=N_DAYS ]
   runner = runnerFactory()
   for filename in args:
     execfile(filename, {'runner': runner})
-  runner.run(from_, to, accountAdvanceWarning)
+  runner.run(from_, to, mode)
 
 
 if __name__ == '__main__':
