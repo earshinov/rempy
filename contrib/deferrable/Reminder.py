@@ -12,9 +12,9 @@ class DeferrableReminder(Reminder):
     self.reminder = reminder
     self.doneDate = doneDate
 
-  def condition(self):
-    return DeferrableDateCondition(self.reminder.condition(), self.doneDate,
-      self.advanceWarningValue())
+  def condition(self, runnerMode):
+    return DeferrableDateCondition(self.reminder.condition(runnerMode),
+      runnerMode, self.doneDate, self.advanceWarningValue())
 
   def advanceWarningValue(self):
     return self.reminder.advanceWarningValue()
