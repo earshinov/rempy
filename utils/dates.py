@@ -1,5 +1,18 @@
 import datetime
 import re
+import unittest
+
+
+def dayOfYear(date):
+  return (date - datetime.date(date.year, 1, 1)).days + 1
+
+class _Test_dayOfYear(unittest.TestCase):
+
+  def test_newYear(self):
+    self.assertEqual(dayOfYear(datetime.date(2005, 1, 1)), 1)
+
+  def test_basic(self):
+    self.assertEqual(dayOfYear(datetime.date(2010, 12, 31)), 365)
 
 
 def lastDayOfMonth(year, month):
@@ -9,6 +22,57 @@ def lastDayOfMonth(year, month):
   else:
     month = month+1
   return datetime.date(year, month, 1) - datetime.timedelta(days=1)
+
+
+def isoweekno(date):
+  return date.isocalendar()[1]
+
+class _Test_isoweekno(unittest.TestCase):
+
+  def test_basic(self):
+    self.assertEqual(isoweekno(datetime.date(2007, 12, 31)), 1)
+    self.assertEqual(isoweekno(datetime.date(2008, 1, 1)), 1)
+    self.assertEqual(isoweekno(datetime.date(2008, 1, 5)), 1)
+    self.assertEqual(isoweekno(datetime.date(2008, 1, 9)), 2)
+
+  def test_noThursday(self):
+    self.assertEqual(isoweekno(datetime.date(2010, 1, 2)), 53)
+    self.assertEqual(isoweekno(datetime.date(2010, 1, 5)), 1)
+
+
+def weekno(date, startWeekday=0):
+  begin = datetime.date(date.year, 1, 1)
+  diff = (date - begin).days
+
+  weekday = date.weekday()
+  beginWeekday = (weekday - diff) % 7
+
+  ret = diff / 7 + 1
+  if weekday > beginWeekday:
+    if startWeekday > beginWeekday and startWeekday <= weekday:
+      ret += 1
+  elif weekday < beginWeekday:
+    if startWeekday > beginWeekday or startWeekday <= weekday:
+      ret += 1
+  return ret
+
+class _Test_weekno(unittest.TestCase):
+
+  def test_basic(self):
+    self.assertEqual(weekno(datetime.date(2010, 1, 1)), 1)
+    self.assertEqual(weekno(datetime.date(2010, 1, 3)), 1)
+    self.assertEqual(weekno(datetime.date(2010, 1, 4)), 2)
+
+  def test_yearStartsWithMonday(self):
+    self.assertEqual(weekno(datetime.date(2007, 1, 1)), 1)
+    self.assertEqual(weekno(datetime.date(2007, 1, 7)), 1)
+    self.assertEqual(weekno(datetime.date(2007, 1, 8)), 2)
+
+  def test_startWeekdayIsThursday(self):
+    self.assertEqual(weekno(datetime.date(2008, 1, 1), 3), 1)
+    self.assertEqual(weekno(datetime.date(2008, 1, 2), 3), 1)
+    self.assertEqual(weekno(datetime.date(2008, 1, 3), 3), 2)
+    self.assertEqual(weekno(datetime.date(2008, 1, 7), 3), 2)
 
 
 class UnsafeDate(object):

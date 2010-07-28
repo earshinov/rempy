@@ -1,5 +1,6 @@
 import DateCondition
 import StringParser
+import utils.dates as dateutils
 
 import unittest
 
@@ -14,6 +15,9 @@ if __name__ == '__main__':
     DateCondition.CombinedDateCondition.Test,
     StringParser.DateConditionParser.Test,
     StringParser.ReminderParser.Test,
+    dateutils._Test_dayOfYear,
+    dateutils._Test_isoweekno,
+    dateutils._Test_weekno,
   ]
   for testCase in testCases:
     subsuites.append(loader.loadTestsFromTestCase(testCase))
