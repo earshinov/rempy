@@ -1,4 +1,5 @@
 from Action import MessagePrinter
+from DateCondition import SatisfyDateCondition
 from StringParser import DateConditionParser, ReminderParser
 from utils import FormatError
 
@@ -35,21 +36,23 @@ class BasicReminder(Reminder):
 
 class ShortcutReminder(BasicReminder):
 
-  def __init__(self, dateCondition, action, advanceWarningValue=0):
+  def __init__(self, dateCondition, action, advanceWarningValue=0, satisfy=None):
     if isinstance(dateCondition, basestring):
       dateCondition = DateConditionParser().parse(dateCondition)
+    if satisfy is not None:
+      dateCondition = SatisfyDateCondition(dateCondition, satisfy)
     if isinstance(action, basestring):
       action = MessagePrinter(action)
     super(ShortcutReminder, self).__init__(dateCondition, action, advanceWarningValue)
 
   @staticmethod
-  def fromString(dateCondition, action=None, advanceWarningValue=None):
+  def fromString(dateCondition, action=None, advanceWarningValue=None, satisfy=None):
     parser = ReminderParser()
     cond = parser.parse(dateCondition)
-    return ShortcutReminder.fromParser(parser, cond, action, advanceWarningValue)
+    return ShortcutReminder.fromParser(parser, cond, action, advanceWarningValue, satisfy)
 
   @staticmethod
-  def fromParser(parser, dateCondition, action=None, advanceWarningValue=None):
+  def fromParser(parser, dateCondition, action=None, advanceWarningValue=None, satisfy=None):
     action2 = parser.message()
     if action is None and action2 is None:
       raise FormatError('Message/action must be specified')
@@ -67,7 +70,7 @@ class ShortcutReminder(BasicReminder):
     elif adv is None:
       adv = 0
 
-    return ShortcutReminder(dateCondition, action, adv)
+    return ShortcutReminder(dateCondition, action, adv, satisfy)
 
 
 rem = ShortcutReminder.fromString
