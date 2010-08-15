@@ -11,6 +11,7 @@ import datetime
 import unittest
 
 from utils import FormatError
+from utils.functional import find_not_if
 import utils.dates as dateutils
 import utils.strings as strings
 
@@ -249,17 +250,14 @@ class DateConditionParser(StringParser):
     )
 
     weekdays_set = set()
-    try:
-      found = True
-      while found:
-        found = False
-        for weekday, names in enumerate(weekday_names):
-          if token in names:
-            weekdays_set.add(weekday)
-            found = True; token = tokens.next()
-    except StopIteration:
-      token = None
-      pass
+    def handle_weekday(token):
+      for weekday, names in enumerate(weekday_names):
+        if token in names:
+          weekdays_set.add(weekday)
+          return True
+      return False
+
+    token = find_not_if(itertools.chain((token,), tokens), handle_weekday)
     return (token, list(weekdays_set) if len(weekdays_set) > 0 else None)
 
   def _parseDate(self, token, tokens):
