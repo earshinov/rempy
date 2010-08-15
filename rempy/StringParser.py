@@ -34,62 +34,57 @@ class ChainData(object):
   набора конструкций, поддерживаемых парсером
 
   @ivar optionHandlers: Обработчики коротких опций.  Каждый элемент списка
-      должен представлять из себя кортеж из двух элементов.  Первый элемент
-      кортежа должен быть строкой, задающей начало конструкции.  Второй элемент
-      кортежа должен быть функцией, принимающей единственным параметром токен.
+    должен представлять из себя кортеж из двух элементов.  Первый элемент
+    кортежа должен быть строкой, задающей начало конструкции.  Второй элемент
+    кортежа должен быть функцией, принимающей единственным параметром токен.
 
   @ivar namedOptionHandlers: Словарь обработчиков длинных опций.  Ключом
-      должна быть строка названия опции; значением — функция-обработчик.
-      Функция должна принимать два параметра:
+    должна быть строка названия опции; значением — функция-обработчик.
+    Функция должна принимать два параметра:
 
-        - токен, следующий за токеном, содержащим название опции,
-          или C{None}, если токены закончились;
-        - Iterator по токенам, установленный на следующий токен.
+      - токен, следующий за токеном, содержащим название опции,
+        или C{None}, если токены закончились;
+      - Iterator по токенам, установленный на следующий токен.
 
-      Функция должна возвращать токен, следующий за последним обработанным.
-      Если токены кончаются, должен быть возвращён C{None}.  Iterable,
-      переданный через параметры, должен быть установлен на следующий токен.
+    Функция должна возвращать токен, следующий за последним обработанным.
+    Если токены кончаются, должен быть возвращён C{None}.  Iterable,
+    переданный через параметры, должен быть установлен на следующий токен.
 
-  @ivar unparsedRemainderHandlers: Список обработчиков, которые вызываются
-      по очереди в случае, если в исходной строке остались неразобранные
-      токены.  Элементами списка должны быть функции.  Функция должна принимать
-      параметры:
+  @ivar unparsedRemainderHandler: Если не C{None}, функция, которая вызывается
+    в случае, если в исходной строке остались неразобранные токены.  Функция
+    должна принимать параметры:
 
-        - сконструированный к этому моменту объект класса
-          L{DateCondition<DateCondition.DateCondition>};
-        - первый неразобранный токен или C{None}, если токены закончились;
-        - Iterable по токенам, установленный на следующий токен;
-        - неразобранная часть строки.
+      - сконструированный к этому моменту объект класса
+        L{DateCondition<DateCondition.DateCondition>};
+      - первый неразобранный токен;
+      - Iterable по токенам, установленный на следующий токен;
+      - неразобранная часть строки.
 
-      Функция должна возвращать кортеж из двух элементов.  Первым элементом
-      должен быть токен, следующий за последним обработанным, или C{None}, если
-      токены закончились.  Вторым элементом должен быть объект класса
-      L{DateCondition<DateCondition.DateCondition>}.  Iterable, переданный через
-      параметры, должен быть установлен на токен, следующий за тем, который
-      возвращается первым элементом кортежа.
+    Функция должна возвращать объект класса
+    L{DateCondition<DateCondition.DateCondition>}.
 
   @see: L{DateConditionParser}
   '''
 
-  def __init__(self, optionHandlers=[], namedOptionHandlers={}, unparsedRemainderHandlers=[]):
+  def __init__(self, optionHandlers=[], namedOptionHandlers={}, unparsedRemainderHandler=None):
     '''Конструктор.  Выполняет defensive copying переданных коллекций.
 
     @param optionHandlers: значение для записи в атрибут
       L{optionHandlers<ChainData.optionHandlers>}
     @param namedOptionHandlers: значение для записи в атрибут
       L{namedOptionHandlers<ChainData.namedOptionHandlers>}
-    @param unparsedRemainderHandlers: значение для записи в атрибут
-      L{unparsedRemainderHandlers<ChainData.unparsedRemainderHandlers>}
+    @param unparsedRemainderHandler: значение для записи в атрибут
+      L{unparsedRemainderHandler<ChainData.unparsedRemainderHandler>}
     @see: L{DateConditionParser}
     '''
     object.__init__(self)
     self.optionHandlers = copy.copy(optionHandlers)
     self.namedOptionHandlers = copy.copy(namedOptionHandlers)
-    self.unparsedRemainderHandlers = copy.copy(unparsedRemainderHandlers)
+    self.unparsedRemainderHandler = unparsedRemainderHandler
 
   def __copy__(self):
     return ChainData(self.optionHandlers, self.namedOptionHandlers,
-      self.unparsedRemainderHandlers)
+      self.unparsedRemainderHandler)
 
 
 class StringParser(object):
@@ -197,20 +192,10 @@ class DateConditionParser(StringParser):
     if token is None:
       return cond
 
-    self.chainData.unparsedRemainderHandlers.append(self._handleUnparsedRemainder)
-    for h in self.chainData.unparsedRemainderHandlers:
-      token, cond = h(cond, token, tokens, string)
-      if token is None:
-        break
-    return cond
-
-  def _handleUnparsedRemainder(self, cond, token, tokens, string):
-    '''Обработчик, добавляемый в конец списка
-    L{unparsedRemainderHandlers<ChainData.unparsedRemainderHandlers>} объекта
-    C{chainData}, переданного в конструктор.  Вызывает исключение
-    L{FormatError<utils.FormatError>}.
-    '''
-    raise FormatError('Unparsed remainder starting with "%s"' % token)
+    if self.chainData.unparsedRemainderHandler is None:
+      raise FormatError('Unparsed remainder starting with "%s"' % token)
+    else:
+      return self.chainData.unparsedRemainderHandler(cond, token, tokens, string)
 
 
   class _SimpleDate(object):
@@ -604,13 +589,15 @@ class ReminderParser(StringParser):
     chainData = copy.copy(chainData) if chainData is not None else ChainData()
     self.advParser = self._AdvanceWarningParser()
     chainData.optionHandlers.append(('+', self.advParser))
-    chainData.unparsedRemainderHandlers.append(self._handleUnparsedRemainder)
+    if chainData.unparsedRemainderHandler is not None:
+      raise ValueError('There is already unparsed remainder handler in chainData')
+    chainData.unparsedRemainderHandler = self._handleUnparsedRemainder
     self.chain = chainFactory(chainData=chainData)
     self.msg = None
 
   def _handleUnparsedRemainder(self, cond, token, tokens, string):
-    '''Обработчик, добавляемый в конец списка
-    L{unparsedRemainderHandlers<ChainData.unparsedRemainderHandlers>} объекта
+    '''Обработчик, который записывается в атрибут
+    L{unparsedRemainderHandler<ChainData.unparsedRemainderHandler>} объекта
     C{chainData}, переданного в конструктор.  Сохраняет сообщение для вывода.
     '''
     try:
@@ -620,7 +607,7 @@ class ReminderParser(StringParser):
       pass
     else:
       self.msg = string[token.position():]
-    return (None, cond)
+    return cond
 
   def parse(self, string):
     return self.chain.parse(string)
