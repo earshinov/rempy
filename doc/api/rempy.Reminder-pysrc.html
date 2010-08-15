@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>rempy.Reminder</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="rempy-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >rempy</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="rempy-module.html">Package&nbsp;rempy</a> ::
+        Module&nbsp;Reminder
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="rempy.Reminder-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="rempy.Reminder-module.html">Module rempy.Reminder</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno">  1</tt>  <tt class="py-line"><tt class="py-comment"># -*- coding: utf-8 -*-</tt> </tt>
+<a name="L2"></a><tt class="py-lineno">  2</tt>  <tt class="py-line"> </tt>
+<a name="L3"></a><tt class="py-lineno">  3</tt>  <tt class="py-line"><tt class="py-docstring">'''&#1057;&#1086;&#1076;&#1077;&#1088;&#1078;&#1080;&#1090; &#1080;&#1077;&#1088;&#1072;&#1088;&#1093;&#1080;&#1102; &#1082;&#1083;&#1072;&#1089;&#1089;&#1086;&#1074; L{Reminder}'''</tt> </tt>
+<a name="L4"></a><tt class="py-lineno">  4</tt>  <tt class="py-line"> </tt>
+<a name="L5"></a><tt class="py-lineno">  5</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-0" class="py-name" targets="Module rempy.Action=rempy.Action-module.html,Class rempy.Action.Action=rempy.Action.Action-class.html"><a title="rempy.Action
+rempy.Action.Action" class="py-name" href="#" onclick="return doclink('link-0', 'Action', 'link-0');">Action</a></tt> <tt class="py-keyword">import</tt> <tt id="link-1" class="py-name" targets="Class rempy.Action.MessagePrinter=rempy.Action.MessagePrinter-class.html"><a title="rempy.Action.MessagePrinter" class="py-name" href="#" onclick="return doclink('link-1', 'MessagePrinter', 'link-1');">MessagePrinter</a></tt> </tt>
+<a name="L6"></a><tt class="py-lineno">  6</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-2" class="py-name" targets="Module rempy.DateCondition=rempy.DateCondition-module.html,Class rempy.DateCondition.DateCondition=rempy.DateCondition.DateCondition-class.html,Module rempy.contrib.deferrable.DateCondition=rempy.contrib.deferrable.DateCondition-module.html"><a title="rempy.DateCondition
+rempy.DateCondition.DateCondition
+rempy.contrib.deferrable.DateCondition" class="py-name" href="#" onclick="return doclink('link-2', 'DateCondition', 'link-2');">DateCondition</a></tt> <tt class="py-keyword">import</tt> <tt id="link-3" class="py-name" targets="Class rempy.DateCondition.SatisfyDateCondition=rempy.DateCondition.SatisfyDateCondition-class.html"><a title="rempy.DateCondition.SatisfyDateCondition" class="py-name" href="#" onclick="return doclink('link-3', 'SatisfyDateCondition', 'link-3');">SatisfyDateCondition</a></tt> </tt>
+<a name="L7"></a><tt class="py-lineno">  7</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-4" class="py-name" targets="Module rempy.StringParser=rempy.StringParser-module.html,Class rempy.StringParser.StringParser=rempy.StringParser.StringParser-class.html,Module rempy.contrib.deferrable.StringParser=rempy.contrib.deferrable.StringParser-module.html"><a title="rempy.StringParser
+rempy.StringParser.StringParser
+rempy.contrib.deferrable.StringParser" class="py-name" href="#" onclick="return doclink('link-4', 'StringParser', 'link-4');">StringParser</a></tt> <tt class="py-keyword">import</tt> <tt id="link-5" class="py-name" targets="Class rempy.StringParser.DateConditionParser=rempy.StringParser.DateConditionParser-class.html"><a title="rempy.StringParser.DateConditionParser" class="py-name" href="#" onclick="return doclink('link-5', 'DateConditionParser', 'link-5');">DateConditionParser</a></tt><tt class="py-op">,</tt> <tt id="link-6" class="py-name" targets="Class rempy.StringParser.ReminderParser=rempy.StringParser.ReminderParser-class.html"><a title="rempy.StringParser.ReminderParser" class="py-name" href="#" onclick="return doclink('link-6', 'ReminderParser', 'link-6');">ReminderParser</a></tt> </tt>
+<a name="L8"></a><tt class="py-lineno">  8</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-7" class="py-name" targets="Package rempy.utils=rempy.utils-module.html"><a title="rempy.utils" class="py-name" href="#" onclick="return doclink('link-7', 'utils', 'link-7');">utils</a></tt> <tt class="py-keyword">import</tt> <tt id="link-8" class="py-name" targets="Class rempy.utils.FormatError=rempy.utils.FormatError-class.html"><a title="rempy.utils.FormatError" class="py-name" href="#" onclick="return doclink('link-8', 'FormatError', 'link-8');">FormatError</a></tt> </tt>
+<a name="Reminder"></a><div id="Reminder-def"><a name="L9"></a><tt class="py-lineno">  9</tt>  <tt class="py-line"> </tt>
+<a name="L10"></a><tt class="py-lineno"> 10</tt>  <tt class="py-line"> </tt>
+<a name="L11"></a><tt class="py-lineno"> 11</tt> <a class="py-toggle" href="#" id="Reminder-toggle" onclick="return toggle('Reminder');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="rempy.Reminder.Reminder-class.html">Reminder</a><tt class="py-op">(</tt><tt class="py-base-class">object</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Reminder-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="Reminder-expanded"><a name="L12"></a><tt class="py-lineno"> 12</tt>  <tt class="py-line">  <tt class="py-docstring">'''&#1041;&#1072;&#1079;&#1086;&#1074;&#1099;&#1081; &#1082;&#1083;&#1072;&#1089;&#1089; &#1085;&#1072;&#1087;&#1086;&#1084;&#1080;&#1085;&#1072;&#1083;&#1082;&#1080;.  &#1053;&#1072;&#1087;&#1086;&#1084;&#1080;&#1085;&#1072;&#1083;&#1082;&#1072; &#1086;&#1073;&#1098;&#1077;&#1076;&#1080;&#1085;&#1103;&#1077;&#1090; &#1091;&#1089;&#1083;&#1086;&#1074;&#1080;&#1077;, &#1089;&#1086;&#1075;&#1083;&#1072;&#1089;&#1085;&#1086;</tt> </tt>
+<a name="L13"></a><tt class="py-lineno"> 13</tt>  <tt class="py-line"><tt class="py-docstring">  &#1082;&#1086;&#1090;&#1086;&#1088;&#1086;&#1084;&#1091; &#1074;&#1099;&#1073;&#1080;&#1088;&#1072;&#1102;&#1090;&#1089;&#1103; &#1076;&#1072;&#1090;&#1099;; &#1076;&#1077;&#1081;&#1089;&#1090;&#1074;&#1080;&#1077;, &#1082;&#1086;&#1090;&#1086;&#1088;&#1086;&#1077; &#1085;&#1072;&#1076;&#1086; &#1074;&#1099;&#1087;&#1086;&#1083;&#1085;&#1080;&#1090;&#1100; &#1076;&#1083;&#1103; &#1082;&#1072;&#1078;&#1076;&#1086;&#1081; &#1076;&#1072;&#1090;&#1099;</tt> </tt>
+<a name="L14"></a><tt class="py-lineno"> 14</tt>  <tt class="py-line"><tt class="py-docstring">  (&#1086;&#1073;&#1099;&#1095;&#1085;&#1086; &#1087;&#1077;&#1095;&#1072;&#1090;&#1100; &#1089;&#1086;&#1086;&#1073;&#1097;&#1077;&#1085;&#1080;&#1103;); &#1082;&#1086;&#1083;&#1080;&#1095;&#1077;&#1089;&#1090;&#1074;&#1086; &#1076;&#1085;&#1077;&#1081; &#1076;&#1083;&#1103; &#1079;&#1072;&#1073;&#1083;&#1072;&#1075;&#1086;&#1074;&#1088;&#1077;&#1084;&#1077;&#1085;&#1085;&#1086;&#1075;&#1086;</tt> </tt>
+<a name="L15"></a><tt class="py-lineno"> 15</tt>  <tt class="py-line"><tt class="py-docstring">  &#1087;&#1088;&#1077;&#1076;&#1091;&#1087;&#1088;&#1077;&#1078;&#1076;&#1077;&#1085;&#1080;&#1103; &#1086; &#1089;&#1086;&#1073;&#1099;&#1090;&#1080;&#1080;.</tt> </tt>
+<a name="L16"></a><tt class="py-lineno"> 16</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L17"></a><tt class="py-lineno"> 17</tt>  <tt class="py-line"><tt class="py-docstring">  &#1047;&#1072;&#1084;&#1077;&#1095;&#1072;&#1085;&#1080;&#1103; &#1086; &#1090;&#1077;&#1088;&#1084;&#1080;&#1085;&#1086;&#1083;&#1086;&#1075;&#1080;&#1080;:</tt> </tt>
+<a name="L18"></a><tt class="py-lineno"> 18</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L19"></a><tt class="py-lineno"> 19</tt>  <tt class="py-line"><tt class="py-docstring">    - &#1076;&#1072;&#1090;&#1072; &#1085;&#1072;&#1079;&#1099;&#1074;&#1072;&#1077;&#1090;&#1089;&#1103; &#1087;&#1086;&#1076;&#1087;&#1072;&#1076;&#1072;&#1102;&#1097;&#1077;&#1081; &#1087;&#1086;&#1076; &#1085;&#1072;&#1087;&#1086;&#1084;&#1080;&#1085;&#1072;&#1083;&#1082;&#1091;, &#1077;&#1089;&#1083;&#1080; &#1086;&#1085;&#1072; &#1091;&#1076;&#1086;&#1074;&#1083;&#1077;&#1090;&#1074;&#1086;&#1088;&#1103;&#1077;&#1090;</tt> </tt>
+<a name="L20"></a><tt class="py-lineno"> 20</tt>  <tt class="py-line"><tt class="py-docstring">      &#1091;&#1089;&#1083;&#1086;&#1074;&#1080;&#1102;, &#1079;&#1072;&#1076;&#1072;&#1085;&#1085;&#1086;&#1084;&#1091; &#1074; &#1101;&#1090;&#1086;&#1081; &#1085;&#1072;&#1087;&#1086;&#1084;&#1080;&#1085;&#1072;&#1083;&#1082;&#1077;;</tt> </tt>
+<a name="L21"></a><tt class="py-lineno"> 21</tt>  <tt class="py-line"><tt class="py-docstring">    - &#1089;&#1086;&#1073;&#1099;&#1090;&#1080;&#1077;&#1084; &#1085;&#1072;&#1079;&#1099;&#1074;&#1072;&#1077;&#1090;&#1089;&#1103; &#1089;&#1080;&#1090;&#1091;&#1072;&#1094;&#1080;&#1103;, &#1082;&#1086;&#1075;&#1076;&#1072; &#1079;&#1072;&#1076;&#1072;&#1085;&#1085;&#1072;&#1103; &#1076;&#1072;&#1090;&#1072; &#1087;&#1086;&#1076;&#1087;&#1072;&#1076;&#1072;&#1077;&#1090; &#1087;&#1086;&#1076;</tt> </tt>
+<a name="L22"></a><tt class="py-lineno"> 22</tt>  <tt class="py-line"><tt class="py-docstring">      &#1086;&#1087;&#1088;&#1077;&#1076;&#1077;&#1083;&#1105;&#1085;&#1085;&#1091;&#1102; &#1085;&#1072;&#1087;&#1086;&#1084;&#1080;&#1085;&#1072;&#1083;&#1082;&#1091;::</tt> </tt>
+<a name="L23"></a><tt class="py-lineno"> 23</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L24"></a><tt class="py-lineno"> 24</tt>  <tt class="py-line"><tt class="py-docstring">      event = (date, reminder) | date `matches` reminder</tt> </tt>
+<a name="L25"></a><tt class="py-lineno"> 25</tt>  <tt class="py-line"><tt class="py-docstring">  '''</tt> </tt>
+<a name="L26"></a><tt class="py-lineno"> 26</tt>  <tt class="py-line"> </tt>
+<a name="Reminder.condition"></a><div id="Reminder.condition-def"><a name="L27"></a><tt class="py-lineno"> 27</tt> <a class="py-toggle" href="#" id="Reminder.condition-toggle" onclick="return toggle('Reminder.condition');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="rempy.Reminder.Reminder-class.html#condition">condition</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">runnerMode</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Reminder.condition-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="Reminder.condition-expanded"><a name="L28"></a><tt class="py-lineno"> 28</tt>  <tt class="py-line">    <tt class="py-docstring">'''&#1055;&#1086;&#1083;&#1091;&#1095;&#1080;&#1090;&#1100; &#1091;&#1089;&#1083;&#1086;&#1074;&#1080;&#1077;, &#1089;&#1086;&#1075;&#1083;&#1072;&#1089;&#1085;&#1086; &#1082;&#1086;&#1090;&#1086;&#1088;&#1086;&#1084;&#1091; &#1074;&#1099;&#1073;&#1080;&#1088;&#1072;&#1102;&#1090;&#1089;&#1103; &#1076;&#1072;&#1090;&#1099;</tt> </tt>
+<a name="L29"></a><tt class="py-lineno"> 29</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L30"></a><tt class="py-lineno"> 30</tt>  <tt class="py-line"><tt class="py-docstring">    @param runnerMode: &#1082;&#1086;&#1085;&#1089;&#1090;&#1072;&#1085;&#1090;&#1072; &#1080;&#1079; &#171;&#1087;&#1077;&#1088;&#1077;&#1095;&#1080;&#1089;&#1083;&#1077;&#1085;&#1080;&#1103;&#187; L{RunnerMode&lt;Runner.RunnerMode&gt;}</tt> </tt>
+<a name="L31"></a><tt class="py-lineno"> 31</tt>  <tt class="py-line"><tt class="py-docstring">    @returns: &#1086;&#1073;&#1098;&#1077;&#1082;&#1090; &#1082;&#1083;&#1072;&#1089;&#1089;&#1072; L{DateCondition&lt;DateCondition.DateCondition&gt;}</tt> </tt>
+<a name="L32"></a><tt class="py-lineno"> 32</tt>  <tt class="py-line"><tt class="py-docstring">    '''</tt> </tt>
+<a name="L33"></a><tt class="py-lineno"> 33</tt>  <tt class="py-line">    <tt class="py-keyword">raise</tt> <tt class="py-name">NotImplementedError</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L34"></a><tt class="py-lineno"> 34</tt>  <tt class="py-line"> </tt>
+<a name="Reminder.advanceWarningValue"></a><div id="Reminder.advanceWarningValue-def"><a name="L35"></a><tt class="py-lineno"> 35</tt> <a class="py-toggle" href="#" id="Reminder.advanceWarningValue-toggle" onclick="return toggle('Reminder.advanceWarningValue');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="rempy.Reminder.Reminder-class.html#advanceWarningValue">advanceWarningValue</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Reminder.advanceWarningValue-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="Reminder.advanceWarningValue-expanded"><a name="L36"></a><tt class="py-lineno"> 36</tt>  <tt class="py-line">    <tt class="py-docstring">'''&#1054;&#1095;&#1077;&#1088;&#1077;&#1076;&#1085;&#1086;&#1081; getter.</tt> </tt>
+<a name="L37"></a><tt class="py-lineno"> 37</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L38"></a><tt class="py-lineno"> 38</tt>  <tt class="py-line"><tt class="py-docstring">    @returns: &#1094;&#1077;&#1083;&#1086;&#1095;&#1080;&#1089;&#1083;&#1077;&#1085;&#1085;&#1086;&#1077; &#1082;&#1086;&#1083;&#1080;&#1095;&#1077;&#1089;&#1090;&#1074;&#1086; &#1076;&#1085;&#1077;&#1081; &#1076;&#1083;&#1103; &#1079;&#1072;&#1073;&#1083;&#1072;&#1075;&#1086;&#1074;&#1088;&#1077;&#1084;&#1077;&#1085;&#1085;&#1086;&#1075;&#1086;</tt> </tt>
+<a name="L39"></a><tt class="py-lineno"> 39</tt>  <tt class="py-line"><tt class="py-docstring">      &#1087;&#1088;&#1077;&#1076;&#1091;&#1087;&#1088;&#1077;&#1078;&#1076;&#1077;&#1085;&#1080;&#1103; &#1086; &#1089;&#1086;&#1073;&#1099;&#1090;&#1080;&#1080;</tt> </tt>
+<a name="L40"></a><tt class="py-lineno"> 40</tt>  <tt class="py-line"><tt class="py-docstring">    '''</tt> </tt>
+<a name="L41"></a><tt class="py-lineno"> 41</tt>  <tt class="py-line">    <tt class="py-keyword">raise</tt> <tt class="py-name">NotImplementedError</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L42"></a><tt class="py-lineno"> 42</tt>  <tt class="py-line"> </tt>
+<a name="Reminder.execute"></a><div id="Reminder.execute-def"><a name="L43"></a><tt class="py-lineno"> 43</tt> <a class="py-toggle" href="#" id="Reminder.execute-toggle" onclick="return toggle('Reminder.execute');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="rempy.Reminder.Reminder-class.html#execute">execute</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">date</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Reminder.execute-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="Reminder.execute-expanded"><a name="L44"></a><tt class="py-lineno"> 44</tt>  <tt class="py-line">    <tt class="py-docstring">'''&#1042;&#1099;&#1079;&#1074;&#1072;&#1090;&#1100; &#1089;&#1074;&#1103;&#1079;&#1072;&#1085;&#1085;&#1086;&#1077; &#1089; &#1085;&#1072;&#1087;&#1086;&#1084;&#1080;&#1085;&#1072;&#1083;&#1082;&#1086;&#1081; &#1076;&#1077;&#1081;&#1089;&#1090;&#1074;&#1080;&#1077; &#1076;&#1083;&#1103; &#1076;&#1072;&#1085;&#1085;&#1086;&#1081; &#1076;&#1072;&#1090;&#1099;</tt> </tt>
+<a name="L45"></a><tt class="py-lineno"> 45</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L46"></a><tt class="py-lineno"> 46</tt>  <tt class="py-line"><tt class="py-docstring">    @param date: &#1086;&#1073;&#1098;&#1077;&#1082;&#1090; &#1082;&#1083;&#1072;&#1089;&#1089;&#1072; C{datetime.date}</tt> </tt>
+<a name="L47"></a><tt class="py-lineno"> 47</tt>  <tt class="py-line"><tt class="py-docstring">    '''</tt> </tt>
+<a name="L48"></a><tt class="py-lineno"> 48</tt>  <tt class="py-line">    <tt class="py-keyword">raise</tt> <tt class="py-name">NotImplementedError</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+</div></div><a name="L49"></a><tt class="py-lineno"> 49</tt>  <tt class="py-line"> </tt>
+<a name="BasicReminder"></a><div id="BasicReminder-def"><a name="L50"></a><tt class="py-lineno"> 50</tt>  <tt class="py-line"> </tt>
+<a name="L51"></a><tt class="py-lineno"> 51</tt> <a class="py-toggle" href="#" id="BasicReminder-toggle" onclick="return toggle('BasicReminder');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="rempy.Reminder.BasicReminder-class.html">BasicReminder</a><tt class="py-op">(</tt><tt class="py-base-class">Reminder</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BasicReminder-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="BasicReminder-expanded"><a name="L52"></a><tt class="py-lineno"> 52</tt>  <tt class="py-line">  <tt class="py-docstring">'''&#1055;&#1088;&#1086;&#1089;&#1090;&#1077;&#1081;&#1096;&#1072;&#1103; &#1088;&#1077;&#1072;&#1083;&#1080;&#1079;&#1072;&#1094;&#1080;&#1103; &#1082;&#1083;&#1072;&#1089;&#1089;&#1072; L{Reminder}'''</tt> </tt>
+<a name="L53"></a><tt class="py-lineno"> 53</tt>  <tt class="py-line"> </tt>
+<a name="BasicReminder.__init__"></a><div id="BasicReminder.__init__-def"><a name="L54"></a><tt class="py-lineno"> 54</tt> <a class="py-toggle" href="#" id="BasicReminder.__init__-toggle" onclick="return toggle('BasicReminder.__init__');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="rempy.Reminder.BasicReminder-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">dateCondition</tt><tt class="py-op">,</tt> <tt class="py-param">action</tt><tt class="py-op">,</tt> <tt class="py-param">advanceWarningValue</tt><tt class="py-op">=</tt><tt class="py-number">0</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BasicReminder.__init__-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="BasicReminder.__init__-expanded"><a name="L55"></a><tt class="py-lineno"> 55</tt>  <tt class="py-line">    <tt class="py-docstring">'''&#1050;&#1086;&#1085;&#1089;&#1090;&#1088;&#1091;&#1082;&#1090;&#1086;&#1088;</tt> </tt>
+<a name="L56"></a><tt class="py-lineno"> 56</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L57"></a><tt class="py-lineno"> 57</tt>  <tt class="py-line"><tt class="py-docstring">    @param dateCondition: &#1086;&#1073;&#1098;&#1077;&#1082;&#1090; &#1082;&#1083;&#1072;&#1089;&#1089;&#1072; L{DateCondition&lt;DateCondition.DateCondition&gt;}</tt> </tt>
+<a name="L58"></a><tt class="py-lineno"> 58</tt>  <tt class="py-line"><tt class="py-docstring">    @param action: &#1086;&#1073;&#1098;&#1077;&#1082;&#1090; &#1082;&#1083;&#1072;&#1089;&#1089;&#1072; L{Action&lt;Action.Action&gt;}</tt> </tt>
+<a name="L59"></a><tt class="py-lineno"> 59</tt>  <tt class="py-line"><tt class="py-docstring">    @param advanceWarningValue: &#1085;&#1077;&#1086;&#1090;&#1088;&#1080;&#1094;&#1072;&#1090;&#1077;&#1083;&#1100;&#1085;&#1086;&#1077; &#1094;&#1077;&#1083;&#1086;&#1095;&#1080;&#1089;&#1083;&#1077;&#1085;&#1085;&#1086;&#1077; &#1079;&#1085;&#1072;&#1095;&#1077;&#1085;&#1080;&#1077;,</tt> </tt>
+<a name="L60"></a><tt class="py-lineno"> 60</tt>  <tt class="py-line"><tt class="py-docstring">      &#1079;&#1072;&#1076;&#1072;&#1102;&#1097;&#1077;&#1077; &#1082;&#1086;&#1083;&#1080;&#1095;&#1077;&#1089;&#1090;&#1074;&#1086; &#1076;&#1085;&#1077;&#1081; &#1076;&#1083;&#1103; &#1087;&#1088;&#1077;&#1076;&#1074;&#1072;&#1088;&#1080;&#1090;&#1077;&#1083;&#1100;&#1085;&#1086;&#1075;&#1086; &#1087;&#1088;&#1077;&#1076;&#1091;&#1087;&#1088;&#1077;&#1078;&#1076;&#1077;&#1085;&#1080;&#1103; &#1086; &#1089;&#1086;&#1073;&#1099;&#1090;&#1080;&#1080;</tt> </tt>
+<a name="L61"></a><tt class="py-lineno"> 61</tt>  <tt class="py-line"><tt class="py-docstring">    '''</tt> </tt>
+<a name="L62"></a><tt class="py-lineno"> 62</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt id="link-9" class="py-name" targets="Method rempy.Reminder.BasicReminder.advanceWarningValue()=rempy.Reminder.BasicReminder-class.html#advanceWarningValue,Method rempy.Reminder.Reminder.advanceWarningValue()=rempy.Reminder.Reminder-class.html#advanceWarningValue,Method rempy.StringParser.ReminderParser._AdvanceWarningParser.advanceWarningValue()=rempy.StringParser.ReminderParser._AdvanceWarningParser-class.html#advanceWarningValue,Method rempy.StringParser.ReminderParser.advanceWarningValue()=rempy.StringParser.ReminderParser-class.html#advanceWarningValue,Method rempy.contrib.deferrable.Reminder.DeferrableReminder.advanceWarningValue()=rempy.contrib.deferrable.Reminder.DeferrableReminder-class.html#advanceWarningValue"><a title="rempy.Reminder.BasicReminder.advanceWarningValue
+rempy.Reminder.Reminder.advanceWarningValue
+rempy.StringParser.ReminderParser._AdvanceWarningParser.advanceWarningValue
+rempy.StringParser.ReminderParser.advanceWarningValue
+rempy.contrib.deferrable.Reminder.DeferrableReminder.advanceWarningValue" class="py-name" href="#" onclick="return doclink('link-9', 'advanceWarningValue', 'link-9');">advanceWarningValue</a></tt> <tt class="py-op">&lt;</tt> <tt class="py-number">0</tt><tt class="py-op">:</tt> </tt>
+<a name="L63"></a><tt class="py-lineno"> 63</tt>  <tt class="py-line">      <tt class="py-keyword">raise</tt> <tt class="py-name">ValueError</tt><tt class="py-op">(</tt><tt class="py-string">'Advance warning value must not be negative'</tt><tt class="py-op">)</tt> </tt>
+<a name="L64"></a><tt class="py-lineno"> 64</tt>  <tt class="py-line">    <tt class="py-name">super</tt><tt class="py-op">(</tt><tt id="link-10" class="py-name" targets="Class rempy.Reminder.BasicReminder=rempy.Reminder.BasicReminder-class.html"><a title="rempy.Reminder.BasicReminder" class="py-name" href="#" onclick="return doclink('link-10', 'BasicReminder', 'link-10');">BasicReminder</a></tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt id="link-11" class="py-name" targets="Method rempy.Action.MessagePrinter.__init__()=rempy.Action.MessagePrinter-class.html#__init__,Method rempy.DateCondition.CombinedDateCondition.__init__()=rempy.DateCondition.CombinedDateCondition-class.html#__init__,Method rempy.DateCondition.LimitedDateCondition.__init__()=rempy.DateCondition.LimitedDateCondition-class.html#__init__,Method rempy.DateCondition.RepeatDateCondition.__init__()=rempy.DateCondition.RepeatDateCondition-class.html#__init__,Method rempy.DateCondition.SatisfyDateCondition.Test.__Odd.__init__()=rempy.DateCondition.SatisfyDateCondition.Test.__Odd-class.html#__init__,Method rempy.DateCondition.SatisfyDateCondition.__init__()=rempy.DateCondition.SatisfyDateCondition-class.html#__init__,Method rempy.DateCondition.ShiftDateCondition.__init__()=rempy.DateCondition.ShiftDateCondition-class.html#__init__,Method rempy.DateCondition.SimpleDateCondition._DayGeneratorHelper.__init__()=rempy.DateCondition.SimpleDateCondition._DayGeneratorHelper-class.html#__init__,Method rempy.DateCondition.SimpleDateCondition._SimpleDayGeneratorHelper.__init__()=rempy.DateCondition.SimpleDateCondition._SimpleDayGeneratorHelper-class.html#__init__,Method rempy.DateCondition.SimpleDateCondition._WeekdaysDayGeneratorHelper.__init__()=rempy.DateCondition.SimpleDateCondition._WeekdaysDayGeneratorHelper-class.html#__init__,Method rempy.DateCondition.SimpleDateCondition.__init__()=rempy.DateCondition.SimpleDateCondition-class.html#__init__,Method rempy.Reminder.BasicReminder.__init__()=rempy.Reminder.BasicReminder-class.html#__init__,Method rempy.Reminder.ShortcutReminder.__init__()=rempy.Reminder.ShortcutReminder-class.html#__init__,Method rempy.Runner.Runner.__init__()=rempy.Runner.Runner-class.html#__init__,Method rempy.StringParser.ChainData.__init__()=rempy.StringParser.ChainData-class.html#__init__,Method rempy.StringParser.DateConditionParser._DeltaParser.__init__()=rempy.StringParser.DateConditionParser._DeltaParser-class.html#__init__,Method rempy.StringParser.DateConditionParser._RepeatParser.__init__()=rempy.StringParser.DateConditionParser._RepeatParser-class.html#__init__,Method rempy.StringParser.DateConditionParser._SimpleDate.__init__()=rempy.StringParser.DateConditionParser._SimpleDate-class.html#__init__,Method rempy.StringParser.DateConditionParser.__init__()=rempy.StringParser.DateConditionParser-class.html#__init__,Method rempy.StringParser.DateNamedOptionParser.__init__()=rempy.StringParser.DateNamedOptionParser-class.html#__init__,Method rempy.StringParser.ReminderParser._AdvanceWarningParser.__init__()=rempy.StringParser.ReminderParser._AdvanceWarningParser-class.html#__init__,Method rempy.StringParser.ReminderParser.__init__()=rempy.StringParser.ReminderParser-class.html#__init__,Method rempy.contrib.deferrable.DateCondition.DeferrableDateCondition.__init__()=rempy.contrib.deferrable.DateCondition.DeferrableDateCondition-class.html#__init__,Method rempy.contrib.deferrable.Reminder.DeferrableReminder.__init__()=rempy.contrib.deferrable.Reminder.DeferrableReminder-class.html#__init__,Method rempy.contrib.deferrable.StringParser.DeferrableParser.__init__()=rempy.contrib.deferrable.StringParser.DeferrableParser-class.html#__init__,Method rempy.utils.dates.UnsafeDate.__init__()=rempy.utils.dates.UnsafeDate-class.html#__init__,Method rempy.utils.strings.TokenWithPosition.__init__()=rempy.utils.strings.TokenWithPosition-class.html#__init__"><a title="rempy.Action.MessagePrinter.__init__
+rempy.DateCondition.CombinedDateCondition.__init__
+rempy.DateCondition.LimitedDateCondition.__init__
+rempy.DateCondition.RepeatDateCondition.__init__
+rempy.DateCondition.SatisfyDateCondition.Test.__Odd.__init__
+rempy.DateCondition.SatisfyDateCondition.__init__
+rempy.DateCondition.ShiftDateCondition.__init__
+rempy.DateCondition.SimpleDateCondition._DayGeneratorHelper.__init__
+rempy.DateCondition.SimpleDateCondition._SimpleDayGeneratorHelper.__init__
+rempy.DateCondition.SimpleDateCondition._WeekdaysDayGeneratorHelper.__init__
+rempy.DateCondition.SimpleDateCondition.__init__
+rempy.Reminder.BasicReminder.__init__
+rempy.Reminder.ShortcutReminder.__init__
+rempy.Runner.Runner.__init__
+rempy.StringParser.ChainData.__init__
+rempy.StringParser.DateConditionParser._DeltaParser.__init__
+rempy.StringParser.DateConditionParser._RepeatParser.__init__
+rempy.StringParser.DateConditionParser._SimpleDate.__init__
+rempy.StringParser.DateConditionParser.__init__
+rempy.StringParser.DateNamedOptionParser.__init__
+rempy.StringParser.ReminderParser._AdvanceWarningParser.__init__
+rempy.StringParser.ReminderParser.__init__
+rempy.contrib.deferrable.DateCondition.DeferrableDateCondition.__init__
+rempy.contrib.deferrable.Reminder.DeferrableReminder.__init__
+rempy.contrib.deferrable.StringParser.DeferrableParser.__init__
+rempy.utils.dates.UnsafeDate.__init__
+rempy.utils.strings.TokenWithPosition.__init__" class="py-name" href="#" onclick="return doclink('link-11', '__init__', 'link-11');">__init__</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L65"></a><tt class="py-lineno"> 65</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">cond</tt> <tt class="py-op">=</tt> <tt class="py-name">dateCondition</tt> </tt>
+<a name="L66"></a><tt class="py-lineno"> 66</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">action</tt> <tt class="py-op">=</tt> <tt class="py-name">action</tt> </tt>
+<a name="L67"></a><tt class="py-lineno"> 67</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">adv</tt> <tt class="py-op">=</tt> <tt id="link-12" class="py-name"><a title="rempy.Reminder.BasicReminder.advanceWarningValue
+rempy.Reminder.Reminder.advanceWarningValue
+rempy.StringParser.ReminderParser._AdvanceWarningParser.advanceWarningValue
+rempy.StringParser.ReminderParser.advanceWarningValue
+rempy.contrib.deferrable.Reminder.DeferrableReminder.advanceWarningValue" class="py-name" href="#" onclick="return doclink('link-12', 'advanceWarningValue', 'link-9');">advanceWarningValue</a></tt> </tt>
+</div><a name="L68"></a><tt class="py-lineno"> 68</tt>  <tt class="py-line"> </tt>
+<a name="BasicReminder.condition"></a><div id="BasicReminder.condition-def"><a name="L69"></a><tt class="py-lineno"> 69</tt> <a class="py-toggle" href="#" id="BasicReminder.condition-toggle" onclick="return toggle('BasicReminder.condition');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="rempy.Reminder.BasicReminder-class.html#condition">condition</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">runnerMode</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BasicReminder.condition-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="BasicReminder.condition-expanded"><a name="L70"></a><tt class="py-lineno"> 70</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">cond</tt> </tt>
+</div><a name="L71"></a><tt class="py-lineno"> 71</tt>  <tt class="py-line"> </tt>
+<a name="BasicReminder.advanceWarningValue"></a><div id="BasicReminder.advanceWarningValue-def"><a name="L72"></a><tt class="py-lineno"> 72</tt> <a class="py-toggle" href="#" id="BasicReminder.advanceWarningValue-toggle" onclick="return toggle('BasicReminder.advanceWarningValue');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="rempy.Reminder.BasicReminder-class.html#advanceWarningValue">advanceWarningValue</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BasicReminder.advanceWarningValue-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="BasicReminder.advanceWarningValue-expanded"><a name="L73"></a><tt class="py-lineno"> 73</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">adv</tt> </tt>
+</div><a name="L74"></a><tt class="py-lineno"> 74</tt>  <tt class="py-line"> </tt>
+<a name="BasicReminder.execute"></a><div id="BasicReminder.execute-def"><a name="L75"></a><tt class="py-lineno"> 75</tt> <a class="py-toggle" href="#" id="BasicReminder.execute-toggle" onclick="return toggle('BasicReminder.execute');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="rempy.Reminder.BasicReminder-class.html#execute">execute</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">date</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BasicReminder.execute-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="BasicReminder.execute-expanded"><a name="L76"></a><tt class="py-lineno"> 76</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">action</tt><tt class="py-op">(</tt><tt class="py-name">date</tt><tt class="py-op">)</tt> </tt>
+</div></div><a name="L77"></a><tt class="py-lineno"> 77</tt>  <tt class="py-line"> </tt>
+<a name="ShortcutReminder"></a><div id="ShortcutReminder-def"><a name="L78"></a><tt class="py-lineno"> 78</tt>  <tt class="py-line"> </tt>
+<a name="L79"></a><tt class="py-lineno"> 79</tt> <a class="py-toggle" href="#" id="ShortcutReminder-toggle" onclick="return toggle('ShortcutReminder');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="rempy.Reminder.ShortcutReminder-class.html">ShortcutReminder</a><tt class="py-op">(</tt><tt class="py-base-class">BasicReminder</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ShortcutReminder-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="ShortcutReminder-expanded"><a name="L80"></a><tt class="py-lineno"> 80</tt>  <tt class="py-line">  <tt class="py-docstring">'''&#1055;&#1088;&#1086;&#1089;&#1090;&#1072;&#1103; &#1088;&#1077;&#1072;&#1083;&#1080;&#1079;&#1072;&#1094;&#1080;&#1103; &#1082;&#1083;&#1072;&#1089;&#1089;&#1072; L{Reminder}, &#1082;&#1086;&#1090;&#1086;&#1088;&#1072;&#1103; &#1076;&#1086;&#1087;&#1091;&#1089;&#1082;&#1072;&#1077;&#1090; &#1087;&#1077;&#1088;&#1077;&#1076;&#1072;&#1095;&#1091; &#1074;</tt> </tt>
+<a name="L81"></a><tt class="py-lineno"> 81</tt>  <tt class="py-line"><tt class="py-docstring">  &#1082;&#1086;&#1085;&#1089;&#1090;&#1088;&#1091;&#1082;&#1090;&#1086;&#1088; &#1089;&#1090;&#1088;&#1086;&#1082; &#1080; &#1074;&#1099;&#1087;&#1086;&#1083;&#1085;&#1103;&#1077;&#1090; &#1080;&#1093; &#1088;&#1072;&#1079;&#1073;&#1086;&#1088; &#1089; &#1080;&#1089;&#1087;&#1086;&#1083;&#1100;&#1079;&#1086;&#1074;&#1072;&#1085;&#1080;&#1077;&#1084; &#1084;&#1086;&#1076;&#1091;&#1083;&#1103;</tt> </tt>
+<a name="L82"></a><tt class="py-lineno"> 82</tt>  <tt class="py-line"><tt class="py-docstring">  L{StringParser}.  &#1042; &#1073;&#1086;&#1083;&#1100;&#1096;&#1080;&#1085;&#1089;&#1090;&#1074;&#1077; &#1089;&#1083;&#1091;&#1095;&#1072;&#1077;&#1074; &#1079;&#1072;&#1076;&#1072;&#1074;&#1072;&#1090;&#1100; &#1091;&#1089;&#1083;&#1086;&#1074;&#1080;&#1103; &#1089;&#1090;&#1088;&#1086;&#1082;&#1086;&#1081; &#1085;&#1072;&#1084;&#1085;&#1086;&#1075;&#1086;</tt> </tt>
+<a name="L83"></a><tt class="py-lineno"> 83</tt>  <tt class="py-line"><tt class="py-docstring">  &#1091;&#1076;&#1086;&#1073;&#1085;&#1077;&#1077;, &#1095;&#1077;&#1084; &#1074;&#1088;&#1091;&#1095;&#1085;&#1091;&#1102; &#1082;&#1086;&#1085;&#1089;&#1090;&#1088;&#1091;&#1080;&#1088;&#1086;&#1074;&#1072;&#1090;&#1100; &#1085;&#1080;&#1078;&#1077;&#1083;&#1077;&#1078;&#1072;&#1097;&#1080;&#1077; &#1082;&#1083;&#1072;&#1089;&#1089;&#1099;.</tt> </tt>
+<a name="L84"></a><tt class="py-lineno"> 84</tt>  <tt class="py-line"><tt class="py-docstring">  '''</tt> </tt>
+<a name="L85"></a><tt class="py-lineno"> 85</tt>  <tt class="py-line"> </tt>
+<a name="ShortcutReminder.__init__"></a><div id="ShortcutReminder.__init__-def"><a name="L86"></a><tt class="py-lineno"> 86</tt> <a class="py-toggle" href="#" id="ShortcutReminder.__init__-toggle" onclick="return toggle('ShortcutReminder.__init__');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="rempy.Reminder.ShortcutReminder-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">dateCondition</tt><tt class="py-op">,</tt> <tt class="py-param">action</tt><tt class="py-op">,</tt> <tt class="py-param">advanceWarningValue</tt><tt class="py-op">=</tt><tt class="py-number">0</tt><tt class="py-op">,</tt> <tt class="py-param">satisfy</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ShortcutReminder.__init__-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="ShortcutReminder.__init__-expanded"><a name="L87"></a><tt class="py-lineno"> 87</tt>  <tt class="py-line">    <tt class="py-docstring">'''&#1050;&#1086;&#1085;&#1089;&#1090;&#1088;&#1091;&#1082;&#1090;&#1086;&#1088;</tt> </tt>
+<a name="L88"></a><tt class="py-lineno"> 88</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L89"></a><tt class="py-lineno"> 89</tt>  <tt class="py-line"><tt class="py-docstring">    @param dateCondition: &#1054;&#1073;&#1098;&#1077;&#1082;&#1090; &#1082;&#1083;&#1072;&#1089;&#1089;&#1072; L{DateCondition&lt;DateCondition.DateCondition&gt;}</tt> </tt>
+<a name="L90"></a><tt class="py-lineno"> 90</tt>  <tt class="py-line"><tt class="py-docstring">      &#1080;&#1083;&#1080; &#1089;&#1090;&#1088;&#1086;&#1082;&#1072;.  &#1042; &#1087;&#1086;&#1089;&#1083;&#1077;&#1076;&#1085;&#1077;&#1084; &#1089;&#1083;&#1091;&#1095;&#1072;&#1077; &#1091;&#1089;&#1083;&#1086;&#1074;&#1080;&#1077; &#1082;&#1086;&#1085;&#1089;&#1090;&#1088;&#1091;&#1080;&#1088;&#1091;&#1077;&#1090;&#1089;&#1103; &#1089; &#1080;&#1089;&#1087;&#1086;&#1083;&#1100;&#1079;&#1086;&#1074;&#1072;&#1085;&#1080;&#1077;&#1084;</tt> </tt>
+<a name="L91"></a><tt class="py-lineno"> 91</tt>  <tt class="py-line"><tt class="py-docstring">      &#1086;&#1073;&#1098;&#1077;&#1082;&#1090;&#1072; &#1082;&#1083;&#1072;&#1089;&#1089;&#1072; L{DateConditionParser&lt;StringParser.DateConditionParser&gt;}.</tt> </tt>
+<a name="L92"></a><tt class="py-lineno"> 92</tt>  <tt class="py-line"><tt class="py-docstring">    @param action: &#1054;&#1073;&#1098;&#1077;&#1082;&#1090; &#1082;&#1083;&#1072;&#1089;&#1089;&#1072; L{Action&lt;Action.Action&gt;} &#1080;&#1083;&#1080; &#1089;&#1090;&#1088;&#1086;&#1082;&#1072;.  &#1042;</tt> </tt>
+<a name="L93"></a><tt class="py-lineno"> 93</tt>  <tt class="py-line"><tt class="py-docstring">      &#1087;&#1086;&#1089;&#1083;&#1077;&#1076;&#1085;&#1077;&#1084; &#1089;&#1083;&#1091;&#1095;&#1072;&#1077; &#1074; &#1082;&#1072;&#1095;&#1077;&#1089;&#1090;&#1074;&#1077; &#1076;&#1077;&#1081;&#1089;&#1090;&#1074;&#1080;&#1103; &#1080;&#1089;&#1087;&#1086;&#1083;&#1100;&#1079;&#1091;&#1077;&#1090;&#1089;&#1103; &#1086;&#1073;&#1098;&#1077;&#1082;&#1090; &#1082;&#1083;&#1072;&#1089;&#1089;&#1072;</tt> </tt>
+<a name="L94"></a><tt class="py-lineno"> 94</tt>  <tt class="py-line"><tt class="py-docstring">      L{MessagePrinter&lt;Action.MessagePrinter&gt;}, &#1082;&#1086;&#1090;&#1086;&#1088;&#1086;&#1084;&#1091; &#1079;&#1072;&#1076;&#1072;&#1085;&#1085;&#1072;&#1103; &#1089;&#1090;&#1088;&#1086;&#1082;&#1072;</tt> </tt>
+<a name="L95"></a><tt class="py-lineno"> 95</tt>  <tt class="py-line"><tt class="py-docstring">      &#1087;&#1077;&#1088;&#1077;&#1076;&#1072;&#1105;&#1090;&#1089;&#1103; &#1074; &#1082;&#1072;&#1095;&#1077;&#1089;&#1090;&#1074;&#1077; &#1089;&#1086;&#1086;&#1073;&#1097;&#1077;&#1085;&#1080;&#1103; &#1076;&#1083;&#1103; &#1074;&#1099;&#1074;&#1086;&#1076;&#1072;.</tt> </tt>
+<a name="L96"></a><tt class="py-lineno"> 96</tt>  <tt class="py-line"><tt class="py-docstring">    @param advanceWarningValue: &#1085;&#1077;&#1086;&#1090;&#1088;&#1080;&#1094;&#1072;&#1090;&#1077;&#1083;&#1100;&#1085;&#1086;&#1077; &#1094;&#1077;&#1083;&#1086;&#1095;&#1080;&#1089;&#1083;&#1077;&#1085;&#1085;&#1086;&#1077; &#1079;&#1085;&#1072;&#1095;&#1077;&#1085;&#1080;&#1077;,</tt> </tt>
+<a name="L97"></a><tt class="py-lineno"> 97</tt>  <tt class="py-line"><tt class="py-docstring">      &#1079;&#1072;&#1076;&#1072;&#1102;&#1097;&#1077;&#1077; &#1082;&#1086;&#1083;&#1080;&#1095;&#1077;&#1089;&#1090;&#1074;&#1086; &#1076;&#1085;&#1077;&#1081; &#1076;&#1083;&#1103; &#1079;&#1072;&#1073;&#1083;&#1072;&#1075;&#1086;&#1074;&#1088;&#1077;&#1084;&#1077;&#1085;&#1085;&#1086;&#1075;&#1086; &#1087;&#1088;&#1077;&#1076;&#1091;&#1087;&#1088;&#1077;&#1078;&#1076;&#1077;&#1085;&#1080;&#1103; &#1086; &#1089;&#1086;&#1073;&#1099;&#1090;&#1080;&#1080;.</tt> </tt>
+<a name="L98"></a><tt class="py-lineno"> 98</tt>  <tt class="py-line"><tt class="py-docstring">    @param satisfy: &#1077;&#1089;&#1083;&#1080; &#1085;&#1077; C{None}, &#1079;&#1072;&#1076;&#1072;&#1105;&#1090; &#1092;&#1091;&#1085;&#1082;&#1094;&#1080;&#1102; &#1076;&#1083;&#1103; &#1076;&#1086;&#1087;&#1086;&#1083;&#1085;&#1080;&#1090;&#1077;&#1083;&#1100;&#1085;&#1086;&#1075;&#1086; &#1086;&#1090;&#1089;&#1077;&#1074;&#1072;</tt> </tt>
+<a name="L99"></a><tt class="py-lineno"> 99</tt>  <tt class="py-line"><tt class="py-docstring">      &#1076;&#1072;&#1090;.  &#1060;&#1091;&#1085;&#1082;&#1094;&#1080;&#1103; &#1076;&#1086;&#1083;&#1078;&#1085;&#1072; &#1087;&#1088;&#1080;&#1085;&#1080;&#1084;&#1072;&#1090;&#1100; &#1086;&#1073;&#1098;&#1077;&#1082;&#1090; &#1082;&#1083;&#1072;&#1089;&#1089;&#1072; C{datetime.date} &#1080; &#1074;&#1086;&#1079;&#1074;&#1088;&#1072;&#1097;&#1072;&#1090;&#1100;</tt> </tt>
+<a name="L100"></a><tt class="py-lineno">100</tt>  <tt class="py-line"><tt class="py-docstring">      C{True} &#1080;&#1083;&#1080; C{False} &#1074; &#1079;&#1072;&#1074;&#1080;&#1089;&#1080;&#1084;&#1086;&#1089;&#1090;&#1080; &#1086;&#1090; &#1090;&#1086;&#1075;&#1086;, &#1085;&#1091;&#1078;&#1085;&#1086; &#1083;&#1080; &#1089;&#1095;&#1080;&#1090;&#1072;&#1090;&#1100; &#1076;&#1072;&#1090;&#1091;</tt> </tt>
+<a name="L101"></a><tt class="py-lineno">101</tt>  <tt class="py-line"><tt class="py-docstring">      &#1087;&#1086;&#1076;&#1087;&#1072;&#1076;&#1072;&#1102;&#1097;&#1077;&#1081; &#1087;&#1086;&#1076; &#1085;&#1072;&#1087;&#1086;&#1084;&#1080;&#1085;&#1072;&#1090;&#1077;&#1083;&#1100;.</tt> </tt>
+<a name="L102"></a><tt class="py-lineno">102</tt>  <tt class="py-line"><tt class="py-docstring">    '''</tt> </tt>
+<a name="L103"></a><tt class="py-lineno">103</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">isinstance</tt><tt class="py-op">(</tt><tt class="py-name">dateCondition</tt><tt class="py-op">,</tt> <tt class="py-name">basestring</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L104"></a><tt class="py-lineno">104</tt>  <tt class="py-line">      <tt class="py-name">dateCondition</tt> <tt class="py-op">=</tt> <tt id="link-13" class="py-name"><a title="rempy.StringParser.DateConditionParser" class="py-name" href="#" onclick="return doclink('link-13', 'DateConditionParser', 'link-5');">DateConditionParser</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt id="link-14" class="py-name" targets="Method rempy.StringParser.DateConditionParser.parse()=rempy.StringParser.DateConditionParser-class.html#parse,Method rempy.StringParser.ReminderParser.parse()=rempy.StringParser.ReminderParser-class.html#parse,Method rempy.StringParser.StringParser.parse()=rempy.StringParser.StringParser-class.html#parse,Method rempy.contrib.deferrable.StringParser.DeferrableParser.parse()=rempy.contrib.deferrable.StringParser.DeferrableParser-class.html#parse"><a title="rempy.StringParser.DateConditionParser.parse
+rempy.StringParser.ReminderParser.parse
+rempy.StringParser.StringParser.parse
+rempy.contrib.deferrable.StringParser.DeferrableParser.parse" class="py-name" href="#" onclick="return doclink('link-14', 'parse', 'link-14');">parse</a></tt><tt class="py-op">(</tt><tt class="py-name">dateCondition</tt><tt class="py-op">)</tt> </tt>
+<a name="L105"></a><tt class="py-lineno">105</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">satisfy</tt> <tt class="py-keyword">is</tt> <tt class="py-keyword">not</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L106"></a><tt class="py-lineno">106</tt>  <tt class="py-line">      <tt class="py-name">dateCondition</tt> <tt class="py-op">=</tt> <tt id="link-15" class="py-name"><a title="rempy.DateCondition.SatisfyDateCondition" class="py-name" href="#" onclick="return doclink('link-15', 'SatisfyDateCondition', 'link-3');">SatisfyDateCondition</a></tt><tt class="py-op">(</tt><tt class="py-name">dateCondition</tt><tt class="py-op">,</tt> <tt class="py-name">satisfy</tt><tt class="py-op">)</tt> </tt>
+<a name="L107"></a><tt class="py-lineno">107</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">isinstance</tt><tt class="py-op">(</tt><tt class="py-name">action</tt><tt class="py-op">,</tt> <tt class="py-name">basestring</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L108"></a><tt class="py-lineno">108</tt>  <tt class="py-line">      <tt class="py-name">action</tt> <tt class="py-op">=</tt> <tt id="link-16" class="py-name"><a title="rempy.Action.MessagePrinter" class="py-name" href="#" onclick="return doclink('link-16', 'MessagePrinter', 'link-1');">MessagePrinter</a></tt><tt class="py-op">(</tt><tt class="py-name">action</tt><tt class="py-op">)</tt> </tt>
+<a name="L109"></a><tt class="py-lineno">109</tt>  <tt class="py-line">    <tt class="py-name">super</tt><tt class="py-op">(</tt><tt id="link-17" class="py-name" targets="Class rempy.Reminder.ShortcutReminder=rempy.Reminder.ShortcutReminder-class.html"><a title="rempy.Reminder.ShortcutReminder" class="py-name" href="#" onclick="return doclink('link-17', 'ShortcutReminder', 'link-17');">ShortcutReminder</a></tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt id="link-18" class="py-name"><a title="rempy.Action.MessagePrinter.__init__
+rempy.DateCondition.CombinedDateCondition.__init__
+rempy.DateCondition.LimitedDateCondition.__init__
+rempy.DateCondition.RepeatDateCondition.__init__
+rempy.DateCondition.SatisfyDateCondition.Test.__Odd.__init__
+rempy.DateCondition.SatisfyDateCondition.__init__
+rempy.DateCondition.ShiftDateCondition.__init__
+rempy.DateCondition.SimpleDateCondition._DayGeneratorHelper.__init__
+rempy.DateCondition.SimpleDateCondition._SimpleDayGeneratorHelper.__init__
+rempy.DateCondition.SimpleDateCondition._WeekdaysDayGeneratorHelper.__init__
+rempy.DateCondition.SimpleDateCondition.__init__
+rempy.Reminder.BasicReminder.__init__
+rempy.Reminder.ShortcutReminder.__init__
+rempy.Runner.Runner.__init__
+rempy.StringParser.ChainData.__init__
+rempy.StringParser.DateConditionParser._DeltaParser.__init__
+rempy.StringParser.DateConditionParser._RepeatParser.__init__
+rempy.StringParser.DateConditionParser._SimpleDate.__init__
+rempy.StringParser.DateConditionParser.__init__
+rempy.StringParser.DateNamedOptionParser.__init__
+rempy.StringParser.ReminderParser._AdvanceWarningParser.__init__
+rempy.StringParser.ReminderParser.__init__
+rempy.contrib.deferrable.DateCondition.DeferrableDateCondition.__init__
+rempy.contrib.deferrable.Reminder.DeferrableReminder.__init__
+rempy.contrib.deferrable.StringParser.DeferrableParser.__init__
+rempy.utils.dates.UnsafeDate.__init__
+rempy.utils.strings.TokenWithPosition.__init__" class="py-name" href="#" onclick="return doclink('link-18', '__init__', 'link-11');">__init__</a></tt><tt class="py-op">(</tt><tt class="py-name">dateCondition</tt><tt class="py-op">,</tt> <tt class="py-name">action</tt><tt class="py-op">,</tt> <tt id="link-19" class="py-name"><a title="rempy.Reminder.BasicReminder.advanceWarningValue
+rempy.Reminder.Reminder.advanceWarningValue
+rempy.StringParser.ReminderParser._AdvanceWarningParser.advanceWarningValue
+rempy.StringParser.ReminderParser.advanceWarningValue
+rempy.contrib.deferrable.Reminder.DeferrableReminder.advanceWarningValue" class="py-name" href="#" onclick="return doclink('link-19', 'advanceWarningValue', 'link-9');">advanceWarningValue</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L110"></a><tt class="py-lineno">110</tt>  <tt class="py-line"> </tt>
+<a name="L111"></a><tt class="py-lineno">111</tt>  <tt class="py-line">  <tt class="py-decorator">@</tt><tt class="py-decorator">staticmethod</tt> </tt>
+<a name="ShortcutReminder.fromString"></a><div id="ShortcutReminder.fromString-def"><a name="L112"></a><tt class="py-lineno">112</tt> <a class="py-toggle" href="#" id="ShortcutReminder.fromString-toggle" onclick="return toggle('ShortcutReminder.fromString');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="rempy.Reminder.ShortcutReminder-class.html#fromString">fromString</a><tt class="py-op">(</tt><tt class="py-param">dateCondition</tt><tt class="py-op">,</tt> <tt class="py-param">action</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">,</tt> <tt class="py-param">advanceWarningValue</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">,</tt> <tt class="py-param">satisfy</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ShortcutReminder.fromString-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="ShortcutReminder.fromString-expanded"><a name="L113"></a><tt class="py-lineno">113</tt>  <tt class="py-line">    <tt class="py-docstring">'''&#1040;&#1083;&#1100;&#1090;&#1077;&#1088;&#1085;&#1072;&#1090;&#1080;&#1074;&#1085;&#1099;&#1081; &#1084;&#1077;&#1090;&#1086;&#1076; &#1082;&#1086;&#1085;&#1089;&#1090;&#1088;&#1091;&#1080;&#1088;&#1086;&#1074;&#1072;&#1085;&#1080;&#1103; &#1086;&#1073;&#1098;&#1077;&#1082;&#1090;&#1072; &#1082;&#1083;&#1072;&#1089;&#1089;&#1072; L{ShortcutReminder}.</tt> </tt>
+<a name="L114"></a><tt class="py-lineno">114</tt>  <tt class="py-line"><tt class="py-docstring">    &#1055;&#1086;&#1079;&#1074;&#1086;&#1083;&#1103;&#1077;&#1090; &#1079;&#1072;&#1076;&#1072;&#1090;&#1100; &#1091;&#1089;&#1083;&#1086;&#1074;&#1080;&#1077;, &#1089;&#1086;&#1086;&#1073;&#1097;&#1077;&#1085;&#1080;&#1077; &#1076;&#1083;&#1103; &#1074;&#1099;&#1074;&#1086;&#1076;&#1072; &#1080; &#1082;&#1086;&#1083;&#1080;&#1095;&#1077;&#1089;&#1090;&#1074;&#1086; &#1076;&#1085;&#1077;&#1081; &#1076;&#1083;&#1103;</tt> </tt>
+<a name="L115"></a><tt class="py-lineno">115</tt>  <tt class="py-line"><tt class="py-docstring">    &#1079;&#1072;&#1073;&#1083;&#1072;&#1075;&#1086;&#1074;&#1088;&#1077;&#1084;&#1077;&#1085;&#1085;&#1086;&#1075;&#1086; &#1087;&#1088;&#1077;&#1076;&#1091;&#1087;&#1088;&#1077;&#1078;&#1076;&#1077;&#1085;&#1080;&#1103; &#1086; &#1089;&#1086;&#1073;&#1099;&#1090;&#1080;&#1080; &#1086;&#1076;&#1085;&#1086;&#1081; &#1089;&#1090;&#1088;&#1086;&#1082;&#1086;&#1081;.  &#1060;&#1086;&#1088;&#1084;&#1072;&#1090; &#1089;&#1090;&#1088;&#1086;&#1082;&#1080;</tt> </tt>
+<a name="L116"></a><tt class="py-lineno">116</tt>  <tt class="py-line"><tt class="py-docstring">    &#1086;&#1087;&#1080;&#1089;&#1072;&#1085; &#1074; &#1076;&#1086;&#1082;&#1091;&#1084;&#1077;&#1085;&#1090;&#1072;&#1094;&#1080;&#1080; &#1087;&#1072;&#1088;&#1089;&#1077;&#1088;&#1072; L{ReminderParser&lt;StringParser.ReminderParser&gt;}.</tt> </tt>
+<a name="L117"></a><tt class="py-lineno">117</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L118"></a><tt class="py-lineno">118</tt>  <tt class="py-line"><tt class="py-docstring">    @param dateCondition: &#1089;&#1090;&#1088;&#1086;&#1082;&#1072; &#1076;&#1083;&#1103; &#1088;&#1072;&#1079;&#1073;&#1086;&#1088;&#1072; &#1089; &#1080;&#1089;&#1087;&#1086;&#1083;&#1100;&#1079;&#1086;&#1074;&#1072;&#1085;&#1080;&#1077;&#1084; &#1086;&#1073;&#1098;&#1077;&#1082;&#1090;&#1072; &#1082;&#1083;&#1072;&#1089;&#1089;&#1072;</tt> </tt>
+<a name="L119"></a><tt class="py-lineno">119</tt>  <tt class="py-line"><tt class="py-docstring">      L{ReminderParser&lt;StringParser.ReminderParser&gt;}</tt> </tt>
+<a name="L120"></a><tt class="py-lineno">120</tt>  <tt class="py-line"><tt class="py-docstring">    @param action: &#1045;&#1089;&#1083;&#1080; &#1085;&#1077; C{None} &#1080; &#1074; &#1089;&#1090;&#1088;&#1086;&#1082;&#1077; C{dateCondition} &#1085;&#1077; &#1079;&#1072;&#1076;&#1072;&#1085;&#1086;</tt> </tt>
+<a name="L121"></a><tt class="py-lineno">121</tt>  <tt class="py-line"><tt class="py-docstring">      &#1089;&#1086;&#1086;&#1073;&#1097;&#1077;&#1085;&#1080;&#1077; &#1076;&#1083;&#1103; &#1074;&#1099;&#1074;&#1086;&#1076;&#1072;, &#1074; &#1082;&#1072;&#1095;&#1077;&#1089;&#1090;&#1074;&#1077; &#1076;&#1077;&#1081;&#1089;&#1090;&#1074;&#1080;&#1103; &#1073;&#1091;&#1076;&#1077;&#1090; &#1080;&#1089;&#1087;&#1086;&#1083;&#1100;&#1079;&#1086;&#1074;&#1072;&#1090;&#1100;&#1089;&#1103; &#1101;&#1090;&#1086;.</tt> </tt>
+<a name="L122"></a><tt class="py-lineno">122</tt>  <tt class="py-line"><tt class="py-docstring">      &#1052;&#1086;&#1078;&#1077;&#1090; &#1087;&#1088;&#1077;&#1076;&#1089;&#1090;&#1072;&#1074;&#1083;&#1103;&#1090;&#1100; &#1089;&#1086;&#1073;&#1086;&#1081; &#1086;&#1073;&#1098;&#1077;&#1082;&#1090; &#1082;&#1083;&#1072;&#1089;&#1089;&#1072; L{Action&lt;Action.Action&gt;} &#1080;&#1083;&#1080;</tt> </tt>
+<a name="L123"></a><tt class="py-lineno">123</tt>  <tt class="py-line"><tt class="py-docstring">      &#1089;&#1090;&#1088;&#1086;&#1082;&#1091; &#1089;&#1086;&#1086;&#1073;&#1097;&#1077;&#1085;&#1080;&#1103;.</tt> </tt>
+<a name="L124"></a><tt class="py-lineno">124</tt>  <tt class="py-line"><tt class="py-docstring">    @param advanceWarningValue: &#1077;&#1089;&#1083;&#1080; &#1085;&#1077; C{None} &#1080; &#1074; &#1089;&#1090;&#1088;&#1086;&#1082;&#1077; C{dateCondition} &#1085;&#1077;</tt> </tt>
+<a name="L125"></a><tt class="py-lineno">125</tt>  <tt class="py-line"><tt class="py-docstring">      &#1079;&#1072;&#1076;&#1072;&#1085;&#1086; &#1082;&#1086;&#1083;&#1080;&#1095;&#1077;&#1089;&#1090;&#1074;&#1086; &#1076;&#1085;&#1077;&#1081; &#1076;&#1083;&#1103; &#1079;&#1072;&#1073;&#1083;&#1072;&#1075;&#1086;&#1074;&#1088;&#1077;&#1084;&#1077;&#1085;&#1085;&#1086;&#1075;&#1086; &#1087;&#1088;&#1077;&#1076;&#1091;&#1087;&#1088;&#1077;&#1078;&#1076;&#1077;&#1085;&#1080;&#1103; &#1086; &#1089;&#1086;&#1073;&#1099;&#1090;&#1080;&#1080;,</tt> </tt>
+<a name="L126"></a><tt class="py-lineno">126</tt>  <tt class="py-line"><tt class="py-docstring">      &#1073;&#1091;&#1076;&#1077;&#1090; &#1080;&#1089;&#1087;&#1086;&#1083;&#1100;&#1079;&#1086;&#1074;&#1072;&#1090;&#1100;&#1089;&#1103; &#1101;&#1090;&#1086;.  &#1055;&#1072;&#1088;&#1072;&#1084;&#1077;&#1090;&#1088; &#1076;&#1086;&#1083;&#1078;&#1077;&#1085; &#1073;&#1099;&#1090;&#1100; &#1085;&#1077;&#1086;&#1090;&#1088;&#1080;&#1094;&#1072;&#1090;&#1077;&#1083;&#1100;&#1085;&#1099;&#1084; &#1094;&#1077;&#1083;&#1099;&#1084;</tt> </tt>
+<a name="L127"></a><tt class="py-lineno">127</tt>  <tt class="py-line"><tt class="py-docstring">      &#1095;&#1080;&#1089;&#1083;&#1086;&#1084;.</tt> </tt>
+<a name="L128"></a><tt class="py-lineno">128</tt>  <tt class="py-line"><tt class="py-docstring">    @param satisfy: &#1077;&#1089;&#1083;&#1080; &#1085;&#1077; C{None}, &#1079;&#1072;&#1076;&#1072;&#1105;&#1090; &#1092;&#1091;&#1085;&#1082;&#1094;&#1080;&#1102; &#1076;&#1083;&#1103; &#1076;&#1086;&#1087;&#1086;&#1083;&#1085;&#1080;&#1090;&#1077;&#1083;&#1100;&#1085;&#1086;&#1075;&#1086; &#1086;&#1090;&#1089;&#1077;&#1074;&#1072; &#1076;&#1072;&#1090;.</tt> </tt>
+<a name="L129"></a><tt class="py-lineno">129</tt>  <tt class="py-line"><tt class="py-docstring">      &#1057;&#1084;. &#1082;&#1086;&#1084;&#1084;&#1077;&#1085;&#1090;&#1072;&#1088;&#1080;&#1080; &#1082; &#1089;&#1086;&#1086;&#1090;&#1074;&#1077;&#1090;&#1089;&#1090;&#1074;&#1091;&#1102;&#1097;&#1077;&#1084;&#1091; &#1087;&#1072;&#1088;&#1072;&#1084;&#1077;&#1090;&#1088;&#1091;</tt> </tt>
+<a name="L130"></a><tt class="py-lineno">130</tt>  <tt class="py-line"><tt class="py-docstring">      L{&#1082;&#1086;&#1085;&#1089;&#1090;&#1088;&#1091;&#1082;&#1090;&#1086;&#1088;&#1072;&lt;ShortcutReminder.__init__&gt;}.</tt> </tt>
+<a name="L131"></a><tt class="py-lineno">131</tt>  <tt class="py-line"><tt class="py-docstring">    @returns: &#1086;&#1073;&#1098;&#1077;&#1082;&#1090; &#1082;&#1083;&#1072;&#1089;&#1089;&#1072; L{ShortcutReminder}</tt> </tt>
+<a name="L132"></a><tt class="py-lineno">132</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L133"></a><tt class="py-lineno">133</tt>  <tt class="py-line"><tt class="py-docstring">    @see: L{ReminderParser&lt;StringParser.ReminderParser&gt;}</tt> </tt>
+<a name="L134"></a><tt class="py-lineno">134</tt>  <tt class="py-line"><tt class="py-docstring">    '''</tt> </tt>
+<a name="L135"></a><tt class="py-lineno">135</tt>  <tt class="py-line">    <tt class="py-name">parser</tt> <tt class="py-op">=</tt> <tt id="link-20" class="py-name"><a title="rempy.StringParser.ReminderParser" class="py-name" href="#" onclick="return doclink('link-20', 'ReminderParser', 'link-6');">ReminderParser</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L136"></a><tt class="py-lineno">136</tt>  <tt class="py-line">    <tt class="py-name">cond</tt> <tt class="py-op">=</tt> <tt class="py-name">parser</tt><tt class="py-op">.</tt><tt id="link-21" class="py-name"><a title="rempy.StringParser.DateConditionParser.parse
+rempy.StringParser.ReminderParser.parse
+rempy.StringParser.StringParser.parse
+rempy.contrib.deferrable.StringParser.DeferrableParser.parse" class="py-name" href="#" onclick="return doclink('link-21', 'parse', 'link-14');">parse</a></tt><tt class="py-op">(</tt><tt class="py-name">dateCondition</tt><tt class="py-op">)</tt> </tt>
+<a name="L137"></a><tt class="py-lineno">137</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt id="link-22" class="py-name"><a title="rempy.Reminder.ShortcutReminder" class="py-name" href="#" onclick="return doclink('link-22', 'ShortcutReminder', 'link-17');">ShortcutReminder</a></tt><tt class="py-op">.</tt><tt id="link-23" class="py-name" targets="Static Method rempy.Reminder.ShortcutReminder.fromParser()=rempy.Reminder.ShortcutReminder-class.html#fromParser,Static Method rempy.contrib.deferrable.Reminder.DeferrableReminder.fromParser()=rempy.contrib.deferrable.Reminder.DeferrableReminder-class.html#fromParser"><a title="rempy.Reminder.ShortcutReminder.fromParser
+rempy.contrib.deferrable.Reminder.DeferrableReminder.fromParser" class="py-name" href="#" onclick="return doclink('link-23', 'fromParser', 'link-23');">fromParser</a></tt><tt class="py-op">(</tt><tt class="py-name">parser</tt><tt class="py-op">,</tt> <tt class="py-name">cond</tt><tt class="py-op">,</tt> <tt class="py-name">action</tt><tt class="py-op">,</tt> <tt id="link-24" class="py-name"><a title="rempy.Reminder.BasicReminder.advanceWarningValue
+rempy.Reminder.Reminder.advanceWarningValue
+rempy.StringParser.ReminderParser._AdvanceWarningParser.advanceWarningValue
+rempy.StringParser.ReminderParser.advanceWarningValue
+rempy.contrib.deferrable.Reminder.DeferrableReminder.advanceWarningValue" class="py-name" href="#" onclick="return doclink('link-24', 'advanceWarningValue', 'link-9');">advanceWarningValue</a></tt><tt class="py-op">,</tt> <tt class="py-name">satisfy</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L138"></a><tt class="py-lineno">138</tt>  <tt class="py-line"> </tt>
+<a name="L139"></a><tt class="py-lineno">139</tt>  <tt class="py-line">  <tt class="py-decorator">@</tt><tt class="py-decorator">staticmethod</tt> </tt>
+<a name="ShortcutReminder.fromParser"></a><div id="ShortcutReminder.fromParser-def"><a name="L140"></a><tt class="py-lineno">140</tt> <a class="py-toggle" href="#" id="ShortcutReminder.fromParser-toggle" onclick="return toggle('ShortcutReminder.fromParser');">-</a><tt class="py-line">  <tt class="py-keyword">def</tt> <a class="py-def-name" href="rempy.Reminder.ShortcutReminder-class.html#fromParser">fromParser</a><tt class="py-op">(</tt><tt class="py-param">parser</tt><tt class="py-op">,</tt> <tt class="py-param">dateCondition</tt><tt class="py-op">,</tt> <tt class="py-param">action</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">,</tt> <tt class="py-param">advanceWarningValue</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">,</tt> <tt class="py-param">satisfy</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ShortcutReminder.fromParser-collapsed" style="display:none;" pad="+++" indent="++++++"></div><div id="ShortcutReminder.fromParser-expanded"><a name="L141"></a><tt class="py-lineno">141</tt>  <tt class="py-line">    <tt class="py-docstring">'''&#1042;&#1089;&#1087;&#1086;&#1084;&#1086;&#1075;&#1072;&#1090;&#1077;&#1083;&#1100;&#1085;&#1099;&#1081; &#1084;&#1077;&#1090;&#1086;&#1076; &#1076;&#1083;&#1103; &#1082;&#1086;&#1085;&#1089;&#1090;&#1088;&#1091;&#1080;&#1088;&#1086;&#1074;&#1072;&#1085;&#1080;&#1103; &#1086;&#1073;&#1098;&#1077;&#1082;&#1090;&#1072; &#1082;&#1083;&#1072;&#1089;&#1089;&#1072;</tt> </tt>
+<a name="L142"></a><tt class="py-lineno">142</tt>  <tt class="py-line"><tt class="py-docstring">    L{ShortcutReminder}.  &#1057;&#1083;&#1072;&#1073;&#1086; &#1087;&#1086;&#1083;&#1077;&#1079;&#1077;&#1085; &#1082;&#1086;&#1085;&#1077;&#1095;&#1085;&#1086;&#1084;&#1091; &#1087;&#1086;&#1083;&#1100;&#1079;&#1086;&#1074;&#1072;&#1090;&#1077;&#1083;&#1102;, &#1085;&#1086; &#1084;&#1086;&#1078;&#1077;&#1090; &#1073;&#1099;&#1090;&#1100;</tt> </tt>
+<a name="L143"></a><tt class="py-lineno">143</tt>  <tt class="py-line"><tt class="py-docstring">    &#1085;&#1077;&#1086;&#1073;&#1093;&#1086;&#1076;&#1080;&#1084; &#1076;&#1083;&#1103; &#1088;&#1077;&#1072;&#1083;&#1080;&#1079;&#1072;&#1094;&#1080;&#1080; &#1089;&#1090;&#1086;&#1088;&#1086;&#1085;&#1085;&#1080;&#1093; &#1082;&#1083;&#1072;&#1089;&#1089;&#1086;&#1074; &#1085;&#1072;&#1087;&#1086;&#1084;&#1080;&#1085;&#1072;&#1083;&#1086;&#1082;.</tt> </tt>
+<a name="L144"></a><tt class="py-lineno">144</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L145"></a><tt class="py-lineno">145</tt>  <tt class="py-line"><tt class="py-docstring">    @param parser: &#1086;&#1073;&#1098;&#1077;&#1082;&#1090; &#1082;&#1083;&#1072;&#1089;&#1089;&#1072; L{ReminderParser&lt;StringParser.StringParser&gt;}</tt> </tt>
+<a name="L146"></a><tt class="py-lineno">146</tt>  <tt class="py-line"><tt class="py-docstring">    @param dateCondition: &#1086;&#1073;&#1098;&#1077;&#1082;&#1090; &#1082;&#1083;&#1072;&#1089;&#1089;&#1072; L{DateCondition&lt;DateCondition.DateCondition&gt;}</tt> </tt>
+<a name="L147"></a><tt class="py-lineno">147</tt>  <tt class="py-line"><tt class="py-docstring">    @param action: &#1089;&#1084;. &#1076;&#1086;&#1082;&#1091;&#1084;&#1077;&#1085;&#1090;&#1072;&#1094;&#1080;&#1102; L{fromString}</tt> </tt>
+<a name="L148"></a><tt class="py-lineno">148</tt>  <tt class="py-line"><tt class="py-docstring">    @param advanceWarningValue: &#1089;&#1084;. &#1076;&#1086;&#1082;&#1091;&#1084;&#1077;&#1085;&#1090;&#1072;&#1094;&#1080;&#1102; L{fromString}</tt> </tt>
+<a name="L149"></a><tt class="py-lineno">149</tt>  <tt class="py-line"><tt class="py-docstring">    @param satisfy: &#1089;&#1084;. &#1076;&#1086;&#1082;&#1091;&#1084;&#1077;&#1085;&#1090;&#1072;&#1094;&#1080;&#1102; L{fromString}</tt> </tt>
+<a name="L150"></a><tt class="py-lineno">150</tt>  <tt class="py-line"><tt class="py-docstring">    @returns: &#1086;&#1073;&#1098;&#1077;&#1082;&#1090; &#1082;&#1083;&#1072;&#1089;&#1089;&#1072; L{ShortcutReminder}</tt> </tt>
+<a name="L151"></a><tt class="py-lineno">151</tt>  <tt class="py-line"><tt class="py-docstring">    '''</tt> </tt>
+<a name="L152"></a><tt class="py-lineno">152</tt>  <tt class="py-line">    <tt class="py-name">action2</tt> <tt class="py-op">=</tt> <tt class="py-name">parser</tt><tt class="py-op">.</tt><tt id="link-25" class="py-name" targets="Method rempy.StringParser.ReminderParser.message()=rempy.StringParser.ReminderParser-class.html#message"><a title="rempy.StringParser.ReminderParser.message" class="py-name" href="#" onclick="return doclink('link-25', 'message', 'link-25');">message</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L153"></a><tt class="py-lineno">153</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">action</tt> <tt class="py-keyword">is</tt> <tt class="py-name">None</tt> <tt class="py-keyword">and</tt> <tt class="py-name">action2</tt> <tt class="py-keyword">is</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L154"></a><tt class="py-lineno">154</tt>  <tt class="py-line">      <tt class="py-keyword">raise</tt> <tt id="link-26" class="py-name"><a title="rempy.utils.FormatError" class="py-name" href="#" onclick="return doclink('link-26', 'FormatError', 'link-8');">FormatError</a></tt><tt class="py-op">(</tt><tt class="py-string">'Message/action must be specified'</tt><tt class="py-op">)</tt> </tt>
+<a name="L155"></a><tt class="py-lineno">155</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">action</tt> <tt class="py-keyword">is</tt> <tt class="py-keyword">not</tt> <tt class="py-name">None</tt> <tt class="py-keyword">and</tt> <tt class="py-name">action2</tt> <tt class="py-keyword">is</tt> <tt class="py-keyword">not</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L156"></a><tt class="py-lineno">156</tt>  <tt class="py-line">      <tt class="py-keyword">raise</tt> <tt id="link-27" class="py-name"><a title="rempy.utils.FormatError" class="py-name" href="#" onclick="return doclink('link-27', 'FormatError', 'link-8');">FormatError</a></tt><tt class="py-op">(</tt><tt class="py-string">'Message/action is already specified in reminder string'</tt><tt class="py-op">)</tt> </tt>
+<a name="L157"></a><tt class="py-lineno">157</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">action2</tt> <tt class="py-keyword">is</tt> <tt class="py-keyword">not</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L158"></a><tt class="py-lineno">158</tt>  <tt class="py-line">      <tt class="py-name">action</tt> <tt class="py-op">=</tt> <tt class="py-name">action2</tt> </tt>
+<a name="L159"></a><tt class="py-lineno">159</tt>  <tt class="py-line"> </tt>
+<a name="L160"></a><tt class="py-lineno">160</tt>  <tt class="py-line">    <tt class="py-name">adv</tt> <tt class="py-op">=</tt> <tt id="link-28" class="py-name"><a title="rempy.Reminder.BasicReminder.advanceWarningValue
+rempy.Reminder.Reminder.advanceWarningValue
+rempy.StringParser.ReminderParser._AdvanceWarningParser.advanceWarningValue
+rempy.StringParser.ReminderParser.advanceWarningValue
+rempy.contrib.deferrable.Reminder.DeferrableReminder.advanceWarningValue" class="py-name" href="#" onclick="return doclink('link-28', 'advanceWarningValue', 'link-9');">advanceWarningValue</a></tt> </tt>
+<a name="L161"></a><tt class="py-lineno">161</tt>  <tt class="py-line">    <tt class="py-name">adv2</tt> <tt class="py-op">=</tt> <tt class="py-name">parser</tt><tt class="py-op">.</tt><tt id="link-29" class="py-name"><a title="rempy.Reminder.BasicReminder.advanceWarningValue
+rempy.Reminder.Reminder.advanceWarningValue
+rempy.StringParser.ReminderParser._AdvanceWarningParser.advanceWarningValue
+rempy.StringParser.ReminderParser.advanceWarningValue
+rempy.contrib.deferrable.Reminder.DeferrableReminder.advanceWarningValue" class="py-name" href="#" onclick="return doclink('link-29', 'advanceWarningValue', 'link-9');">advanceWarningValue</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L162"></a><tt class="py-lineno">162</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">adv</tt> <tt class="py-keyword">is</tt> <tt class="py-keyword">not</tt> <tt class="py-name">None</tt> <tt class="py-keyword">and</tt> <tt class="py-name">adv2</tt> <tt class="py-keyword">is</tt> <tt class="py-keyword">not</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L163"></a><tt class="py-lineno">163</tt>  <tt class="py-line">      <tt class="py-keyword">raise</tt> <tt id="link-30" class="py-name"><a title="rempy.utils.FormatError" class="py-name" href="#" onclick="return doclink('link-30', 'FormatError', 'link-8');">FormatError</a></tt><tt class="py-op">(</tt><tt class="py-string">'Advance warning value is already specified in reminder string'</tt><tt class="py-op">)</tt> </tt>
+<a name="L164"></a><tt class="py-lineno">164</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">adv2</tt> <tt class="py-keyword">is</tt> <tt class="py-keyword">not</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L165"></a><tt class="py-lineno">165</tt>  <tt class="py-line">      <tt class="py-name">adv</tt> <tt class="py-op">=</tt> <tt class="py-name">adv2</tt> </tt>
+<a name="L166"></a><tt class="py-lineno">166</tt>  <tt class="py-line">    <tt class="py-keyword">elif</tt> <tt class="py-name">adv</tt> <tt class="py-keyword">is</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L167"></a><tt class="py-lineno">167</tt>  <tt class="py-line">      <tt class="py-name">adv</tt> <tt class="py-op">=</tt> <tt class="py-number">0</tt> </tt>
+<a name="L168"></a><tt class="py-lineno">168</tt>  <tt class="py-line"> </tt>
+<a name="L169"></a><tt class="py-lineno">169</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt id="link-31" class="py-name"><a title="rempy.Reminder.ShortcutReminder" class="py-name" href="#" onclick="return doclink('link-31', 'ShortcutReminder', 'link-17');">ShortcutReminder</a></tt><tt class="py-op">(</tt><tt class="py-name">dateCondition</tt><tt class="py-op">,</tt> <tt class="py-name">action</tt><tt class="py-op">,</tt> <tt class="py-name">adv</tt><tt class="py-op">,</tt> <tt class="py-name">satisfy</tt><tt class="py-op">)</tt> </tt>
+</div></div><a name="L170"></a><tt class="py-lineno">170</tt>  <tt class="py-line"> </tt>
+<a name="L171"></a><tt class="py-lineno">171</tt>  <tt class="py-line"> </tt>
+<a name="L172"></a><tt class="py-lineno">172</tt>  <tt class="py-line"><tt id="link-32" class="py-name" targets="Function rempy.Reminder.rem()=rempy.Reminder-module.html#rem"><a title="rempy.Reminder.rem" class="py-name" href="#" onclick="return doclink('link-32', 'rem', 'link-32');">rem</a></tt> <tt class="py-op">=</tt> <tt id="link-33" class="py-name"><a title="rempy.Reminder.ShortcutReminder" class="py-name" href="#" onclick="return doclink('link-33', 'ShortcutReminder', 'link-17');">ShortcutReminder</a></tt><tt class="py-op">.</tt><tt id="link-34" class="py-name" targets="Static Method rempy.DateCondition.DateCondition.fromString()=rempy.DateCondition.DateCondition-class.html#fromString,Static Method rempy.Reminder.ShortcutReminder.fromString()=rempy.Reminder.ShortcutReminder-class.html#fromString,Static Method rempy.contrib.deferrable.Reminder.DeferrableReminder.fromString()=rempy.contrib.deferrable.Reminder.DeferrableReminder-class.html#fromString,Static Method rempy.contrib.deferrable.Reminder.DeferrableReminder.fromString()=rempy.contrib.deferrable.Reminder.DeferrableReminder-class.html#fromString"><a title="rempy.DateCondition.DateCondition.fromString
+rempy.Reminder.ShortcutReminder.fromString
+rempy.contrib.deferrable.Reminder.DeferrableReminder.fromString
+rempy.contrib.deferrable.Reminder.DeferrableReminder.fromString" class="py-name" href="#" onclick="return doclink('link-34', 'fromString', 'link-34');">fromString</a></tt> </tt>
+<a name="L173"></a><tt class="py-lineno">173</tt>  <tt class="py-line"><tt class="py-string">'''&#1050;&#1086;&#1088;&#1086;&#1090;&#1082;&#1086;&#1077; &#1080;&#1084;&#1103; &#1076;&#1083;&#1103; &#1074;&#1099;&#1079;&#1086;&#1074;&#1072; L{ShortcutReminder.fromString}'''</tt> </tt>
+<a name="L174"></a><tt class="py-lineno">174</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="rempy-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >rempy</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0 on Sun Aug 15 22:42:53 2010
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>
