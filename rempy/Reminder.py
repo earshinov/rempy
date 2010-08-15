@@ -19,6 +19,8 @@ class Reminder(object):
 class BasicReminder(Reminder):
 
   def __init__(self, dateCondition, action, advanceWarningValue=0):
+    if advanceWarningValue < 0:
+      raise ValueError('Advance warning value must not be negative')
     super(BasicReminder, self).__init__()
     self.cond = dateCondition
     self.action = action

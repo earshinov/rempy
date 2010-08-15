@@ -523,6 +523,8 @@ class SimpleDateCondition(DateCondition):
 class RepeatDateCondition(DateCondition):
 
   def __init__(self, period):
+    if period == 0:
+      raise ValueError('Period must not be zero')
     super(RepeatDateCondition, self).__init__()
     self.timedelta = datetime.timedelta(days=period)
 

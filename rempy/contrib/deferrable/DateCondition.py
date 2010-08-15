@@ -9,6 +9,8 @@ from rempy.Runner import RunnerMode
 class DeferrableDateCondition(DateCondition):
 
   def __init__(self, cond, runnerMode, doneDate=None, advanceWarningValue=0):
+    if advanceWarningValue < 0:
+      raise ValueError('Advance warning value must not be negative')
     super(DeferrableDateCondition, self).__init__()
     self.cond = cond
     self.mode = runnerMode
