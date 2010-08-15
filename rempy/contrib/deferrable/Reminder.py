@@ -25,10 +25,13 @@ class DeferrableReminder(Reminder):
 
   @staticmethod
   def fromString(dateCondition, doneDate=None,
-      chainParserFactory=ReminderParser, *args, **kwargs):
+      chainReminderFactory=ShortcutReminder.fromParser,
+      chainParserFactory=ReminderParser,
+      *args, **kwargs):
     parser = DeferrableParser(chainFactory=chainParserFactory)
     cond = parser.parse(dateCondition)
-    return DeferrableReminder.fromParser(parser, cond, doneDate, *args, **kwargs)
+    return DeferrableReminder.fromParser(parser, cond, doneDate,
+      chainReminderFactory, *args, **kwargs)
 
   @staticmethod
   def fromParser(parser, dateCondition, doneDate=None,
