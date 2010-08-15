@@ -388,10 +388,6 @@ class SimpleDateCondition(DateCondition):
     дней недели, сократить перебор дат, рассматривая только те, которые
     попадают в этот список.'''
 
-    '''Если C{True}, перед началом перебора дат генератору дней необходимо
-    найти новую стартовую дату, вызвав L{checkWeekday()}.'''
-    initiallyCheckWeekday = False
-
     @staticmethod
     def new(cond, back):
       '''Основной способ конструирования объектов этого класса.  Создаёт
@@ -454,8 +450,6 @@ class SimpleDateCondition(DateCondition):
     @see: L{_DayGeneratorHelper}
     '''
 
-    initiallyCheckWeekday = True
-
     def __init__(self, cond, back):
       '''Конструктор
 
@@ -510,13 +504,9 @@ class SimpleDateCondition(DateCondition):
     while True:
       if first:
         date, skip = self.__wrapDate_noFail(unsafeDate)
-        if helper.initiallyCheckWeekday:
-          nextDate = helper.checkWeekday(date)
-          if date == nextDate and skip:
-            nextDate = helper.step(nextDate)
-        else:
-          if not skip: yield date
-          nextDate = helper.step(date)
+        nextDate = helper.checkWeekday(date)
+        if date == nextDate and skip:
+          nextDate = helper.step(nextDate)
         first = False
       else:
         yield date
@@ -544,8 +534,7 @@ class SimpleDateCondition(DateCondition):
     @see: L{__scan}
     '''
     helper = self._DayGeneratorHelper.new(self, back)
-    if helper.initiallyCheckWeekday:
-      date = helper.checkWeekday(date)
+    date = helper.checkWeekday(date)
     while True:
       yield date
       date = helper.step(date)
