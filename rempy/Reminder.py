@@ -12,7 +12,7 @@ class Reminder(object):
   def advanceWarningValue(self):
     raise NotImplementedError()
 
-  def advanceWarningValue(self):
+  def execute(self, date):
     raise NotImplementedError()
 
 

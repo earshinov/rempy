@@ -73,8 +73,8 @@ class DateConditionParser(StringParser):
     if token is None:
       return cond
 
-    fromParser = self._DateNamedOptionParser('From')
-    untilParser = self._DateNamedOptionParser('Until')
+    fromParser = self._DateNamedOptionParser()
+    untilParser = self._DateNamedOptionParser()
     namedOptionHandlers = self.chainData.namedOptionHandlers
     namedOptionHandlers.update({
       'from': fromParser,
@@ -285,9 +285,8 @@ class DateConditionParser(StringParser):
 
   class _DateNamedOptionParser(object):
 
-    def __init__(self, name):
+    def __init__(self):
       object.__init__(self)
-      self.name = name
       self.val = None
 
     def __call__(self, token, tokens):
