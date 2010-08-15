@@ -5,7 +5,9 @@
 import datetime
 import unittest
 
-from rempy.StringParser import StringParser, ReminderParser, ChainData, parseDate
+from rempy.StringParser import \
+  StringParser, ReminderParser, ChainData, parseDate
+from rempy.StringParser import DateNamedOptionParser
 
 
 class DeferrableParser(StringParser):
@@ -20,41 +22,10 @@ class DeferrableParser(StringParser):
       метод L{doneDate} и аналогичные геттеры в обёрнутом классе
   '''
 
-  class _DoneParser(object):
-    '''Класс для разбора длинной опции C{DONE}
-
-    Использование:
-
-      - добавить в список L{namedOptionHandlers<ChainData.namedOptionHandlers>}
-        объекта класса L{ChainData}
-      - выполнить разбор строки
-      - вызвать метод L{doneDate} для получения считанного значения
-    '''
-
-    def __init__(self):
-      object.__init__(self)
-      self.done = None
-
-    def __call__(self, token, tokens):
-      self.done = parseDate(token)
-      try:
-        token = tokens.next()
-      except StopIteration:
-        token = None
-      return token
-
-    def doneDate(self):
-      '''Получить считанное значение даты
-
-      @returns: объект класса C{datetime.date} или C{None}, если опция
-        отсутствовала во входной строке
-      '''
-      return self.done
-
   def __init__(self, chainFactory=ReminderParser, chainData=None):
     super(DeferrableParser, self).__init__()
     chainData = copy.copy(chainData) if chainData is not None else ChainData()
-    self.doneParser = self._DoneParser()
+    self.doneParser = DateNamedOptionParser()
     chainData.namedOptionHandlers.update({'done': self.doneParser})
     self.chain = chainFactory(chainData=chainData)
 
@@ -66,7 +37,7 @@ class DeferrableParser(StringParser):
     объекта класса C{datetime.date} или C{None}, если соответствующая опция
     отсутствовала в исходной строке
     '''
-    return self.doneParser.doneDate()
+    return self.doneParser.value()
 
   def __getattr__(self, name):
     return getattr(self.chain, name)

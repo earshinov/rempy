@@ -29,6 +29,42 @@ def parseDate(token):
     raise FormatError('at "%s": Can\'t parse date: %s' % (token, e.message))
 
 
+class DateNamedOptionParser(object):
+  '''Класс для разбора длинной опции, в которой лежит один токен,
+  содержащий дату в формате ISO
+
+  Использование:
+
+    - добавить в список L{namedOptionHandlers<ChainData.namedOptionHandlers>}
+      объекта класса L{ChainData}
+    - выполнить разбор строки
+    - вызвать метод L{value} для получения считанного значения
+  '''
+
+  def __init__(self):
+    super(DateNamedOptionParser, self).__init__()
+    self.val = None
+
+  def __call__(self, token, tokens):
+    if self.val is not None:
+      raise FormatError('at "%s": "%s" already specified' % (token, self.name))
+    self.val = parseDate(token)
+    try:
+      token = tokens.next()
+    except StopIteration:
+      token = None
+      pass
+    return token
+
+  def value(self):
+    '''Получить считанное значение
+
+    @returns: считанное значение как объект класса C{datetime.date} или
+      C{None}, если парсер не вызывался (опция отсутствовала во входной строке)
+    '''
+    return self.val
+
+
 class ChainData(object):
   '''Вспомогательный класс для хранения параметров, которые могут передаваться в
   объект класса L{DateConditionParser} и использоваться там для расширения
@@ -51,7 +87,7 @@ class ChainData(object):
     Если токены кончаются, должен быть возвращён C{None}.  Iterable,
     переданный через параметры, должен быть установлен на следующий токен.
 
-  @ivar unparsedRemainderHandler: Если не C{None}, функция, которая вызывается
+  @ivar unparsedRemainderHandler: Если не C{None}, обработчик, который вызывается
     в случае, если в исходной строке остались неразобранные токены.  Функция
     должна принимать параметры:
 
@@ -63,6 +99,8 @@ class ChainData(object):
 
     Функция должна возвращать объект класса
     L{DateCondition<DateCondition.DateCondition>}.
+
+    Пример обработчика: L{DateNamedOptionParser}.
 
   @see: L{DateConditionParser}
   '''
@@ -177,8 +215,8 @@ class DateConditionParser(StringParser):
     if token is None:
       return cond
 
-    fromParser = self._DateNamedOptionParser()
-    untilParser = self._DateNamedOptionParser()
+    fromParser = DateNamedOptionParser()
+    untilParser = DateNamedOptionParser()
     namedOptionHandlers = self.chainData.namedOptionHandlers
     namedOptionHandlers.update({
       'from': fromParser,
@@ -427,40 +465,6 @@ class DateConditionParser(StringParser):
       if token is None:
         break
     return token
-
-  class _DateNamedOptionParser(object):
-    '''Класс для разбора длинной опции, в которой лежит один токен,
-    содержащий дату в формате ISO
-
-    Использование:
-
-      - добавить в список L{namedOptionHandlers<ChainData.namedOptionHandlers>}
-        объекта класса L{ChainData}
-      - выполнить разбор строки
-      - вызвать метод L{value} для получения считанного значения
-    '''
-
-    def __init__(self):
-      object.__init__(self)
-      self.val = None
-
-    def __call__(self, token, tokens):
-      if self.val is not None:
-        raise FormatError('at "%s": "%s" already specified' % (token, self.name))
-      self.val = parseDate(token)
-      try:
-        token = tokens.next()
-      except StopIteration:
-        token = None
-        pass
-      return token
-
-    def value(self):
-      '''Получить считанное значение
-      @returns: считанное значение как объект класса C{datetime.date} или
-        C{None}, если парсер не вызывался (опция отсутствовала во входной строке)
-      '''
-      return self.val
 
 
   class Test(unittest.TestCase):
