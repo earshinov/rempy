@@ -51,10 +51,10 @@ class TokenWithPosition(object):
     return unicode(self._string)
 
 
-NONSPACES_REGEXP = re.compile('(\S+)')
+_NONSPACES_REGEXP = re.compile('(\S+)')
 def splitWithPositions(string):
   pos = 0
-  it = iter(re.split(NONSPACES_REGEXP, string))
+  it = iter(re.split(_NONSPACES_REGEXP, string))
   while True:
     space = it.next()
     pos += len(space)

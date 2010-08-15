@@ -46,7 +46,7 @@ class SimpleDateCondition(DateCondition):
       if self.weekdays is None or date.weekday() in self.weekdays:
         self.theMatchingDay = date
 
-    # "cache" for WeekdaysDayGeneratorHelper()
+    # "cache" for _WeekdaysDayGeneratorHelper
     if self.day is not None or self.weekdays is None or self.weekdays == []:
       self.weekdays_diff = None
     else:
@@ -213,15 +213,15 @@ class SimpleDateCondition(DateCondition):
       (unsafeDate.year, unsafeDate.month) = (yield None); yield None
 
 
-  class DayGeneratorHelper(object):
+  class _DayGeneratorHelper(object):
     initiallyCheckWeekday = False
 
     @staticmethod
     def new(cond, back):
       if cond.weekdays is not None:
-        return SimpleDateCondition.WeekdaysDayGeneratorHelper(cond, back)
+        return SimpleDateCondition._WeekdaysDayGeneratorHelper(cond, back)
       else:
-        return SimpleDateCondition.SimpleDayGeneratorHelper(back)
+        return SimpleDateCondition._SimpleDayGeneratorHelper(back)
 
     def checkWeekday(self, date):
       raise NotImplementedError()
@@ -229,10 +229,10 @@ class SimpleDateCondition(DateCondition):
     def step(self, date):
       raise NotImplementedError()
 
-  class SimpleDayGeneratorHelper(DayGeneratorHelper):
+  class _SimpleDayGeneratorHelper(_DayGeneratorHelper):
 
     def __init__(self, back):
-      super(SimpleDateCondition.SimpleDayGeneratorHelper, self).__init__()
+      super(SimpleDateCondition._SimpleDayGeneratorHelper, self).__init__()
       self.timedelta = datetime.timedelta(days=1 if not back else -1)
 
     def checkWeekday(self, date):
@@ -241,11 +241,11 @@ class SimpleDateCondition(DateCondition):
     def step(self, date):
       return date + self.timedelta
 
-  class WeekdaysDayGeneratorHelper(DayGeneratorHelper):
+  class _WeekdaysDayGeneratorHelper(_DayGeneratorHelper):
     initiallyCheckWeekday = True
 
     def __init__(self, cond, back):
-      super(SimpleDateCondition.WeekdaysDayGeneratorHelper, self).__init__()
+      super(SimpleDateCondition._WeekdaysDayGeneratorHelper, self).__init__()
       self.cond = cond
       self.back = back
       self.weekdays_diff_index = None
@@ -275,7 +275,7 @@ class SimpleDateCondition(DateCondition):
       return date + timedelta if not self.back else date - timedelta
 
   def __dayGenerator(self, unsafeDate, back):
-    helper = self.DayGeneratorHelper.new(self, back)
+    helper = self._DayGeneratorHelper.new(self, back)
 
     first = True
     while True:
@@ -304,7 +304,7 @@ class SimpleDateCondition(DateCondition):
         date = nextDate
 
   def __allDaysGenerator(self, date, back):
-    helper = self.DayGeneratorHelper.new(self, back)
+    helper = self._DayGeneratorHelper.new(self, back)
     if helper.initiallyCheckWeekday:
       date = helper.checkWeekday(date)
     while True:
