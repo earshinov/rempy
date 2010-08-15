@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+
+'''Содержит иерархию классов L{DateCondition}
+
+При запуске из командной строки запускает присутствующие в модуле unit-тесты.'''
+
 import bisect
 import copy
 import datetime
@@ -13,22 +19,97 @@ import utils.dates as dateutils
 
 
 class DateCondition(object):
+  '''Базовый класс для классов, которые могут хранить условия на дату и
+  находить даты, удовлетворяющие этим условиям.'''
 
   def scan(self, startDate):
+    '''Искать даты, удовлетворяющие хранимым в объекте условиям, в направлении
+    будущего, начиная со L{startDate} включительно.
+
+    Метод предназначен для переопределения в наследниках.  При этом
+    возвращаемый генератором поток дат должен обладать следующими свойствами:
+
+      - никакая из дат не должна быть меньше C{startDate};
+      - поток должен быть строго упорядоченным (каждая следующая дата
+        должна быть строго больше предыдущей).
+
+    @param startDate: объект класса C{datetime.date},
+      задающий начальную дату для поиска
+    @returns: Iterable по датам (объектам класса C{datetime.date})
+    '''
     return []
 
   def scanBack(self, startDate):
+    '''Искать даты, удовлетворяющие хранимым в объекте условиям, в направлении
+    прошлого, начиная со L{startDate} включительно.
+
+    Сам по себе поиск дат в прошлом навряд ли нужен конечному пользователю,
+    но такая возможность может пригодиться при написании собственных классов
+    условий, в которых используется композиция.  В качестве примера см.
+    L{DeferrableDateCondition<contrib.deferrable.DateCondition.DeferrableDateCondition>}.
+
+    Метод предназначен для переопределения в наследниках.  При этом
+    возвращаемый генератором поток дат должен обладать следующими свойствами:
+
+      - никакая из дат не должна быть больше C{startDate};
+      - поток должен быть строго упорядоченным (каждая следующая дата
+        должна быть строго меньше предыдущей).
+
+    @param startDate: объект класса C{datetime.date},
+      задающий начальную дату для поиска
+    @returns: Iterable по датам (объектам класса C{datetime.date})
+    '''
     return []
 
   @staticmethod
   def fromString(string):
+    '''Удобная функция для конструирования объекта класса L{DateCondition} по
+    строке формата, похожего на формат описания напоминалок в программе remind.
+
+    @param string: Строка заданного формата.  Более подробно о формате см. в
+      документации метода L{DateConditionParser.parse<StringParser.DateConditionParser.parse>}.
+    @returns: объект класса L{DateCondition}
+    @raise FormatError: в случае ошибки разбора строки
+    '''
     return DateConditionParser().parse(string)
 
 
 class SimpleDateCondition(DateCondition):
+  '''Класс, позволяющий находить даты по номеру дня в месяце, месяцу, году,
+  дням недели.  Любой из этих параметров может быть опущен.
+
+  Обработка дней недели отличается от оной в Remind.  Используемая здесь
+  стратегия более проста и логична, но менее полезна конечным пользователям.
+  Суть стратегии в том, что указание дней недели означает то и только то,
+  что из дат, соответствующих другим условиям (год, месяц, день), выбираются
+  даты с одним из перечисленных дней недели.
+  '''
 
   def __init__(self, year=None, month=None, day=None, weekdays=None,
       nonexistingDaysHandling=dateutils.NonExistingDaysHandling.WRAP):
+    '''Конструктор.
+
+    @param year: Целочисленное значение, задающее номер года.  Если
+      передано C{None}, ограничение на год подходящей даты не накладывается.
+    @param month: Целочисленное значение в интервале [1..12], задающее месяц.
+      Если передано C{None}, ограничение на месяц подходящей даты не накладывается.
+    @param day: Целочисленное значение, задающее номер дня в месяцу.  Если
+      передано C{None}, ограничение на номер дня не накладывается.
+    @param weekdays: Коллекция целочисленных значений, каждое из которых
+      задаёт день недели.  Дни недели кодируются числами от 0 (понедельник)
+      до 6 (воскресенье).  Если передано C{None}, ограничение на день недели
+      подходящей даты не накладывается.
+
+    @param nonexistingDaysHandling:  Второстепенный параметр класса
+      L{utils.dates.NonExistingDaysHandling}, влияющий на то,
+      как обрабатываются несуществующие даты.  Имеют смысл значения
+      L{WRAP<utils.dates.NonExistingDaysHandling.WRAP>} (умолчание) и
+      L{SKIP<utils.dates.NonExistingDaysHandling.SKIP>}.  Как они работают,
+      проще всего продемострировать на примере.  Если у нас есть
+      C{SimpleDateCondition(day=31)}, то в первом случае в результат методов
+      L{scan} и L{scanBack} для каждого года будет включён последний день
+      февраля; во втором случае дни из февраля в результат не попадут.
+    '''
     super(SimpleDateCondition, self).__init__()
     self.year = year
     self.month = month
@@ -73,6 +154,32 @@ class SimpleDateCondition(DateCondition):
 
 
   def __scan(self, startDate, back=False):
+    '''Общая реализация открытых методов L{scan} и L{scanBack}.
+
+    Для нахождения первой подходящей даты используется метод L{__findStartDate}.
+    Далее подходящие даты перебираются с использованием трёх генераторов, по
+    одному для года, месяца и дня.  Генераторы объединяются в цепочку: даты,
+    возвращаемые генератором дней, передаются генератору месяцев и т.д.  Даты,
+    возвращаемые генератором лет, возвращаются из метода.
+
+    Генератор обращается к вышестоящему каждый раз, когда ему надо начать
+    очередной цикл перебора дат.  К примеру, генератор дней, используемый
+    внутри объекта C{SimpleDateCondition(month=5)}, периодически выводит дни до
+    окончания месяца и обращается к генератору месяцев для продолжения.
+
+    Обращение к вышестоящему генератору реализуется через возвращение C{None} в
+    качестве очередной даты и получение ответа с использованием
+    U{yield expression<http://docs.python.org/reference/expressions.html#yieldexpr>}.
+    Генератор лет в качестве ответа возвращает номер очередного года,
+    генератор месяцев -- набор (номер года, номер месяца).
+
+    @param startDate: начальная дата для поиска подходящих дат
+    @param back: C{False} в случае вызова из L{scan} (сканирования в
+      направлении будущего), C{True} в случае вызова из L{scanBack}
+      (сканирования в направлении прошлого).
+    @returns: результат для методов L{scan} и L{scanBack} (Iterable по объектам
+      класса C{datetime.date}).
+    '''
     if self.weekdays == []:
       return []
 
@@ -102,6 +209,15 @@ class SimpleDateCondition(DateCondition):
     return yeargen
 
   def __findStartDate(self, startDate, back):
+    '''Найти первую дату, удовлетворяющую условиям.
+
+    @param startDate: объект класса C{datetime.date},
+      задающий начальную дату для поиска
+    @param back: если C{True}, поиск ведётся в направлении прошлого,
+      иначе в направлении будущего
+    @returns: объект класса L{UnsafeDate<utils.dates.UnsafeDate>} или C{None},
+      если подходящих дат не найдено
+    '''
     op = operator.lt if not back else operator.gt
     delta = 1 if not back else -1
 
@@ -159,6 +275,16 @@ class SimpleDateCondition(DateCondition):
 
 
   def __fixedYearGenerator(self, monthGenerator, unsafeDate):
+    '''Генератор лет, используемый, если в условии задан фиксированный год.
+
+    @param monthGenerator: генератор месяцев
+    @param unsafeDate: объект класса L{Unsafedate<utils.dates.UnsafeDate>},
+      задающий начальную дату
+    @returns: Iterable по датам (объектам класса C{datetime.date}).  Для
+      взаимодействия с вышестоящим генератором Iterable может также
+      возвращать C{None}.
+    @see: L{__scan}
+    '''
     for _ in monthGenerator:
       if _ is None:
         return
@@ -166,6 +292,18 @@ class SimpleDateCondition(DateCondition):
         yield _
 
   def __yearGenerator(self, monthGenerator, unsafeDate, back):
+    '''Генератор лет, используемый, если год не фиксирован.
+
+    @param monthGenerator: генератор месяцев
+    @param unsafeDate: объект класса L{Unsafedate<utils.dates.UnsafeDate>},
+      задающий начальную дату
+    @param back: если C{True}, поиск ведётся в направлении прошлого,
+      иначе в направлении будущего
+    @returns: Iterable по датам (объектам класса C{datetime.date}).  Для
+      взаимодействия с вышестоящим генератором Iterable может также
+      возвращать C{None}.
+    @see: L{__scan}
+    '''
     year = unsafeDate.year
     while True:
       for _ in monthGenerator:
@@ -176,6 +314,16 @@ class SimpleDateCondition(DateCondition):
           yield _
 
   def __fixedMonthGenerator(self, dayGenerator, unsafeDate):
+    '''Генератор месяцев, используемый, если в условии задан фиксированный месяц.
+
+    @param dayGenerator: генератор дней
+    @param unsafeDate: объект класса L{Unsafedate<utils.dates.UnsafeDate>},
+      задающий начальную дату
+    @returns: Iterable по датам (объектам класса C{datetime.date}).  Для
+      взаимодействия с вышестоящим генератором Iterable может также
+      возвращать C{None}.
+    @see: L{__scan}
+    '''
     month = unsafeDate.month
     for _ in dayGenerator:
       if _ is None:
@@ -186,6 +334,18 @@ class SimpleDateCondition(DateCondition):
         yield _
 
   def __monthGenerator(self, dayGenerator, unsafeDate, back):
+    '''Генератор лет, используемый, если месяц не фиксирован.
+
+    @param dayGenerator: генератор дней
+    @param unsafeDate: объект класса L{Unsafedate<utils.dates.UnsafeDate>},
+      задающий начальную дату
+    @param back: если C{True}, поиск ведётся в направлении прошлого,
+      иначе в направлении будущего
+    @returns: Iterable по датам (объектам класса :std:`datetime.date`).  Для
+      взаимодействия с вышестоящим генератором Iterable может также
+      возвращать C{None}.
+    @see: L{__scan}
+    '''
     delta = 1 if not back else -1
     month_start = 1 if not back else 12
     month_end = 12 if not back else 1
@@ -204,6 +364,15 @@ class SimpleDateCondition(DateCondition):
         yield _
 
   def __fixedDayGenerator(self, unsafeDate_):
+    '''Генератор дней, используемый, если в условии задан фиксированный номер дня.
+
+    @param unsafeDate_: объект класса L{Unsafedate<utils.dates.UnsafeDate>},
+      задающий начальную дату
+    @returns: Iterable по датам (объектам класса C{datetime.date}).  Для
+      взаимодействия с вышестоящим генератором Iterable может также
+      возвращать C{None}.
+    @see: L{__scan}
+    '''
     unsafeDate = copy.copy(unsafeDate_)
     while True:
       date = self.__wrapDate(unsafeDate)
@@ -214,24 +383,57 @@ class SimpleDateCondition(DateCondition):
 
 
   class _DayGeneratorHelper(object):
+    '''Базовый класс для вспомогательных классов, которые используются в
+    генераторах дней для того, чтобы в случае, если в условии задан список
+    дней недели, сократить перебор дат, рассматривая только те, которые
+    попадают в этот список.'''
+
+    '''Если C{True}, перед началом перебора дат генератору дней необходимо
+    найти новую стартовую дату, вызвав L{checkWeekday()}.'''
     initiallyCheckWeekday = False
 
     @staticmethod
     def new(cond, back):
+      '''Основной способ конструирования объектов этого класса.  Создаёт
+      объект конкретного дочернего класса в зависимости от того, задан ли
+      список дней недели в условии.'''
       if cond.weekdays is not None:
         return SimpleDateCondition._WeekdaysDayGeneratorHelper(cond, back)
       else:
         return SimpleDateCondition._SimpleDayGeneratorHelper(back)
 
     def checkWeekday(self, date):
+      '''Найти дату ≥ C{date}, подходящую по дню недели.
+
+      @param date: объект класса C{datetime.date}
+      @returns: объект класса C{datetime.date}
+      '''
       raise NotImplementedError()
 
     def step(self, date):
+      '''Найти дату > C{date}, подходящую по дню недели.  B{ВАЖНО}: При этом,
+      чтобы было возможно провести необходимую оптимизацию, в качестве C{date}
+      может/должна быть передана только последняя дата, полученная с помощью
+      метода L{step} или L{checkWeekday}, иначе поведение метода не определено.
+
+      @param date: объект класса C{datetime.date}
+      @returns: объект класса C{datetime.date}
+      '''
       raise NotImplementedError()
 
   class _SimpleDayGeneratorHelper(_DayGeneratorHelper):
+    '''Вспомогательный класс для генераторов дней, который используется
+    в случае, когда нет ограничений на день недели.
+
+    @see: L{_DayGeneratorHelper}
+    '''
 
     def __init__(self, back):
+      '''Конструктор
+
+      @param back: если C{True}, поиск ведётся в направлении прошлого,
+        иначе в направлении будущего
+      '''
       super(SimpleDateCondition._SimpleDayGeneratorHelper, self).__init__()
       self.timedelta = datetime.timedelta(days=1 if not back else -1)
 
@@ -242,9 +444,25 @@ class SimpleDateCondition(DateCondition):
       return date + self.timedelta
 
   class _WeekdaysDayGeneratorHelper(_DayGeneratorHelper):
+    '''Вспомогательный кдасс для генераторов дней, который используется
+    в случае, когда в условии есть ограничения на день недели.
+
+    Получает в конструктор объект класса L{SimpleDateCondition} и использует
+    его атрибуты L{weekdays<SimpleDateCondition.weekdays>} и
+    L{weekdays_diff<SimpleDateCondition.weekdays_diff>}.
+
+    @see: L{_DayGeneratorHelper}
+    '''
+
     initiallyCheckWeekday = True
 
     def __init__(self, cond, back):
+      '''Конструктор
+
+      @param cond: объект класса L{SimpleDateCondition}
+      @param back: если C{True}, поиск ведётся в направлении прошлого,
+        иначе в направлении будущего
+      '''
       super(SimpleDateCondition._WeekdaysDayGeneratorHelper, self).__init__()
       self.cond = cond
       self.back = back
@@ -275,6 +493,17 @@ class SimpleDateCondition(DateCondition):
       return date + timedelta if not self.back else date - timedelta
 
   def __dayGenerator(self, unsafeDate, back):
+    '''Генератор дней, используемый, если номер дня не фиксирован.
+
+    @param unsafeDate: объект класса L{Unsafedate<utils.dates.UnsafeDate>},
+      задающий начальную дату
+    @param back: если C{True}, поиск ведётся в направлении прошлого,
+      иначе в направлении будущего
+    @returns: Iterable по датам (объектам класса C{datetime.date}).  Для
+      взаимодействия с вышестоящим генератором Iterable может также
+      возвращать C{None}.
+    @see: L{__scan}
+    '''
     helper = self._DayGeneratorHelper.new(self, back)
 
     first = True
@@ -293,6 +522,7 @@ class SimpleDateCondition(DateCondition):
         yield date
         nextDate = helper.step(date)
 
+      # Find a date satisfying both weekday and year-month-day conditions
       while date != nextDate:
         if date.month != nextDate.month:
           (year, month) = (yield None); yield None
@@ -304,6 +534,15 @@ class SimpleDateCondition(DateCondition):
         date = nextDate
 
   def __allDaysGenerator(self, date, back):
+    '''Простой генератор, используемый, когда не задан
+    ни один из компонентов даты.
+
+    @param date: объект класса C{datetime.date}, задающий начальную дату
+    @param back: если C{True}, поиск ведётся в направлении прошлого,
+      иначе в направлении будущего
+    @returns: Iterable по датам (объектам класса C{datetime.date})
+    @see: L{__scan}
+    '''
     helper = self._DayGeneratorHelper.new(self, back)
     if helper.initiallyCheckWeekday:
       date = helper.checkWeekday(date)
@@ -313,6 +552,7 @@ class SimpleDateCondition(DateCondition):
 
 
   class Test(unittest.TestCase):
+    '''Набор unit-тестов'''
 
     def setUp(self):
       self.startDate = datetime.date(2010, 1, 10)
@@ -521,8 +761,20 @@ class SimpleDateCondition(DateCondition):
 
 
 class RepeatDateCondition(DateCondition):
+  '''Класс, бесконечно отсчитывающий заданное количество дней (период) от
+  начальной даты.  Направление отсчёта совпадает с направлением сканирования
+  (то есть шаг положительный при сканировании в направлении будущего и
+  отрицательный при сканировании в направлении прошлого).
+
+  Особенно полезен при использовании внутри объекта класса
+  L{CombinedDateCondition}.'''
 
   def __init__(self, period):
+    '''Конструктор
+
+    @param period: Ненулевой период.  Если отрицательный, отсчёт дат ведётся от
+    стартовой даты в направлении, противоположном направлению сканирования.
+    '''
     if period == 0:
       raise ValueError('Period must not be zero')
     super(RepeatDateCondition, self).__init__()
@@ -542,6 +794,7 @@ class RepeatDateCondition(DateCondition):
 
 
   class Test(unittest.TestCase):
+    '''Набор unit-тестов'''
 
     def setUp(self):
       self.startDate = datetime.date(2010, 7, 16)
@@ -556,8 +809,15 @@ class RepeatDateCondition(DateCondition):
 
 
 class ShiftDateCondition(DateCondition):
+  '''Класс-декоратор, применяющий заданное смещение к результатам, которые
+  выдаёт нижележащий объект'''
 
   def __init__(self, cond, shift):
+    '''Конструктор
+
+    @param cond: нижележащий объект класса L{DateCondition}
+    @param shift: целочисленное число,задающее смещение в днях
+    '''
     super(ShiftDateCondition, self).__init__()
     self.cond = cond
     self.timedelta = datetime.timedelta(days=shift)
@@ -586,6 +846,7 @@ class ShiftDateCondition(DateCondition):
 
 
   class Test(unittest.TestCase):
+    '''Набор unit-тестов'''
 
     def setUp(self):
       self.startDate = datetime.date(2010, 3, 31)
@@ -625,9 +886,18 @@ class ShiftDateCondition(DateCondition):
 
 
 class SatisfyDateCondition(DateCondition):
+  '''Класс-декоратор, возвращающий из результатов, которые выдаёт нижележащий
+  объект, только даты, удовлетворяющие условию'''
 
-  # dateCondition can be None
   def __init__(self, cond, satisfy):
+    '''Конструктор
+
+    @param cond: Нижележащий объект класса L{DateCondition}.  Если передан
+      C{None}, делается полный перебор дат.
+    @param satisfy: Функция обратного вызова, которой будут передаваться
+      объекты класса C{datetime.date}.  Функция должна возвращать C{True} или
+      C{False} в зависимости от того, нужно или нет включать дату в результат.
+    '''
     super(SatisfyDateCondition, self).__init__()
     self.cond = cond
     self.satisfy = satisfy
@@ -639,6 +909,13 @@ class SatisfyDateCondition(DateCondition):
     return self.__scan(startDate, back=True)
 
   def __scan(self, startDate, back=False):
+    '''Общая реализация для методов L{scan} и L{scanBack}
+
+    @param startDate: объект класса C{datetime.date}, задающий начальную дату
+      для поиска
+    @param back: если C{True}, поиск выполняется в направлении прошлого,
+      иначе в направлении будущего
+    '''
     if self.cond is None:
       date = startDate
       timedelta = datetime.timedelta(days=1 if not back else -1)
@@ -654,6 +931,7 @@ class SatisfyDateCondition(DateCondition):
 
 
   class Test(unittest.TestCase):
+    '''Набор unit-тестов'''
 
     def setUp(self):
       self.startDate = datetime.date(2010, 7, 16)
@@ -674,6 +952,9 @@ class SatisfyDateCondition(DateCondition):
       self.assertEqual(the6thDayBack, datetime.date(2009, 12, 26))
 
     class __Odd(object):
+      '''Вспомогательный функтор.  Если порядковый номер вызова нечётный,
+      возвращает C{True}, иначе C{False}.  Номера вызовов считаются с единицы,
+      то есть при первом вызове будет возвращено C{True}.'''
 
       def __init__(self):
         object.__init__(self)
@@ -685,8 +966,18 @@ class SatisfyDateCondition(DateCondition):
 
 
 class LimitedDateCondition(DateCondition):
+  '''Класс-декоратор, вызывающий нижележащий объект ограниченное количество
+  раз.  Ограничения задаются в L{конструкторе<LimitedDateCondition.__init__>}.'''
 
   def __init__(self, cond, from_=None, until=None, maxMatches=None):
+    '''Конструктор
+
+    @param cond: нижележащий объект класса C{DateCondition}
+    @param from_: если не C{None}, будут опущены даты меньше этой
+    @param until: если не C{None}, будут опущены даты после этой
+    @param maxMatches: если не C{None}, количество возвращаемых дат будет
+      ограничено этим числом
+    '''
     super(LimitedDateCondition, self).__init__()
     self.cond = cond
     self.from_ = from_
@@ -715,8 +1006,20 @@ class LimitedDateCondition(DateCondition):
 
 
 class CombinedDateCondition(DateCondition):
+  '''Класс-декторатор, позволяющий скомбинировать два нижележащих объекта:
+  второй вызывается каждый раз, когда очередную дату возвращает первый, при
+  этом эта дата передаётся второму объекту в качестве стартовой.'''
 
   def __init__(self, cond, cond2, scanBack=False):
+    '''Конструктор
+
+    @param cond: первый объект класса L{DateCondition}
+    @param cond2: второй объект класса L{DateCondition}
+    @param scanBack: если C{True}, у второго объекта скарирование запускается
+      в направлении прошлого, иначе в направлении будущего
+
+    @see: L{CombinedDateCondition}
+    '''
     super(CombinedDateCondition, self).__init__()
     self.cond = cond
     self.cond2 = cond2
@@ -733,6 +1036,11 @@ class CombinedDateCondition(DateCondition):
         yield date2
 
   def __applyCond2(self, date):
+    '''Вспомогательный метод, запускающий сканирование у второго объекта для
+    заданной стартовой даты
+
+    @param date: объект класса C{datetime.date}, задающий начальную дату
+    '''
     gen = self.cond2.scan(date) if not self.back \
       else self.cond2.scanBack(date)
     for date2 in gen:
@@ -740,6 +1048,7 @@ class CombinedDateCondition(DateCondition):
 
 
   class Test(unittest.TestCase):
+    '''Набор unit-тестов'''
 
     def setUp(self):
       self.startDate = datetime.date(2010, 3, 31)

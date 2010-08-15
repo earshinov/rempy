@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+
+'''Содержит класс L{DeferrableParser}'''
+
 import datetime
 import unittest
 
@@ -5,8 +9,27 @@ from rempy.StringParser import StringParser, ReminderParser, ChainData, parseDat
 
 
 class DeferrableParser(StringParser):
+  '''Класс-декоратор для разбора строки напоминалки с дополнительным параметром,
+  который задаёт дату последнего выполнения события.  К опциям, которые
+  поддерживает обёрнутый класс, добавляется длинная опция C{DONE <ISO Date>}
+
+  Использование:
+    - сконструировать объект
+    - вызвать L{parse}
+    - использовать возвращённое значение и значения, которые возвращает
+      метод L{doneDate} и аналогичные геттеры в обёрнутом классе
+  '''
 
   class _DoneParser(object):
+    '''Класс для разбора длинной опции C{DONE}
+
+    Использование:
+
+      - добавить в список L{namedOptionHandlers<ChainData.namedOptionHandlers>}
+        объекта класса L{ChainData}
+      - выполнить разбор строки
+      - вызвать метод L{doneDate} для получения считанного значения
+    '''
 
     def __init__(self):
       object.__init__(self)
@@ -21,6 +44,11 @@ class DeferrableParser(StringParser):
       return token
 
     def doneDate(self):
+      '''Получить считанное значение даты
+
+      @returns: объект класса C{datetime.date} или C{None}, если опция
+        отсутствовала во входной строке
+      '''
       return self.done
 
   def __init__(self, chainFactory=ReminderParser, chainData=None):
@@ -34,6 +62,10 @@ class DeferrableParser(StringParser):
     return self.chain.parse(string)
 
   def doneDate(self):
+    '''Получить считанное значение даты последнего выполнения события в виде
+    объекта класса C{datetime.date} или C{None}, если соответствующая опция
+    отсутствовала в исходной строке
+    '''
     return self.doneParser.doneDate()
 
   def __getattr__(self, name):
@@ -41,6 +73,7 @@ class DeferrableParser(StringParser):
 
 
   class Test(unittest.TestCase):
+    '''Набор unit-тестов'''
 
     def setUp(self):
       self.parser = DeferrableParser()

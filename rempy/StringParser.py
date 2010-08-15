@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+
+'''Содержит иерархию классов L{StringParser}.  Полезен разработчикам классов
+напоминалок, в том числе разработчикам расширений.  Конечным пользователям
+должен быть необходим редко.
+
+При запуске из командной строки запускает присутствующие в модуле unit-тесты.'''
+
 import copy
 import datetime
 import unittest
@@ -8,6 +16,12 @@ import utils.strings as strings
 
 
 def parseDate(token):
+  '''Вспомогательная функция для разбора даты в формате ISO.
+
+  @param token: строка даты в формате ISO
+  @returns: объект класса C{datetime.date}
+  @raise L{FormatError<utils.FormatError>}: строка имеет неправильный формат
+  '''
   try:
     return dateutils.parseIsoDate(token.string())
   except ValueError, e:
@@ -15,8 +29,59 @@ def parseDate(token):
 
 
 class ChainData(object):
+  '''Вспомогательный класс для хранения параметров, которые могут передаваться в
+  объект класса L{DateConditionParser} и использоваться там для расширения
+  набора конструкций, поддерживаемых парсером
+
+  @ivar optionHandlers: Обработчики коротких опций.  Каждый элемент списка
+      должен представлять из себя кортеж из двух элементов.  Первый элемент
+      кортежа должен быть строкой, задающей начало конструкции.  Второй элемент
+      кортежа должен быть функцией, принимающей единственным параметром токен.
+
+  @ivar namedOptionHandlers: Словарь обработчиков длинных опций.  Ключом
+      должна быть строка названия опции; значением — функция-обработчик.
+      Функция должна принимать два параметра:
+
+        - токен, следующий за токеном, содержащим название опции,
+          или C{None}, если токены закончились;
+        - Iterator по токенам, установленный на следующий токен.
+
+      Функция должна возвращать токен, следующий за последним обработанным.
+      Если токены кончаются, должен быть возвращён C{None}.  Iterable,
+      переданный через параметры, должен быть установлен на следующий токен.
+
+  @ivar unparsedRemainderHandlers: Список обработчиков, которые вызываются
+      по очереди в случае, если в исходной строке остались неразобранные
+      токены.  Элементами списка должны быть функции.  Функция должна принимать
+      параметры:
+
+        - сконструированный к этому моменту объект класса
+          L{DateCondition<DateCondition.DateCondition>};
+        - первый неразобранный токен или C{None}, если токены закончились;
+        - Iterable по токенам, установленный на следующий токен;
+        - неразобранная часть строки.
+
+      Функция должна возвращать кортеж из двух элементов.  Первым элементом
+      должен быть токен, следующий за последним обработанным, или C{None}, если
+      токены закончились.  Вторым элементом должен быть объект класса
+      L{DateCondition<DateCondition.DateCondition>}.  Iterable, переданный через
+      параметры, должен быть установлен на токен, следующий за тем, который
+      возвращается первым элементом кортежа.
+
+  @see: L{DateConditionParser}
+  '''
 
   def __init__(self, optionHandlers=[], namedOptionHandlers={}, unparsedRemainderHandlers=[]):
+    '''Конструктор.  Выполняет defensive copying переданных коллекций.
+
+    @param optionHandlers: значение для записи в атрибут
+      L{optionHandlers<ChainData.optionHandlers>}
+    @param namedOptionHandlers: значение для записи в атрибут
+      L{namedOptionHandlers<ChainData.namedOptionHandlers>}
+    @param unparsedRemainderHandlers: значение для записи в атрибут
+      L{unparsedRemainderHandlers<ChainData.unparsedRemainderHandlers>}
+    @see: L{DateConditionParser}
+    '''
     object.__init__(self)
     self.optionHandlers = copy.copy(optionHandlers)
     self.namedOptionHandlers = copy.copy(namedOptionHandlers)
@@ -28,25 +93,68 @@ class ChainData(object):
 
 
 class StringParser(object):
+  '''Базовый класс для классов, выполняющий разбор строки
+  с описанием напоминалки'''
 
   def parse(self, string):
+    '''Выполнить разбор строки
+
+    @param string: строка для разбора
+    @returns: объект класса L{DateCondition<DateCondition.DateCondition>}
+    @raise L{FormatError<utils.FormatError>}: строка имеет неправильный формат
+    '''
     pass
 
 
 class DateConditionParser(StringParser):
+  '''Класс, выполняющий разбор строки с описанием условия на дату
+
+  Формат строки::
+
+    [REM] <DateSpec> <ShortOpts> <LongOpts>
+    <DateSpec> :: { <ISO Date> | [ <Weekday> ... ] [ <Year> ] [ <Month> ] [ <Day> ] }
+    <ShortOpts> :: { { [ {-|--}<Delta> ] | [ *<Repeat> ] } ... }
+    <LongOpts> :: { { [ {FROM|SCANFROM} <ISO Date> ] | [ UNTIL <ISO Date> ] } ... }
+
+  Weekday: название дня недели, полное (Wednesday) или краткое (Wed)
+  Year: полный номер года
+  Month: номер месяца (1-12)
+  Day: номер дня (1-31)
+
+  Delta: смещение назад на заданное количество дней, может быть только положительным
+  Repeat: повтор с интервалом, равным заданному количеству дней
+
+  Ключевые слова не чувствительны к регистру
+
+  Отличия от Remind:
+
+    - Дни недели указываются в начале строки и не могут перемешиваться с
+      годом, месяцем и днём
+    - Так как не поддерживаются инструкции OMIT, инструкции -<Delta> и --<Delta>
+      абсолютно эквивалентны
+    - Можно использовать <Repeat> и в случае, когда дата не фиксирована (то есть
+      отсутствует хотя бы один из параметров <Year>, <Month>, <Date>), хотя
+      в этом мало смысла
+    - инструкции FROM и SCANFROM эквивалентны
+
+  В остальном обработка выражения производится согласно поведению Remind.
+  '''
 
   def __init__(self, chainData=None):
+    '''Конструктор
+
+    @param chainData: объект класса L{ChainData}
+    '''
     super(DateConditionParser, self).__init__()
     self.chainData = copy.copy(chainData) if chainData is not None else ChainData()
 
-  # Differences from remind:
-  # - week days are specified at the beginning (they can't be mixed with year, month and day);
-  # - two-digit years are not supported;
-  # - "--" and "-" delta specifications mean the same as "omits" are not supported;
-  # - repeat option can be used for non-fixed dates, in this case it will "repeat"
-  #   the first match date;
-  # - FROM and STARTFROM clauses mean the same.
   def parse(self, string):
+    '''Выполнить разбор строки
+
+    @param string: строка для разбора
+    @returns: объект класса L{DateCondition<DateCondition.DateCondition>}
+    @raise L{FormatError}: строка имеет неправильный формат
+    '''
     tokens = (token.lower() for token in strings.splitWithPositions(string))
 
     try:
@@ -97,12 +205,28 @@ class DateConditionParser(StringParser):
     return cond
 
   def _handleUnparsedRemainder(self, cond, token, tokens, string):
+    '''Обработчик, добавляемый в конец списка
+    L{unparsedRemainderHandlers<ChainData.unparsedRemainderHandlers>} объекта
+    C{chainData}, переданного в конструктор.  Вызывает исключение
+    L{FormatError<utils.FormatError>}.
+    '''
     raise FormatError('Unparsed remainder starting with "%s"' % token)
 
 
   class _SimpleDate(object):
+    '''Класс, который умеет конструировать объект класса
+    L{DateCondition<DateCondition.DateCondition>} по значением года, месяца,
+    дня и списку дней недели.  Установка этих параметров осуществляется
+    записью в атрибуты.
+
+    @ivar weekdays: список дней недели (0 - понеделиник, 6 - воскресенье) или C{None} (умолчание)
+    @ivar year: полный номер года или C{None} (умолчание)
+    @ivar month: номер месяца (1-12) или C{None} (умолчание)
+    @ivar day: номер дня (1-31) или C{None} (умолчание)
+    '''
 
     def __init__(self):
+      '''Конструктор, заполняющий все атрибуты значениями по умолчанию'''
       object.__init__(self)
       self.weekdays = None
       self.day = None
@@ -110,6 +234,8 @@ class DateConditionParser(StringParser):
       self.year = None
 
     def createCondition(self):
+      '''Создать исходя из значений атрибутов объект класса
+      L{DateCondition<DateCondition.DateCondition>}'''
       if self.day is not None and self.weekdays is not None:
         # handle this case like remind
         return CombinedDateCondition(
@@ -205,6 +331,7 @@ class DateConditionParser(StringParser):
 
 
   def _parseOptions(self, token, tokens, handlers):
+    '''Разобрать короткие опции'''
     try:
       while True:
         handler = None
@@ -222,6 +349,16 @@ class DateConditionParser(StringParser):
     return token
 
   class _DeltaParser(object):
+    '''Парсер короткой опции <Delta>
+
+    Использование:
+
+      - добавить в список L{optionHandlers<ChainData.optionHandlers>}
+        объекта класса L{ChainData}
+      - выполнить разбор строки
+      - вызвать метод L{apply} для применения параметра <Delta> к объекту
+        класса L{DateCondition<DateCondition.DateCondition>}
+    '''
 
     def __init__(self):
       object.__init__(self)
@@ -244,10 +381,27 @@ class DateConditionParser(StringParser):
         self.delta = delta
 
     def apply(self, cond):
+      '''Применить параметр <Delta> к объекту класса
+      L{DateCondition<DateCondition.DateCondition>}
+
+      @param cond: объект класса L{DateCondition<DateCondition.DateCondition>}
+      @returns: новый объект класса L{DateCondition<DateCondition.DateCondition>}
+        или C{cond}, если парсер не вызывался (в строке не был указан параметр <Delta>).
+      '''
       return cond if self.delta == 0 else \
         ShiftDateCondition(cond, -self.delta)
 
   class _RepeatParser(object):
+    '''Парсер короткой опции <Repeat>
+
+    Использование:
+
+      - добавить в список L{optionHandlers<ChainData.optionHandlers>}
+        объекта класса L{ChainData}
+      - выполнить разбор строки
+      - вызвать метод L{apply} для применения параметра <Repeat> к объекту
+        класса L{DateCondition<DateCondition.DateCondition>}
+    '''
 
     def __init__(self):
       object.__init__(self)
@@ -265,11 +419,19 @@ class DateConditionParser(StringParser):
         self.repeat = repeat
 
     def apply(self, cond):
+      '''Применить параметр <Repeat> к объекту класса
+      L{DateCondition<DateCondition.DateCondition>}
+
+      @param cond: объект класса L{DateCondition<DateCondition.DateCondition>}
+      @returns: новый объект класса L{DateCondition<DateCondition.DateCondition>}
+        или C{cond}, если парсер не вызывался (в строке не был указан параметр <Repeat>).
+      '''
       return cond if self.repeat is None else \
         CombinedDateCondition(cond, RepeatDateCondition(self.repeat))
 
 
   def _parseNamedOptions(self, token, tokens, handlers):
+    '''Разобрать длинные опции'''
     while True:
       handler = handlers.get(token)
       if handler is None:
@@ -284,6 +446,16 @@ class DateConditionParser(StringParser):
     return token
 
   class _DateNamedOptionParser(object):
+    '''Класс для разбора длинной опции, в которой лежит один токен,
+    содержащий дату в формате ISO
+
+    Использование:
+
+      - добавить в список L{namedOptionHandlers<ChainData.namedOptionHandlers>}
+        объекта класса L{ChainData}
+      - выполнить разбор строки
+      - вызвать метод L{value} для получения считанного значения
+    '''
 
     def __init__(self):
       object.__init__(self)
@@ -301,10 +473,15 @@ class DateConditionParser(StringParser):
       return token
 
     def value(self):
+      '''Получить считанное значение
+      @returns: считанное значение как объект класса C{datetime.date} или
+        C{None}, если парсер не вызывался (опция отсутствовала во входной строке)
+      '''
       return self.val
 
 
   class Test(unittest.TestCase):
+    '''Набор unit-тестов'''
 
     def setUp(self):
       self.parser = DateConditionParser()
@@ -361,8 +538,31 @@ class DateConditionParser(StringParser):
 
 
 class ReminderParser(StringParser):
+  '''Класс-декоратор для разбора строки напоминалки с базовыми параметрами
+
+  К опциям, которые поддерживает обёрнутый класс, добавляется короткая
+  опция C{{+|++}<AdvanceWarning>}.  В отличие от Remind, мы не поддерживаем
+  инструкции типа OMIT, поэтому C{+} и C{++} равнозначны.
+
+  Конечная часть строки, не разобранная в обёрнутом классе, считается сообщением
+  для вывода.  Опционально в начале сообщения можно использовать ключевое слово MSG.
+
+  Использование:
+    - сконструировать объект
+    - вызвать L{parse}
+    - использовать возвращённое значение и значения, которые возвращают
+      методы L{advanceWarningValue} и L{message}
+  '''
 
   class _AdvanceWarningParser(object):
+    '''Парсер для короткой опции <AdvanceWarningValue>
+
+    Использование:
+      - добавить в список L{optionHandlers<ChainData.optionHandlers>}
+        объекта класса L{ChainData}
+      - выполнить разбор строки
+      - вызвать метод L{advanceWarningValue} для получения считанного значения
+    '''
 
     def __init__(self):
       object.__init__(self)
@@ -385,9 +585,20 @@ class ReminderParser(StringParser):
         self.adv = adv
 
     def advanceWarningValue(self):
+      '''Получить считанное значение
+
+      @returns: считанное целочисленное значение или C{None}, если парсер
+        не вызывался (в строке отсутствовала опция <AdvanceWarning)
+      '''
       return self.adv
 
   def __init__(self, chainFactory=DateConditionParser, chainData=None):
+    '''Конструктор
+
+    @param chainFactory: callable, при вызове c параметром C{chainData}
+      возвращающий объект класса L{StringParser}, который будет обёрнут
+    @param chainData: объект класса L{ChainData}
+    '''
     super(ReminderParser, self).__init__()
 
     chainData = copy.copy(chainData) if chainData is not None else ChainData()
@@ -398,6 +609,10 @@ class ReminderParser(StringParser):
     self.msg = None
 
   def _handleUnparsedRemainder(self, cond, token, tokens, string):
+    '''Обработчик, добавляемый в конец списка
+    L{unparsedRemainderHandlers<ChainData.unparsedRemainderHandlers>} объекта
+    C{chainData}, переданного в конструктор.  Сохраняет сообщение для вывода.
+    '''
     try:
       if token == 'msg':
         token = tokens.next()
@@ -411,13 +626,18 @@ class ReminderParser(StringParser):
     return self.chain.parse(string)
 
   def advanceWarningValue(self):
+    '''Получить считанное значение опции <AdvanceWarning> или C{None}, если
+    эта опция отсутствовала в исходной строке'''
     return self.advParser.advanceWarningValue()
 
   def message(self):
+    '''Получить считанное сообщение для вывода или C{None}, если оно
+    отсутствовало в исходной строке'''
     return self.msg
 
 
   class Test(unittest.TestCase):
+    '''Набор unit-тестов'''
 
     def setUp(self):
       self.parser = ReminderParser()

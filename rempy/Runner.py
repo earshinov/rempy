@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+
+'''Содержит иерархию классов L{Runner} и функцию L{main}
+
+При запуске из командной строки запускает функцию L{main}.'''
+
 import datetime
 import getopt
 from heapq import heappop, heappush
@@ -7,21 +13,48 @@ import utils.dates as dateutils
 
 
 class RunnerMode:
+  '''Режим запуска'''
+
   REMIND = 0
+  '''Режим напоминания.  Учитывает значения количества дней для предварительного
+  оповещения о событии, указанные в напоминалках'''
+
   EVENTS = 1
+  '''Режим вывода списка событий.  В этом режиме объект класса L{Runner} не
+  предупреждает о событиях предварительно'''
 
 
 class Runner(object):
+  '''Класс, собирающий список напоминалок и затем выполняющий связанные с ними
+  действия в порядке возрастания дат соответствующих событий.  При этом
+  выполнение действий и некоторые другие действия делегируются классу-наследнику.
+
+  Использование:
+
+    - сконструировать
+    - добавить напоминалки с использованием метода L{add}
+    - вызвать метод L{run}
+  '''
 
   def __init__(self):
     super(Runner, self).__init__()
     self.reminders = []
 
   def add(self, reminder):
+    '''Добавить напоминалку
+
+    @param reminder: объект класса L{Reminder<Reminder.Reminder>}
+    '''
     self.reminders.append(reminder)
 
   def run(self, fromDate, toDate, mode):
+    '''Запустить связанные с добавленными напоминалками действия для событий
+    в пределах заданного диапазона дат
 
+    @param fromDate: объект класса C{datetime.date}, задающий начальную дату
+    @param toDate: объект класса C{datetime.date}, задающий конечную дату (включительно)
+    @param mode: константа из «перечисления» L{RunnerMode}, задающая режим запуска
+    '''
     heap = []
 
     def __pushNextEvent(reminder, gen):
@@ -50,13 +83,28 @@ class Runner(object):
       __pushNextEvent(reminder, gen)
 
   def _handleNextDate(self, date):
+    '''Метод для определения в наследнике.  Вызывается, когда очередное событие
+    попадает на дату, которая превышает дату предыдущего события.  Реализация
+    по умолчанию ничего не делает.
+
+    @param date: объект класса C{datetime.date}, дата события
+    '''
     pass
 
   def _executeReminder(self, reminder, date):
+    '''Метод для определения в наследнике.  Вызывается, когда требуется выполнить
+    действие, связанное с напоминалкой. Реализация по умолчанию ничего не делает.
+
+    @param reminder: объект класса L{Reminder<Reminder.Reminder>}
+    @param date: объект класса C{datetime.date}, дата события
+    '''
     pass
 
 
 class PrintRunner(Runner):
+  '''Наследник класса L{Runner}, подходящий для обработки текстовых
+  напоминателей (таких, что связанные с ними действия выполняют печать
+  сообщения в поток вывода).'''
 
   def _handleNextDate(self, date):
     print 'Reminders for %s' % date.isoformat()
@@ -66,6 +114,12 @@ class PrintRunner(Runner):
 
 
 def main(args, runnerFactory=PrintRunner):
+  '''Функция main()
+
+  @param args: Аргументы командной строки, включая первый, который задаёт имя команды
+  @param runnerFactory: callable, при вызове без параметров возвращающий объект
+    класса L{Runner}, который будет использоваться для запуска напоминалок
+  '''
   assert len(args) > 0
 
   USAGE = '''Usage: %s COMMAND OPTIONS\n

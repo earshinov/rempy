@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+
+'''Содержит класс L{DeferrableDateCondition}'''
+
 import datetime
 import itertools
 import unittest
@@ -7,8 +11,27 @@ from rempy.Runner import RunnerMode
 
 
 class DeferrableDateCondition(DateCondition):
+  '''Класс-декоратор, учитывающий дату последнего выполнения события.  Если
+  в прошлом есть невыполненные событие, а в будущем в пределах числа дней для
+  преждевременного предупреждения о событии - нет, сначала будет выведена дата
+  последнего невыполненного события в прошлом.  Преждевременное предупреждение
+  не учитывается, если запуск напоминалок происходит в режиме
+  L{RunnerMode.EVENTS<rempy.Runner.RunnerMode.EVENTS>}.  Все даты, которые не
+  превышают дату последнего выполнение, выводится не будут.  Реализовано только
+  сканирование в направлении будущего.'''
 
   def __init__(self, cond, runnerMode, doneDate=None, advanceWarningValue=0):
+    '''Конструктор
+
+    @param cond: объект класса L{DateCondition<rempy.DateCondition.DateCondition>},
+      который надо обернуть
+    @param runnerMode: элемент «перечисления» L{RunnerMode<rempy.Runner.RunnerMode>},
+      режим запуска напоминателей
+    @param doneDate: объект класса C{datetime.date}, дата последнего выполнения.
+      Если C{None}, считается, что событие ещё ни разу не выполнялось.
+    @param advanceWarningValue: количество дней для преждевременного
+      предупреждения о событии
+    '''
     if advanceWarningValue < 0:
       raise ValueError('Advance warning value must not be negative')
     super(DeferrableDateCondition, self).__init__()
@@ -23,7 +46,6 @@ class DeferrableDateCondition(DateCondition):
       gen = itertools.dropwhile(lambda date: self.doneDate >= date, gen)
 
     if self.mode == RunnerMode.REMIND:
-      # necessarily remind about an undone event (lastUndone)
 
       try:
         backDate = startDate - datetime.timedelta(days=1)
@@ -50,6 +72,7 @@ class DeferrableDateCondition(DateCondition):
       yield date
 
   def scanBack(self, startDate):
+    '''Не реализовано: выбрасывает C{NotImplementedError}'''
     raise NotImplementedError()
 
   def __getattr__(self, name):
@@ -57,6 +80,7 @@ class DeferrableDateCondition(DateCondition):
 
 
   class Test(unittest.TestCase):
+    '''Набор unit-тестов'''
 
     def setUp(self):
       self.startDate = datetime.date(2010, 5, 12)

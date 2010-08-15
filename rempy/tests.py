@@ -1,8 +1,15 @@
+# -*- coding: utf-8 -*-
+
+'''При запуске из командной строки запускает все unit-тесты,
+объявленные в пакете C{rempy}.  Создан просто для удобства.
+'''
+
 import DateCondition
 import StringParser
 import utils.dates as dateutils
 
 import unittest
+
 
 if __name__ == '__main__':
   subsuites = []
