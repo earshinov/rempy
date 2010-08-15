@@ -388,6 +388,10 @@ class SimpleDateCondition(DateCondition):
     дней недели, сократить перебор дат, рассматривая только те, которые
     попадают в этот список.'''
 
+    def __init__(self):
+      super(SimpleDateCondition._DayGeneratorHelper, self).__init__()
+      self.lastDate = None
+
     @staticmethod
     def new(cond, back):
       '''Основной способ конструирования объектов этого класса.  Создаёт
@@ -399,21 +403,42 @@ class SimpleDateCondition(DateCondition):
         return SimpleDateCondition._SimpleDayGeneratorHelper(back)
 
     def checkWeekday(self, date):
-      '''Найти дату ≥ C{date}, подходящую по дню недели.
+      '''Найти дату ≥ C{date}, подходящую по дню недели.  Делегирует работу
+      методу L{_checkWeekday}, который реализуется в наследниках.
 
       @param date: объект класса C{datetime.date}
       @returns: объект класса C{datetime.date}
       '''
-      raise NotImplementedError()
+      self.lastDate = self._checkWeekday(date)
+      return self.lastDate
 
-    def step(self, date):
-      '''Найти дату > C{date}, подходящую по дню недели.  B{ВАЖНО}: При этом,
-      чтобы было возможно провести необходимую оптимизацию, в качестве C{date}
-      может/должна быть передана только последняя дата, полученная с помощью
-      метода L{step} или L{checkWeekday}, иначе поведение метода не определено.
+    def _checkWeekday(self, date):
+      '''Метод для определения в наследниках.  Реализация метода L{checkWeekday}
 
       @param date: объект класса C{datetime.date}
       @returns: объект класса C{datetime.date}
+
+      @see: L{checkWeekday}
+      '''
+      raise NotImplementedError()
+
+    def step(self):
+      '''Найти дату, следующую за предыдущей датой, возвращённой этим методом
+      или методом L{checkWeekday}.  Делегирует работу методу L{_step}, который
+      реализуется в наследниках.
+
+      @returns: объект класса C{datetime.date}
+      '''
+      self.lastDate = self._step(self.lastDate)
+      return self.lastDate
+
+    def _step(self, date):
+      '''Метод для определения в наследниках.  Реализация метода L{step}
+
+      @param date: последняя дата, возвращённая этим методом или методом L{_checkWeekday}
+      @returns: объект класса C{datetime.date}
+
+      @see: L{step}
       '''
       raise NotImplementedError()
 
@@ -433,10 +458,10 @@ class SimpleDateCondition(DateCondition):
       super(SimpleDateCondition._SimpleDayGeneratorHelper, self).__init__()
       self.timedelta = datetime.timedelta(days=1 if not back else -1)
 
-    def checkWeekday(self, date):
+    def _checkWeekday(self, date):
       return date
 
-    def step(self, date):
+    def _step(self, date):
       return date + self.timedelta
 
   class _WeekdaysDayGeneratorHelper(_DayGeneratorHelper):
@@ -462,7 +487,7 @@ class SimpleDateCondition(DateCondition):
       self.back = back
       self.weekdays_diff_index = None
 
-    def checkWeekday(self, date):
+    def _checkWeekday(self, date):
       # this fails when self.cond.weekdays == []
       # the condition is checked in __scan()
       date_weekday = date.weekday()
@@ -480,7 +505,7 @@ class SimpleDateCondition(DateCondition):
         else (i-1) % len(self.cond.weekdays)
       return date + datetime.timedelta(days=increment)
 
-    def step(self, date):
+    def _step(self, date):
       timedelta = self.cond.weekdays_diff[self.weekdays_diff_index]
       self.weekdays_diff_index += 1 if not self.back else -1
       self.weekdays_diff_index %= len(self.cond.weekdays_diff)
@@ -500,17 +525,12 @@ class SimpleDateCondition(DateCondition):
     '''
     helper = self._DayGeneratorHelper.new(self, back)
 
-    first = True
+    date, skip = self.__wrapDate_noFail(unsafeDate)
+    nextDate = helper.checkWeekday(date)
+    if date == nextDate and skip:
+      nextDate = helper.step()
+
     while True:
-      if first:
-        date, skip = self.__wrapDate_noFail(unsafeDate)
-        nextDate = helper.checkWeekday(date)
-        if date == nextDate and skip:
-          nextDate = helper.step(nextDate)
-        first = False
-      else:
-        yield date
-        nextDate = helper.step(date)
 
       # Find a date satisfying both weekday and year-month-day conditions
       while date != nextDate:
@@ -523,6 +543,9 @@ class SimpleDateCondition(DateCondition):
             continue
         date = nextDate
 
+      yield date
+      nextDate = helper.step()
+
   def __allDaysGenerator(self, date, back):
     '''Простой генератор, используемый, когда не задан
     ни один из компонентов даты.
@@ -534,10 +557,9 @@ class SimpleDateCondition(DateCondition):
     @see: L{__scan}
     '''
     helper = self._DayGeneratorHelper.new(self, back)
-    date = helper.checkWeekday(date)
+    yield helper.checkWeekday(date)
     while True:
-      yield date
-      date = helper.step(date)
+      yield helper.step()
 
 
   class Test(unittest.TestCase):
