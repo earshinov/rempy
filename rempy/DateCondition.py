@@ -884,7 +884,7 @@ class ShiftDateCondition(DateCondition):
 
     def test_wrapStartDate_back(self):
       cond = ShiftDateCondition(SimpleDateCondition(2010, None, 30), 2)
-      date = cond.scanBack(self.startDate).next()
+      date = iter(cond.scanBack(self.startDate)).next()
       self.assertEqual(date, datetime.date(2010, 3, 2))
 
     def test_wrapStartDate_back2(self):

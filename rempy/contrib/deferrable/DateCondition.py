@@ -49,7 +49,7 @@ class DeferrableDateCondition(DateCondition):
 
       try:
         backDate = startDate - datetime.timedelta(days=1)
-        lastUndone = self.cond.scanBack(backDate).next()
+        lastUndone = iter(self.cond.scanBack(backDate)).next()
       except StopIteration:
         lastUndone = None
       if lastUndone is not None \
