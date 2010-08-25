@@ -572,12 +572,12 @@ class SimpleDateCondition(DateCondition):
 
     def test_000(self):
       gen = SimpleDateCondition(None, None, None).scan(self.startDate)
-      date = next(itertools.islice(gen, 365*2, None))
+      date = itertools.islice(gen, 365*2, None).next()
       self.assertEqual(date, datetime.date(2012, 1, 10))
 
     def test_001(self):
       gen = SimpleDateCondition(None, None, 17).scan(self.startDate)
-      date = next(itertools.islice(gen, 13, None))
+      date = itertools.islice(gen, 13, None).next()
       self.assertEqual(date, datetime.date(2011, 2, 17))
 
     def test_010(self):
@@ -953,13 +953,13 @@ class SatisfyDateCondition(DateCondition):
       gen = iter(everySecondMonday.scan(datetime.date(2010, 1, 1)))
       the2ndMonday = gen.next()
       self.assertEqual(the2ndMonday, datetime.date(2010, 1, 11))
-      the20thMonday = next(itertools.islice(gen, 8, None))
+      the20thMonday = itertools.islice(gen, 8, None).next()
       self.assertEqual(the20thMonday, datetime.date(2010, 5, 17))
 
     def test_none(self):
       everySecondDay = SatisfyDateCondition(None, self.__Odd())
       gen = everySecondDay.scanBack(datetime.date(2009, 12, 31))
-      the6thDayBack = next(itertools.islice(gen, 2, None))
+      the6thDayBack = itertools.islice(gen, 2, None).next()
       self.assertEqual(the6thDayBack, datetime.date(2009, 12, 26))
 
     class __Odd(object):
