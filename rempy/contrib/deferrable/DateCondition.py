@@ -41,7 +41,7 @@ class DeferrableDateCondition(DateCondition):
     self.adv = advanceWarningValue
 
   def scan(self, startDate):
-    gen = self.cond.scan(startDate)
+    gen = iter(self.cond.scan(startDate))
     if self.doneDate is not None:
       gen = itertools.dropwhile(lambda date: self.doneDate >= date, gen)
 
@@ -88,7 +88,7 @@ class DeferrableDateCondition(DateCondition):
 
     def __simpleTest(self, firstReturnedDate, runnerMode=RunnerMode.REMIND, *args, **kwargs):
       cond = DeferrableDateCondition(self.simpleCond, runnerMode, *args, **kwargs)
-      date = cond.scan(self.startDate).next()
+      date = iter(cond.scan(self.startDate)).next()
       self.assertEquals(date, firstReturnedDate)
 
 

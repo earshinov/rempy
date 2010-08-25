@@ -68,7 +68,7 @@ class Runner(object):
         heappush(heap, (date, reminder, gen))
 
     for reminder in self.reminders:
-      gen = reminder.condition(mode).scan(fromDate)
+      gen = iter(reminder.condition(mode).scan(fromDate))
       __pushNextEvent(reminder, gen)
     currentDate = None
     while True: # until heap is empty and heappop() raises IndexError

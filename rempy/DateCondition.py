@@ -764,10 +764,10 @@ class SimpleDateCondition(DateCondition):
     # Special: fixed dates
 
     def test_fixed_weekdays_success(self):
-      dates = SimpleDateCondition(2010, 9, 1, weekdays=[0,2,6]).scan(self.startDate)
+      dates = list(SimpleDateCondition(2010, 9, 1, weekdays=[0,2,6]).scan(self.startDate))
       self.assertEqual(dates, [datetime.date(2010, 9, 1)])
     def test_fixed_weekdays_failure(self):
-      dates = SimpleDateCondition(2010, 9, 1, weekdays=[1,3]).scan(self.startDate)
+      dates = list(SimpleDateCondition(2010, 9, 1, weekdays=[1,3]).scan(self.startDate))
       self.assertEqual(dates, [])
 
 
@@ -950,7 +950,7 @@ class SatisfyDateCondition(DateCondition):
     def test_basic(self):
       everyMonday = SimpleDateCondition(2010, None, None, weekdays=[0])
       everySecondMonday = SatisfyDateCondition(everyMonday, self.__Odd())
-      gen = everySecondMonday.scan(datetime.date(2010, 1, 1))
+      gen = iter(everySecondMonday.scan(datetime.date(2010, 1, 1)))
       the2ndMonday = gen.next()
       self.assertEqual(the2ndMonday, datetime.date(2010, 1, 11))
       the20thMonday = next(itertools.islice(gen, 8, None))
