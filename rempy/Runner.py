@@ -16,8 +16,6 @@ try:
 except ImportError:
   pdt = None
 
-from Reminder import ShortcutReminder
-from contrib.deferrable.Reminder import DeferrableReminder
 import utils.dates as dateutils
 
 
@@ -223,6 +221,8 @@ OPTIONS = [ --from=DATE ] [ --to=DATE | --future=N_DAYS ]
     to = from_
 
   runner = runnerFactory()
+  from Reminder import ShortcutReminder
+  from contrib.deferrable.Reminder import DeferrableReminder
   def rem(*args, **kwargs):
     return runner.add(ShortcutReminder.fromString(*args, **kwargs))
   def deferrable(*args, **kwargs):
