@@ -130,12 +130,13 @@ class PrintRunner(Runner):
     reminder.execute(date)
 
 
-def main(args, runnerFactory=PrintRunner):
+def main(args=sys.argv, runnerFactory=PrintRunner):
   '''Функция main()
 
-  @param args: Аргументы командной строки, включая первый, который задаёт имя команды
+  @param args: Аргументы командной строки
   @param runnerFactory: callable, при вызове без параметров возвращающий объект
     класса L{Runner}, который будет использоваться для запуска напоминалок
+  @returns: код возврата: 0 при успешном выполнении, 1 в случае ошибки
   '''
   assert len(args) > 0
 
@@ -147,7 +148,7 @@ OPTIONS = [ --from=DATE ] [ --to=DATE | --future=N_DAYS ]
   if len(args) < 2:
     print >> sys.stderr, 'A command is required'
     print >> sys.stderr, USAGE
-    exit(1)
+    return 1
 
   if args[1] == 'remind':
     mode = RunnerMode.REMIND
@@ -156,7 +157,7 @@ OPTIONS = [ --from=DATE ] [ --to=DATE | --future=N_DAYS ]
   else:
     print >> sys.stderr, 'Unknown command: "%s"' % args[1]
     print >> sys.stderr, USAGE
-    exit(1)
+    return 1
 
   try:
     longopts = ['help', 'usage', 'from=', 'to=', 'future=']
@@ -164,20 +165,20 @@ OPTIONS = [ --from=DATE ] [ --to=DATE | --future=N_DAYS ]
   except getopt.GetoptError, err:
     print >> sys.stderr, `err`
     print >> sys.stderr, USAGE
-    exit(1)
+    return 1
 
   from_ = datetime.date.today()
   to = future = None
   for option, value in options:
     if option in ('-h', '--help', '--usage'):
       print USAGE
-      exit()
+      return 0
     elif option == '--from':
       try:
         from_ = parseDate(value)
       except ValueError:
         print >> sys.stderr, 'Can\'t parse date %s' % value
-        exit(1)
+        return 1
     elif option == '--to':
       future = None
       to = value
@@ -192,7 +193,7 @@ OPTIONS = [ --from=DATE ] [ --to=DATE | --future=N_DAYS ]
       to = parseDate(to)
     except ValueError:
       print >> sys.stderr, 'Can\'t parse date %s' % to
-      exit(1)
+      return 1
   elif future is not None:
     try:
       future = int(future)
@@ -200,7 +201,7 @@ OPTIONS = [ --from=DATE ] [ --to=DATE | --future=N_DAYS ]
         raise ValueError()
     except ValueError:
       print >> sys.stderr, 'Invalid integer: %s' % future
-      exit(1)
+      return 1
     to = from_ + datetime.timedelta(days=future)
   else:
     to = from_
@@ -209,7 +210,8 @@ OPTIONS = [ --from=DATE ] [ --to=DATE | --future=N_DAYS ]
   for filename in args:
     execfile(filename, {'runner': runner})
   runner.run(from_, to, mode)
+  return 0
 
 
 if __name__ == '__main__':
-  main(sys.argv)
+  sys.exit(main())
