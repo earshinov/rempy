@@ -7,7 +7,7 @@
 </HEAD><BODY BGCOLOR="white" TEXT="black">
 <P ALIGN="center"><CENTER><H1>Rempy. Документация пользователя</H1>
 <FONT SIZE="4">
-<I>2010-08-15, версия 1.0</I><BR>
+% File to be processed with [txt2tags http://txt2tags.sourceforge.net/]
 </FONT></CENTER>
 
 <P></P>
@@ -17,9 +17,10 @@
       <LI><A HREF="#toc1">Что это?</A>
       <LI><A HREF="#toc2">Зачем ещё одна программа?</A>
       <LI><A HREF="#toc3">Описание и пример входного файла</A>
-      <LI><A HREF="#toc4">Как установить и запустить программу</A>
+      <LI><A HREF="#toc4">Установка</A>
+      <LI><A HREF="#toc5">Запуск и использование</A>
       <LI><A HREF="#Sec_DifferencesFromRemind">Отличия от remind</A>
-      <LI><A HREF="#toc6">Хотите помочь?</A>
+      <LI><A HREF="#toc7">Хотите помочь?</A>
       </UL>
 
 <P></P>
@@ -71,7 +72,7 @@ rempy <A HREF="#Sec_DifferencesFromRemind">реализованы не все ф
 Расширяемость rempy заключается в том, что в программу можно относительно
 легко добавлять модули, предоставляющие новые функции.  Каждый такой модуль
 может расширять формат описания напоминалок новыми ключевыми словами.  Так,
-в приведённом ниже файле используется модуль <CODE>deferrable</CODE>, который позволяет
+в приведённом ниже файле используется функция <CODE>deferrable</CODE>, которая позволяет
 задавать для напоминалки-задания дату последнего выполнения.  Если в прошлом
 есть невыполненное задание, rempy сообщит о нём.  Такая функциональность в
 remind реализуется, но описание каждой напоминалки тогда занимает пять
@@ -79,16 +80,15 @@ remind реализуется, но описание каждой напомин
 строке описания напоминателя для задания даты последнего выполнения
 используется ключевое слово <CODE>DONE</CODE>.
 </P>
+<P>
+При выполнении в пользовательский файл передаются объект <CODE>runner</CODE> и две
+функции <CODE>rem</CODE> и <CODE>deferrable</CODE>, которых обычно достаточно для добавления
+напоминалок.
+</P>
 <PRE>
   # -*- coding: utf-8 -*-
   
-  from rempy.Reminder import rem as rem_, ShortcutReminder as Reminder
-  from rempy.contrib.deferrable.Reminder import deferrable as deferrable_
-  
-  def rem(*args, **kwargs):
-    runner.add(rem_(*args, **kwargs))
-  def deferrable(*args, **kwargs):
-    runner.add(deferrable_(*args, **kwargs))
+  from rempy.Reminder import ShortcutReminder as Reminder
   
   # Запланированные
   
@@ -130,17 +130,51 @@ remind реализуется, но описание каждой напомин
 </PRE>
 <P></P>
 <A NAME="toc4"></A>
-<H3>Как установить и запустить программу</H3>
+<H3>Установка</H3>
 <P>
-Установка:
+В первую очередь, если вы этого ещё не сделали, необходимо установить
+<A HREF="http://www.python.org/">Python</A>.
 </P>
-<UL>
-<LI>установить <A HREF="http://www.python.org/">Python</A>;
-<LI>скачать и распаковать rempy;
-<LI>выполнить <CODE>python setup.py install</CODE> от имени суперпользователя в корневом
-  каталоге rempy.
-</UL>
-
+<H4>Установка программы с использованием Pip</H4>
+<P>
+Если у вас установлен <A HREF="http://pip.openplans.org/">Pip</A>, можете использовать его:
+</P>
+<PRE>
+  pip install -f http://github.com/earshinov/rempy/tarball/master rempy
+</PRE>
+<P></P>
+<P>
+Чтобы Pip автоматически установил зависимости, передайте дополнительную опцию <CODE>-r</CODE>
+с указанием пути или URL файла с описанием зависимостей.  Два таких файла лежат
+в репозитории: <CODE>http://github.com/earshinov/rempy/raw/master/requirements-minimal.txt</CODE>
+содержит обязательные зависомости, <CODE>http://github.com/earshinov/rempy/raw/master/requirements-all.txt</CODE> —
+обязательные и все рекомендуемые.  Таким образом, полная команда установки rempy
+со всеми зависимостями выглядит так:
+</P>
+<PRE>
+  pip install -f http://github.com/earshinov/rempy/tarball/master rempy -r http://github.com/earshinov/rempy/raw/master/requirements-all.txt
+</PRE>
+<P></P>
+<H4>Ручная установка программы</H4>
+<P>
+В случае, если у вас не установлен <A HREF="http://pip.openplans.org/">Pip</A>, нужно
+скачать и распаковать архив, а затем выполнить <CODE>python setup.py install</CODE> от
+имени суперпользователя в корневом каталоге rempy.  Зависимости необходимо
+установить вручную.
+</P>
+<H4>Зависимости</H4>
+<P>
+На настоящий момент rempy не содержит обязательных зависимостей.
+</P>
+<P>
+Если вы хотите, чтобы программе через аргументы командной строки можно было
+задавать даты в удобно читаемом формате типа "next Sunday", установите
+пакет parsedatetime (<A HREF="http://code.google.com/p/parsedatetime/wiki/Installation">англоязычная инструкция по установке</A>).
+На настоящий момент фразы на русском языке не разбираются, список поддерживаемых
+фраз см. <A HREF="http://code.google.com/p/parsedatetime/">на официальной странице parsedatetime</A>.
+</P>
+<A NAME="toc5"></A>
+<H3>Запуск и использование</H3>
 <P>
 Основной исполняемый файл программы называется <CODE>rem.py</CODE>.  После установки
 запустите <CODE>rem.py --help</CODE>, чтобы получить справку об опциях командной строки.
@@ -181,7 +215,7 @@ remind реализуется, но описание каждой напомин
 <LI>Инструкции <CODE>FROM</CODE> и <CODE>SCANFROM</CODE> эквивалентны.
 </UL>
 
-<A NAME="toc6"></A>
+<A NAME="toc7"></A>
 <H3>Хотите помочь?</H3>
 <P>
 Прежде всего мне нужно справиться с моим TODO.  Если это вам не по душе,
@@ -206,5 +240,5 @@ TODO:
 
 
 <!-- html code generated by txt2tags 2.5 (http://txt2tags.sf.net) -->
-<!-- cmdline: txt2tags -t html -\-encoding=utf-8 -\-toc UserDocumentation_ru.txt -->
+<!-- cmdline: txt2tags -\-target=html -\-toc -\-encoding=utf-8 doc/user-docs/UserDocumentation_ru.txt -->
 </BODY></HTML>
