@@ -1,4 +1,7 @@
-from distutils.core import setup
+import ez_setup
+ez_setup.use_setuptools()
+
+from setuptools import setup
 
 import sys
 if sys.version < '2.6' or sys.version > '3':
@@ -14,6 +17,13 @@ setup(
   author_email='earshinov@gmail.com',
   packages=['rempy', 'rempy.utils', 'rempy.contrib', 'rempy.contrib.deferrable'],
   provides=['rempy', 'rempy.contrib.deferrable'],
-  scripts=['scripts/rem.py'],
-  license='GPL-2'
+  license='GPL-2',
+
+  entry_points={
+    'console_scripts': ['rem.py = rempy.Runner:main'],
+  },
+  extras_require={
+    'human-readable-dates': ['parsedatetime'],
+  },
+  test_suite='rempy.tests',
 )
