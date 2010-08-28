@@ -1,0 +1,81 @@
+<?xml version='1.0'?>
+<project default='help'>
+
+  <!-- #########################################################################
+  Configuration
+  ########################################################################## -->
+
+  <!-- Path to the jar with third-party Ant tasks -->
+  <taskdef resource="net/sf/antcontrib/antlib.xml">
+    <classpath>
+      <pathelement location="ant/ant-contrib-1.0b3.jar"/>
+    </classpath>
+  </taskdef>
+
+  <!-- #########################################################################
+  Properties
+  ########################################################################## -->
+
+  <fileset dir='doc' id='user-documentation-source-files'>
+    <include name='UserDocumentation_*.txt'/>
+  </fileset>
+  <fileset dir='doc' id='user-documentation-target-files'>
+    <include name='UserDocumentation_*.html'/>
+  </fileset>
+
+  <!-- #########################################################################
+  Helper targets
+  ########################################################################## -->
+
+  <!--
+  Use txt2tags to process given text file
+
+  Parameters:
+    file - path to the file to process
+  -->
+  <target name='-txt2tags' description='Use txt2tags to process given text file'>
+    <exec executable='txt2tags'>
+      <arg value='--target=html'/>
+      <arg value='--toc'/>
+      <arg value='--encoding=utf-8'/>
+      <arg value='--'/>
+      <arg value='${file}'/>
+    </exec>
+  </target>
+
+  <!-- #########################################################################
+  Targets for being run by users
+  ########################################################################## -->
+
+  <target name='help'>
+    <exec executable='ant'>
+      <arg value='-p'/>
+    </exec>
+  </target>
+
+  <target name='user-docs' description='Generate user documentation in all available languages'>
+    <foreach target='-txt2tags' param='file' parallel='true'>
+      <path>
+        <fileset refid='user-documentation-source-files'/>
+      </path>
+    </foreach>
+  </target>
+  <target name='clean-user-docs' description='Remove generated user documentation'>
+    <delete>
+      <fileset refid='user-documentation-target-files'/>
+    </delete>
+  </target>
+
+  <target name='api-docs' description='Generate API documentation'>
+    <exec executable='epydoc' dir='doc'>
+      <arg value='--config=epydoc.conf'/>
+    </exec>
+  </target>
+  <target name='clean-api-docs' description='Remove generated API documentation'>
+    <delete dir='doc/api'/>
+  </target>
+
+  <target name='clean' description='Remove all generated files and dirs'
+      depends='clean-user-docs,clean-api-docs'/>
+
+</project>
