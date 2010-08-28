@@ -9,7 +9,12 @@ from StringParser import DeferrableParser
 
 import unittest
 
-if __name__ == '__main__':
+
+def additional_tests():
+  '''Получить экземпляр класса C{unittest.TestSuite} со всеми тестами
+
+  @returns: экземпляр класса C{unittest.TestSuite}
+  '''
   subsuites = []
   loader = unittest.TestLoader()
   testCases = [
@@ -18,5 +23,7 @@ if __name__ == '__main__':
   ]
   for testCase in testCases:
     subsuites.append(loader.loadTestsFromTestCase(testCase))
-  suite = unittest.TestSuite(subsuites)
-  unittest.TextTestRunner().run(suite)
+  return unittest.TestSuite(subsuites)
+
+if __name__ == '__main__':
+  unittest.TextTestRunner().run(additional_tests())

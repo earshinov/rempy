@@ -1,18 +1,25 @@
 # -*- coding: utf-8 -*-
 
 '''При запуске из командной строки запускает все unit-тесты,
-объявленные в пакете C{rempy}.  Создан просто для удобства.
+объявленные в пакете и подпакетах.  Создан просто для удобства.
 '''
 
 import DateCondition
 import StringParser
 import utils.dates as dateutils
+import contrib.deferrable.tests
 
 import unittest
 
 
-if __name__ == '__main__':
-  subsuites = []
+def additional_tests():
+  '''Получить экземпляр класса C{unittest.TestSuite} со всеми тестами
+
+  @returns: экземпляр класса C{unittest.TestSuite}
+  '''
+  subsuites = [
+    contrib.deferrable.tests.additional_tests(),
+  ]
   loader = unittest.TestLoader()
   testCases = [
     DateCondition.SimpleDateCondition.Test,
@@ -28,5 +35,7 @@ if __name__ == '__main__':
   ]
   for testCase in testCases:
     subsuites.append(loader.loadTestsFromTestCase(testCase))
-  suite = unittest.TestSuite(subsuites)
-  unittest.TextTestRunner().run(suite)
+  return unittest.TestSuite(subsuites)
+
+if __name__ == '__main__':
+  unittest.TextTestRunner().run(additional_tests())
