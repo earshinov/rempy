@@ -19,7 +19,7 @@ except ImportError:
 import utils.dates as dateutils
 
 
-def parseDate(string):
+def _parseDate(string):
   if pdt is None:
     return dateutils.parseIsoDate(string)
   else:
@@ -175,7 +175,7 @@ OPTIONS = [ --from=DATE ] [ --to=DATE | --future=N_DAYS ]
       return 0
     elif option == '--from':
       try:
-        from_ = parseDate(value)
+        from_ = _parseDate(value)
       except ValueError:
         print >> sys.stderr, 'Can\'t parse date %s' % value
         return 1
@@ -190,7 +190,7 @@ OPTIONS = [ --from=DATE ] [ --to=DATE | --future=N_DAYS ]
 
   if to is not None:
     try:
-      to = parseDate(to)
+      to = _parseDate(to)
     except ValueError:
       print >> sys.stderr, 'Can\'t parse date %s' % to
       return 1
