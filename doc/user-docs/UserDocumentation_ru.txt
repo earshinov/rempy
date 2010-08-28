@@ -1,5 +1,4 @@
 Rempy. Документация пользователя
-2010-08-15, версия 1.0
 
 % File to be processed with [txt2tags http://txt2tags.sourceforge.net/]
 
