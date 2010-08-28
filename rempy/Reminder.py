@@ -167,7 +167,3 @@ class ShortcutReminder(BasicReminder):
       adv = 0
 
     return ShortcutReminder(dateCondition, action, adv, satisfy)
-
-
-rem = ShortcutReminder.fromString
-'''Короткое имя для вызова L{ShortcutReminder.fromString}'''

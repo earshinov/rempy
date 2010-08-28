@@ -101,7 +101,3 @@ class DeferrableReminder(Reminder):
 
     chainReminder = chainReminderFactory(parser, dateCondition, *args, **kwargs)
     return DeferrableReminder(chainReminder, done)
-
-
-deferrable = DeferrableReminder.fromString
-'''Короткое имя для вызова L{DeferrableReminder.fromString}'''

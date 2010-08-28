@@ -16,6 +16,8 @@ try:
 except ImportError:
   pdt = None
 
+from Reminder import ShortcutReminder
+from contrib.deferrable.Reminder import DeferrableReminder
 import utils.dates as dateutils
 
 
@@ -133,6 +135,20 @@ class PrintRunner(Runner):
 def main(args=sys.argv, runnerFactory=PrintRunner):
   '''Функция main()
 
+  При выполнении пользовательского файла в него передаются следующие объекты:
+
+    - C{runner} - Объект класса L{Runner}.
+
+    - C{rem} - Функция, добавляющая в C{runner} объект класса
+      L{ShortcutReminder<Reminder.ShortcutReminder>}.  Аргументы функции
+      передаются в статический метод
+      L{ShortcutReminder.fromString<Reminder.ShortcutReminder.fromString>}.
+
+    - C{deferrable} - Функция, добавляющая в C{runner} объект класса
+      L{DeferrableReminder<contrib.deferrable.Reminder.DeferrableReminder>}.
+      Аргументы функции передаются в статический метод
+      L{DeferrableReminder.fromString<contrib.deferrable.Reminder.DeferrableReminder.fromString>}.
+
   @param args: Аргументы командной строки
   @param runnerFactory: callable, при вызове без параметров возвращающий объект
     класса L{Runner}, который будет использоваться для запуска напоминалок
@@ -207,8 +223,16 @@ OPTIONS = [ --from=DATE ] [ --to=DATE | --future=N_DAYS ]
     to = from_
 
   runner = runnerFactory()
+  def rem(*args, **kwargs):
+    return runner.add(ShortcutReminder.fromString(*args, **kwargs))
+  def deferrable(*args, **kwargs):
+    return runner.add(DeferrableReminder.fromString(*args, **kwargs))
   for filename in args:
-    execfile(filename, {'runner': runner})
+    execfile(filename, {
+      'runner': runner,
+      'rem': rem,
+      'deferrable': deferrable,
+    })
   runner.run(from_, to, mode)
   return 0
 
