@@ -67,7 +67,7 @@ class DateCondition(object):
     строке формата, похожего на формат описания напоминалок в программе remind.
 
     @param string: Строка заданного формата.  Более подробно о формате см. в
-      документации метода L{DateConditionParser.parse<StringParser.DateConditionParser.parse>}.
+      документации класса L{DateConditionParser<StringParser.DateConditionParser>}.
     @returns: объект класса L{DateCondition}
     @raise FormatError: в случае ошибки разбора строки
     '''
