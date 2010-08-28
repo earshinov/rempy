@@ -136,10 +136,13 @@ remind реализуется, но описание каждой напомин
 </P>
 <H4>Установка программы с использованием Pip</H4>
 <P>
-Если у вас установлен <A HREF="http://pip.openplans.org/">Pip</A>, можете использовать его:
+Если у вас установлен <A HREF="http://pip.openplans.org/">Pip</A>, можете использовать его.
+К сожалению, на GitHub, где находится репозиторий rempy, нет
+страницы, которую мог бы понять Pip.  Придётся скачать архив и
+установить его, выполнив от имени суперпользователя команду
 </P>
 <PRE>
-  pip install -f http://github.com/earshinov/rempy/tarball/master rempy
+  pip install &lt;ИМЯ_АРХИВА&gt;.tar.gz
 </PRE>
 <P></P>
 <P>
@@ -147,11 +150,11 @@ remind реализуется, но описание каждой напомин
 с указанием пути или URL файла с описанием зависимостей.  Два таких файла лежат
 в репозитории: <CODE>http://github.com/earshinov/rempy/raw/master/requirements-minimal.txt</CODE>
 содержит обязательные зависомости, <CODE>http://github.com/earshinov/rempy/raw/master/requirements-all.txt</CODE> —
-обязательные и все рекомендуемые.  Таким образом, полная команда установки rempy
+обязательные и все рекомендуемые.  Таким образом, команда установки rempy
 со всеми зависимостями выглядит так:
 </P>
 <PRE>
-  pip install -f http://github.com/earshinov/rempy/tarball/master rempy -r http://github.com/earshinov/rempy/raw/master/requirements-all.txt
+  pip install &lt;ИМЯ_АРХИВА&gt;.tar.gz -r http://github.com/earshinov/rempy/raw/master/requirements-all.txt
 </PRE>
 <P></P>
 <H4>Ручная установка программы</H4>
