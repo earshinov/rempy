@@ -9,7 +9,24 @@ import getopt
 from heapq import heappop, heappush
 import sys
 
+try:
+  from parsedatetime import parsedatetime
+  from parsedatetime import parsedatetime_consts
+  pdt = parsedatetime.Calendar(parsedatetime_consts.Constants())
+except ImportError:
+  pdt = None
+
 import utils.dates as dateutils
+
+
+def parseDate(string):
+  if pdt is None:
+    return dateutils.parseIsoDate(string)
+  else:
+    values, flag = pdt.parse(string)
+    if flag != 1:
+      raise ValueError('Incorrect date string: %s' + string)
+    return datetime.date(*values[:3])
 
 
 class RunnerMode:
@@ -157,11 +174,10 @@ OPTIONS = [ --from=DATE ] [ --to=DATE | --future=N_DAYS ]
       exit()
     elif option == '--from':
       try:
-        from_ = dateutils.parseIsoDate(value)
+        from_ = parseDate(value)
       except ValueError:
         print >> sys.stderr, 'Can\'t parse date %s' % value
         exit(1)
-      from_ = dateutils.wrapDate(from_)
     elif option == '--to':
       future = None
       to = value
@@ -173,11 +189,10 @@ OPTIONS = [ --from=DATE ] [ --to=DATE | --future=N_DAYS ]
 
   if to is not None:
     try:
-      to = dateutils.parseIsoDate(to)
+      to = parseDate(to)
     except ValueError:
       print >> sys.stderr, 'Can\'t parse date %s' % to
       exit(1)
-    to = dateutils.wrapDate(to)
   elif future is not None:
     try:
       future = int(future)

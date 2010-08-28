@@ -206,4 +206,4 @@ def parseIsoDate(string):
   @returns: объект класса C{datetime.date}
   @raise C{ValueError}: строка имеет неправильный формат
   '''
-  return datetime.date(*(time.strptime(string, '%Y-%m-%d')[0:3]))
+  return datetime.date(*(time.strptime(string, '%Y-%m-%d')[:3]))
