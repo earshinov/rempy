@@ -154,10 +154,9 @@ def main(args=sys.argv, runnerFactory=PrintRunner):
   '''
   assert len(args) > 0
 
-  USAGE = '''Usage: %s COMMAND OPTIONS\n
+  USAGE = '''Usage: %s COMMAND OPTIONS FILENAMES\n
 COMMAND = { remind | events }
-OPTIONS = [ --from=DATE ] [ --to=DATE | --future=N_DAYS ]
-''' % args[0]
+OPTIONS = [ --from=DATE ] [ --to=DATE | --future=N_DAYS ]''' % args[0]
 
   if len(args) < 2:
     print >> sys.stderr, 'A command is required'
@@ -178,6 +177,11 @@ OPTIONS = [ --from=DATE ] [ --to=DATE | --future=N_DAYS ]
     options, args = getopt.gnu_getopt(args[2:], 'h', longopts)
   except getopt.GetoptError, err:
     print >> sys.stderr, `err`
+    print >> sys.stderr, USAGE
+    return 1
+
+  if len(args) == 0:
+    print >> sys.stderr, 'Filename is required'
     print >> sys.stderr, USAGE
     return 1
 
