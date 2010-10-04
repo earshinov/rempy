@@ -74,7 +74,7 @@ class Runner(object):
     '''
     heap = []
 
-    def __pushNextEvent(reminder, gen):
+    def __pushNextEvent(ordinal, reminder, gen):
       to = toDate + datetime.timedelta(days=reminder.advanceWarningValue()) \
         if mode == RunnerMode.REMIND else toDate
       try:
@@ -82,22 +82,22 @@ class Runner(object):
       except StopIteration:
         return
       if date <= to:
-        heappush(heap, (date, reminder, gen))
+        heappush(heap, (date, ordinal, reminder, gen))
 
-    for reminder in self.reminders:
+    for i, reminder in enumerate(self.reminders):
       gen = iter(reminder.condition(mode).scan(fromDate))
-      __pushNextEvent(reminder, gen)
+      __pushNextEvent(i, reminder, gen)
     currentDate = None
     while True: # until heap is empty and heappop() raises IndexError
       try:
-        date, reminder, gen = heappop(heap)
+        date, ordinal, reminder, gen = heappop(heap)
       except IndexError:
         break
       if date != currentDate:
         currentDate = date
         self._handleNextDate(date)
       self._executeReminder(reminder, date)
-      __pushNextEvent(reminder, gen)
+      __pushNextEvent(ordinal, reminder, gen)
 
   def _handleNextDate(self, date):
     '''Метод для определения в наследнике.  Вызывается, когда очередное событие
