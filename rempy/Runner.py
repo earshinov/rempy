@@ -7,12 +7,14 @@
 import datetime
 import getopt
 from heapq import heappop, heappush
+import locale
 import sys
 
 try:
   from parsedatetime import parsedatetime
   from parsedatetime import parsedatetime_consts
-  pdt = parsedatetime.Calendar(parsedatetime_consts.Constants())
+  localeName = locale.getdefaultlocale()[0] # parsedatetime/PyICU do not understand ""
+  pdt = parsedatetime.Calendar(parsedatetime_consts.Constants(localeName))
 except ImportError:
   pdt = None
 
@@ -153,6 +155,8 @@ def main(args=sys.argv, runnerFactory=PrintRunner):
   @returns: код возврата: 0 при успешном выполнении, 1 в случае ошибки
   '''
   assert len(args) > 0
+
+  locale.setlocale(locale.LC_ALL, '')
 
   USAGE = '''Usage: %s COMMAND OPTIONS FILENAMES\n
 COMMAND = { remind | events }
