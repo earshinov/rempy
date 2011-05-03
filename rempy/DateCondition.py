@@ -1010,7 +1010,7 @@ class LimitedDateCondition(DateCondition):
       startDate = min(startDate, self.until)
     gen = self.cond.scanBack(startDate)
     if self.from_ is not None:
-      gen = itertools.takewhile(lambda date: date <= self.until, gen)
+      gen = itertools.takewhile(lambda date: date >= self.from_, gen)
     if self.maxMatches is not None:
       gen = itertools.islice(gen, self.maxMatches)
     return gen
