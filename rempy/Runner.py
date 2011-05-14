@@ -90,11 +90,8 @@ class Runner(object):
       gen = iter(reminder.condition(mode).scan(fromDate))
       __pushNextEvent(i, reminder, gen)
     currentDate = None
-    while True: # until heap is empty and heappop() raises IndexError
-      try:
-        date, ordinal, reminder, gen = heappop(heap)
-      except IndexError:
-        break
+    while len(heap) > 0:
+      date, ordinal, reminder, gen = heappop(heap)
       if date != currentDate:
         currentDate = date
         self._handleNextDate(date)
