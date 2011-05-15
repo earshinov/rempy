@@ -834,10 +834,17 @@ class ShiftDateCondition(DateCondition):
     self.timedelta = datetime.timedelta(days=shift)
 
   def scan(self, startDate):
+
     if self.timedelta.days > 0:
+      stack = []
       gen = self.cond.scanBack(startDate - datetime.timedelta(days=1))
-      for date in itertools.takewhile(lambda date: date >= startDate,
-        (date + self.timedelta for date in gen)): yield date
+      for date in itertools.takewhile(
+          lambda date: date >= startDate,
+          (date + self.timedelta for date in gen)):
+        stack.append(date)
+      while len(stack) > 0:
+        yield stack.pop()
+
     gen = (date + self.timedelta for date in self.cond.scan(startDate))
     if self.timedelta.days < 0:
       gen = itertools.dropwhile(lambda date: date < startDate, gen)
@@ -845,10 +852,17 @@ class ShiftDateCondition(DateCondition):
       yield date
 
   def scanBack(self, startDate):
+
     if self.timedelta.days < 0:
+      stack = []
       gen = self.cond.scan(startDate + datetime.timedelta(days=1))
-      for date in itertools.takewhile(lambda date: date <= startDate,
-        (date + self.timedelta for date in gen)): yield date
+      for date in itertools.takewhile(
+          lambda date: date <= startDate,
+          (date + self.timedelta for date in gen)):
+        stack.append(date)
+      while len(stack) > 0:
+        yield stack.pop()
+
     gen = (date + self.timedelta for date in self.cond.scanBack(startDate))
     if self.timedelta.days > 0:
       gen = itertools.dropwhile(lambda date: date > startDate, gen)
@@ -875,11 +889,12 @@ class ShiftDateCondition(DateCondition):
       self.assertEqual(list(cond.scan(self.startDate)), [])
 
     def test_wrapStartDate2(self):
-      cond = ShiftDateCondition(SimpleDateCondition(2010, None, 20), 12)
-      dates = list(itertools.islice(cond.scan(self.startDate), 2))
+      cond = ShiftDateCondition(SimpleDateCondition(2010, None, 20), 40)
+      dates = list(itertools.islice(cond.scan(self.startDate), 3))
       self.assertEqual(dates, [
         datetime.date(2010, 4, 1),
-        datetime.date(2010, 5, 2),
+        datetime.date(2010, 4, 29),
+        datetime.date(2010, 5, 30),
       ])
 
     def test_wrapStartDate_back(self):
@@ -888,11 +903,12 @@ class ShiftDateCondition(DateCondition):
       self.assertEqual(date, datetime.date(2010, 3, 2))
 
     def test_wrapStartDate_back2(self):
-      cond = ShiftDateCondition(SimpleDateCondition(None, None, 1), -2)
-      dates = list(itertools.islice(cond.scanBack(self.startDate), 2))
+      cond = ShiftDateCondition(SimpleDateCondition(None, None, 1), -40)
+      dates = list(itertools.islice(cond.scanBack(self.startDate), 3))
       self.assertEqual(dates, [
-        datetime.date(2010, 3, 30),
-        datetime.date(2010, 2, 27),
+        datetime.date(2010, 3, 22),
+        datetime.date(2010, 2, 20),
+        datetime.date(2010, 1, 20),
       ])
 
 
