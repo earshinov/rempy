@@ -184,10 +184,44 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="rempy.DateCondition.CombinedDateCondition-class.html#__applyCond2" class="summary-sig-name" onclick="show_private();">__applyCond2</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">date</span>)</span><br />
-      &#1042;&#1089;&#1087;&#1086;&#1084;&#1086;&#1075;&#1072;&#1090;&#1077;&#1083;&#1100;&#1085;&#1099;&#1081; &#1084;&#1077;&#1090;&#1086;&#1076;, &#1079;&#1072;&#1087;&#1091;&#1089;&#1082;&#1072;&#1102;&#1097;&#1080;&#1081; &#1089;&#1082;&#1072;&#1085;&#1080;&#1088;&#1086;&#1074;&#1072;&#1085;&#1080;&#1077; &#1091; &#1074;&#1090;&#1086;&#1088;&#1086;&#1075;&#1086; &#1086;&#1073;&#1098;&#1077;&#1082;&#1090;&#1072; &#1076;&#1083;&#1103;
-      &#1079;&#1072;&#1076;&#1072;&#1085;&#1085;&#1086;&#1081; &#1089;&#1090;&#1072;&#1088;&#1090;&#1086;&#1074;&#1086;&#1081; &#1076;&#1072;&#1090;&#1099;</td>
+          <td><span class="summary-sig"><a name="__scan"></a><span class="summary-sig-name">__scan</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">startDate</span>,
+        <span class="summary-sig-arg">back</span>=<span class="summary-sig-default">False</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="rempy.DateCondition-pysrc.html#CombinedDateCondition.__scan">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="__applyCond"></a><span class="summary-sig-name">__applyCond</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">date</span>,
+        <span class="summary-sig-arg">back</span>=<span class="summary-sig-default">False</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="rempy.DateCondition-pysrc.html#CombinedDateCondition.__applyCond">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="__applyCond2"></a><span class="summary-sig-name">__applyCond2</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">date</span>)</span></td>
           <td align="right" valign="top">
             <span class="codelink"><a href="rempy.DateCondition-pysrc.html#CombinedDateCondition.__applyCond2">source&nbsp;code</a></span>
             
@@ -302,28 +336,28 @@
     </td>
   </tr></table>
   
-  <p>&#1050;&#1086;&#1085;&#1089;&#1090;&#1088;&#1091;&#1082;&#1090;&#1086;&#1088;</p>
+  <pre class="literalblock">
+&#1050;&#1086;&#1085;&#1089;&#1090;&#1088;&#1091;&#1082;&#1090;&#1086;&#1088;
+
+@param cond: &#1087;&#1077;&#1088;&#1074;&#1099;&#1081; &#1086;&#1073;&#1098;&#1077;&#1082;&#1090; &#1082;&#1083;&#1072;&#1089;&#1089;&#1072; L{DateCondition}
+@param cond2: &#1074;&#1090;&#1086;&#1088;&#1086;&#1081; &#1086;&#1073;&#1098;&#1077;&#1082;&#1090; &#1082;&#1083;&#1072;&#1089;&#1089;&#1072; L{DateCondition}
+@param scanBack: &#1077;&#1089;&#1083;&#1080; C{True}, &#1091; &#1074;&#1090;&#1086;&#1088;&#1086;&#1075;&#1086; &#1086;&#1073;&#1098;&#1077;&#1082;&#1090;&#1072; &#1089;&#1082;&#1072;&#1088;&#1080;&#1088;&#1086;&#1074;&#1072;&#1085;&#1080;&#1077; &#1079;&#1072;&#1087;&#1091;&#1089;&#1082;&#1072;&#1077;&#1090;&#1089;&#1103;
+  &#1074; &#1085;&#1072;&#1087;&#1088;&#1072;&#1074;&#1083;&#1077;&#1085;&#1080;&#1080; &#1087;&#1088;&#1086;&#1096;&#1083;&#1086;&#1075;&#1086;, &#1080;&#1085;&#1072;&#1095;&#1077; &#1074; &#1085;&#1072;&#1087;&#1088;&#1072;&#1074;&#1083;&#1077;&#1085;&#1080;&#1080; &#1073;&#1091;&#1076;&#1091;&#1097;&#1077;&#1075;&#1086;
+
+&#1042;&#1086; &#1080;&#1079;&#1073;&#1077;&#1078;&#1072;&#1085;&#1080;&#1077; &#1079;&#1072;&#1094;&#1080;&#1082;&#1083;&#1080;&#1074;&#1072;&#1085;&#1080;&#1103;, &#1087;&#1072;&#1088;&#1072;&#1084;&#1077;&#1090;&#1088;&#1086;&#1084; C{cond2} &#1076;&#1086;&#1083;&#1078;&#1077;&#1085; &#1073;&#1099;&#1090;&#1100;
+L{DateCondition}, &#1089;&#1082;&#1072;&#1085;&#1080;&#1088;&#1091;&#1102;&#1097;&#1080;&#1081; &#1074;&#1087;&#1077;&#1088;&#1105;&#1076;.  &#1045;&#1089;&#1083;&#1080; &#1085;&#1091;&#1078;&#1085;&#1086; &#1089;&#1082;&#1072;&#1085;&#1080;&#1088;&#1086;&#1074;&#1072;&#1085;&#1080;&#1077; &#1074;
+&#1086;&#1073;&#1088;&#1072;&#1090;&#1085;&#1086;&#1084; &#1085;&#1072;&#1087;&#1088;&#1072;&#1074;&#1083;&#1077;&#1085;&#1080;&#1080;, &#1085;&#1077;&#1086;&#1073;&#1093;&#1086;&#1076;&#1080;&#1084;&#1086; &#1087;&#1077;&#1088;&#1077;&#1076;&#1072;&#1074;&#1072;&#1090;&#1100; &#1089;&#1086;&#1086;&#1090;&#1074;&#1077;&#1090;&#1089;&#1090;&#1074;&#1091;&#1102;&#1097;&#1080;&#1081;
+L{DateCondition}, &#1089;&#1082;&#1072;&#1085;&#1080;&#1088;&#1091;&#1102;&#1097;&#1080;&#1081; &#1074;&#1087;&#1077;&#1088;&#1105;&#1076;, &#1080; &#1079;&#1072;&#1076;&#1072;&#1074;&#1072;&#1090;&#1100; C{scanBack=True}.
+
+@see: L{CombinedDateCondition}
+
+</pre>
   <dl class="fields">
-    <dt>Parameters:</dt>
-    <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>cond</code></strong> - &#1087;&#1077;&#1088;&#1074;&#1099;&#1081; &#1086;&#1073;&#1098;&#1077;&#1082;&#1090; &#1082;&#1083;&#1072;&#1089;&#1089;&#1072; <a 
-          href="rempy.DateCondition.DateCondition-class.html" 
-          class="link">DateCondition</a></li>
-        <li><strong class="pname"><code>cond2</code></strong> - &#1074;&#1090;&#1086;&#1088;&#1086;&#1081; &#1086;&#1073;&#1098;&#1077;&#1082;&#1090; &#1082;&#1083;&#1072;&#1089;&#1089;&#1072; <a 
-          href="rempy.DateCondition.DateCondition-class.html" 
-          class="link">DateCondition</a></li>
-        <li><strong class="pname"><code>scanBack</code></strong> - &#1077;&#1089;&#1083;&#1080; <code>True</code>, &#1091; &#1074;&#1090;&#1086;&#1088;&#1086;&#1075;&#1086; &#1086;&#1073;&#1098;&#1077;&#1082;&#1090;&#1072; &#1089;&#1082;&#1072;&#1088;&#1080;&#1088;&#1086;&#1074;&#1072;&#1085;&#1080;&#1077; 
-          &#1079;&#1072;&#1087;&#1091;&#1089;&#1082;&#1072;&#1077;&#1090;&#1089;&#1103; &#1074; &#1085;&#1072;&#1087;&#1088;&#1072;&#1074;&#1083;&#1077;&#1085;&#1080;&#1080; &#1087;&#1088;&#1086;&#1096;&#1083;&#1086;&#1075;&#1086;, &#1080;&#1085;&#1072;&#1095;&#1077; &#1074; &#1085;&#1072;&#1087;&#1088;&#1072;&#1074;&#1083;&#1077;&#1085;&#1080;&#1080; &#1073;&#1091;&#1076;&#1091;&#1097;&#1077;&#1075;&#1086;</li>
-    </ul></dd>
     <dt>Overrides:
         object.__init__
     </dt>
   </dl>
-<div class="fields">      <p><strong>See Also:</strong>
-        <a href="rempy.DateCondition.CombinedDateCondition-class.html" 
-        class="link">CombinedDateCondition</a>
-      </p>
-</div></td></tr></table>
+</td></tr></table>
 </div>
 <a name="scan"></a>
 <div>
@@ -421,31 +455,6 @@
   </dl>
 </td></tr></table>
 </div>
-<a name="__applyCond2"></a>
-<div class="private">
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-  <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">__applyCond2</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">date</span>)</span>
-  </h3>
-  </td><td align="right" valign="top"
-    ><span class="codelink"><a href="rempy.DateCondition-pysrc.html#CombinedDateCondition.__applyCond2">source&nbsp;code</a></span>&nbsp;
-    </td>
-  </tr></table>
-  
-  <p>&#1042;&#1089;&#1087;&#1086;&#1084;&#1086;&#1075;&#1072;&#1090;&#1077;&#1083;&#1100;&#1085;&#1099;&#1081; &#1084;&#1077;&#1090;&#1086;&#1076;, &#1079;&#1072;&#1087;&#1091;&#1089;&#1082;&#1072;&#1102;&#1097;&#1080;&#1081; &#1089;&#1082;&#1072;&#1085;&#1080;&#1088;&#1086;&#1074;&#1072;&#1085;&#1080;&#1077; &#1091; &#1074;&#1090;&#1086;&#1088;&#1086;&#1075;&#1086; &#1086;&#1073;&#1098;&#1077;&#1082;&#1090;&#1072; &#1076;&#1083;&#1103; 
-  &#1079;&#1072;&#1076;&#1072;&#1085;&#1085;&#1086;&#1081; &#1089;&#1090;&#1072;&#1088;&#1090;&#1086;&#1074;&#1086;&#1081; &#1076;&#1072;&#1090;&#1099;</p>
-  <dl class="fields">
-    <dt>Parameters:</dt>
-    <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>date</code></strong> - &#1086;&#1073;&#1098;&#1077;&#1082;&#1090; &#1082;&#1083;&#1072;&#1089;&#1089;&#1072; <code>datetime.date</code>, &#1079;&#1072;&#1076;&#1072;&#1102;&#1097;&#1080;&#1081; &#1085;&#1072;&#1095;&#1072;&#1083;&#1100;&#1085;&#1091;&#1102; &#1076;&#1072;&#1090;&#1091;</li>
-    </ul></dd>
-  </dl>
-</td></tr></table>
-</div>
 <br />
 <!-- ==================== NAVIGATION BAR ==================== -->
 <table class="navbar" border="0" width="100%" cellpadding="0"
@@ -478,7 +487,7 @@
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0 on Sat Aug 28 13:40:10 2010
+    Generated by Epydoc 3.0.1 on Sun May 15 11:51:20 2011
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

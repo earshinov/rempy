@@ -1,5 +1,6 @@
 Rempy. Документация пользователя
 
+
 % File to be processed with [txt2tags http://txt2tags.sourceforge.net/]
 
 === Что это? ===
@@ -106,21 +107,24 @@ grandprix('November 14',  'Абу-Даби')
 
 ==== Установка программы с использованием Pip ====
 
-Если у вас установлен [Pip http://pip.openplans.org/], можете использовать его:
+Если у вас установлен [Pip http://pip.openplans.org/], можете использовать его.
+К сожалению, на GitHub, где находится репозиторий rempy, нет
+страницы, которую мог бы понять Pip.  Придётся скачать архив и
+установить его, выполнив от имени суперпользователя команду
 
 ```
-pip install -f http://github.com/earshinov/rempy/tarball/master rempy
+pip install <ИМЯ_АРХИВА>.tar.gz
 ```
 
 Чтобы Pip автоматически установил зависимости, передайте дополнительную опцию ``-r``
 с указанием пути или URL файла с описанием зависимостей.  Два таких файла лежат
 в репозитории: ``http://github.com/earshinov/rempy/raw/master/requirements-minimal.txt``
 содержит обязательные зависомости, ``http://github.com/earshinov/rempy/raw/master/requirements-all.txt`` —
-обязательные и все рекомендуемые.  Таким образом, полная команда установки rempy
+обязательные и все рекомендуемые.  Таким образом, команда установки rempy
 со всеми зависимостями выглядит так:
 
 ```
-pip install -f http://github.com/earshinov/rempy/tarball/master rempy -r http://github.com/earshinov/rempy/raw/master/requirements-all.txt
+pip install <ИМЯ_АРХИВА>.tar.gz -r http://github.com/earshinov/rempy/raw/master/requirements-all.txt
 ```
 
 ==== Ручная установка программы ====
@@ -135,10 +139,17 @@ pip install -f http://github.com/earshinov/rempy/tarball/master rempy -r http://
 На настоящий момент rempy не содержит обязательных зависимостей.
 
 Если вы хотите, чтобы программе через аргументы командной строки можно было
-задавать даты в удобно читаемом формате типа "next Sunday", установите
-пакет parsedatetime ([англоязычная инструкция по установке http://code.google.com/p/parsedatetime/wiki/Installation]).
-На настоящий момент фразы на русском языке не разбираются, список поддерживаемых
-фраз см. [на официальной странице parsedatetime http://code.google.com/p/parsedatetime/].
+задавать даты в удобно читаемом формате, установите пакет parsedatetime
+([англоязычная инструкция по установке http://code.google.com/p/parsedatetime/wiki/Installation]).
+Пакет позволяет использовать
+- Англоязычные фразы типа "next Sunday".  Список поддерживаемых фраз см.
+  [на официальной странице parsedatetime http://code.google.com/p/parsedatetime/].
+- Даты в формате пользовательской локали (например, "11.03.2011" для обозначения
+  11 марта в русской локали).  Список локалей, напрямую поддерживаемый
+  пакетом parsedatetime, очень скромен (в частности, не поддерживает русскую локаль),
+  поэтому очень рекомендуется установить дополнительно пакет PyICU
+  ([страница на Python Package Index http://pypi.python.org/pypi/PyICU]).
+
 
 === Запуск и использование ===
 
