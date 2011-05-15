@@ -1045,6 +1045,11 @@ class CombinedDateCondition(DateCondition):
     @param scanBack: если C{True}, у второго объекта скарирование запускается
       в направлении прошлого, иначе в направлении будущего
 
+    Во избежание зацикливания, параметром C{cond2} должен быть
+    L{DateCondition}, сканирующий вперёд.  Если нужно сканирование в
+    обратном направлении, необходимо передавать соответствующий
+    L{DateCondition}, сканирующий вперёд, и задавать C{scanBack=True}.
+
     @see: L{CombinedDateCondition}
     '''
     super(CombinedDateCondition, self).__init__()
@@ -1053,25 +1058,55 @@ class CombinedDateCondition(DateCondition):
     self.back = scanBack
 
   def scan(self, startDate):
-    for date in self.cond.scan(startDate):
-      for date2 in self.__applyCond2(date):
-        yield date2
+    return self.__scan(startDate, False)
 
   def scanBack(self, startDate):
-    for date in self.cond.scanBack(startDate):
-      for date2 in self.__applyCond2(date):
-        yield date2
+    return self.__scan(startDate, True)
+
+  def __scan(self, startDate, back=False):
+    if back != self.back:
+      for date in self.__applyCond(startDate, back):
+        for date2 in self.__applyCond2(date):
+          yield date2
+    else:
+
+      dates = iter(self.__applyCond(startDate, back))
+      try:
+        firstDate = next(dates)
+      except StopIteration:
+        firstDate = None
+
+      if firstDate is None or firstDate != startDate:
+        try:
+          lastDate = iter(self.__applyCond(startDate, not back)).next()
+        except StopIteration:
+          pass
+        else:
+
+          # here's what all checks are made for: handle one step back
+          gen = self.__applyCond2(lastDate)
+          acceptableDate = lambda date, startDate: date >= startDate if not back \
+            else lambda date, startDate: date <= startDate
+          gen = itertools.dropwhile(lambda date: not acceptableDate(date, startDate), gen)
+          if firstDate is not None:
+            gen = itertools.takewhile(lambda date: not acceptableDate(date, firstDate), gen)
+          for date2 in gen:
+            yield date2
+
+      if firstDate is not None:
+        for date2 in self.__applyCond2(firstDate):
+          yield date2
+        for date in dates:
+          for date2 in self.__applyCond2(date):
+            yield date2
+
+  def __applyCond(self, date, back=False):
+    return self.cond.scan(date) if not back \
+      else self.cond.scanBack(date)
 
   def __applyCond2(self, date):
-    '''Вспомогательный метод, запускающий сканирование у второго объекта для
-    заданной стартовой даты
-
-    @param date: объект класса C{datetime.date}, задающий начальную дату
-    '''
-    gen = self.cond2.scan(date) if not self.back \
+    return self.cond2.scan(date) if not self.back \
       else self.cond2.scanBack(date)
-    for date2 in gen:
-      yield date2
 
 
   class Test(unittest.TestCase):
@@ -1101,6 +1136,27 @@ class CombinedDateCondition(DateCondition):
         datetime.date(2010, 9, 23),
         datetime.date(2010, 10, 3),
         datetime.date(2010, 10, 13),
+      ])
+
+    def test_fullBackward(self):
+      dates = CombinedDateCondition(
+        SimpleDateCondition(2010, 3, 15),
+        RepeatDateCondition(3)).scan(datetime.date(2010, 3, 21))
+      self.assertEqual(list(itertools.islice(dates, 3)), [
+        datetime.date(2010, 3, 21),
+        datetime.date(2010, 3, 24),
+        datetime.date(2010, 3, 27),
+      ])
+
+    def test_partiallyBackward(self):
+      dates = CombinedDateCondition(
+        SimpleDateCondition(2010, None, 8),
+        RepeatDateCondition(8)).scan(datetime.date(2010, 3, 22))
+      self.assertEqual(list(itertools.islice(dates, 4)), [
+        datetime.date(2010, 3, 24),
+        datetime.date(2010, 4, 1),
+        datetime.date(2010, 4, 8),
+        datetime.date(2010, 4, 16),
       ])
 
 
