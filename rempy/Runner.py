@@ -22,13 +22,19 @@ import utils.dates as dateutils
 
 
 def _parseDate(string):
-  if pdt is None:
+  if pdt is not None:
     return dateutils.parseIsoDate(string)
   else:
-    values, flag = pdt.parse(string)
-    if flag != 1:
-      raise ValueError('Incorrect date string: %s' + string)
-    return datetime.date(*values[:3])
+    try:
+      values, flag = pdt.parse(string)
+      if flag != 1:
+        raise ValueError('Incorrect date string: %s' + string)
+      return datetime.date(*values[:3])
+    except ValueError, e:
+      try:
+        return dateutils.parseIsoDate(string)
+      except ValueError:
+        raise e
 
 
 class RunnerMode:
