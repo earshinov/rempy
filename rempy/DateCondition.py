@@ -1042,20 +1042,12 @@ class CombinedDateCondition(DateCondition):
 
     @param cond: первый объект класса L{DateCondition}
     @param cond2: второй объект класса L{DateCondition}
-    @param scanBack: если C{True}, у второго объекта скарирование запускается
-      в направлении прошлого, иначе в направлении будущего
-
-    Во избежание зацикливания, параметром C{cond2} должен быть
-    L{DateCondition}, сканирующий вперёд.  Если нужно сканирование в
-    обратном направлении, необходимо передавать соответствующий
-    L{DateCondition}, сканирующий вперёд, и задавать C{scanBack=True}.
 
     @see: L{CombinedDateCondition}
     '''
     super(CombinedDateCondition, self).__init__()
     self.cond = cond
     self.cond2 = cond2
-    self.back = scanBack
 
   def scan(self, startDate):
     return self.__scan(startDate, False)
@@ -1064,7 +1056,7 @@ class CombinedDateCondition(DateCondition):
     return self.__scan(startDate, True)
 
   def __scan(self, startDate, back=False):
-    if back != self.back:
+    if back:
       for date in self.__applyCond(startDate, back):
         for date2 in self.__applyCond2(date):
           yield date2
@@ -1105,8 +1097,7 @@ class CombinedDateCondition(DateCondition):
       else self.cond.scanBack(date)
 
   def __applyCond2(self, date):
-    return self.cond2.scan(date) if not self.back \
-      else self.cond2.scanBack(date)
+    return self.cond2.scan(date)
 
 
   class Test(unittest.TestCase):
@@ -1114,19 +1105,6 @@ class CombinedDateCondition(DateCondition):
 
     def setUp(self):
       self.startDate = datetime.date(2010, 3, 31)
-
-    def test_lastWeekday(self):
-      cond = CombinedDateCondition(
-        SimpleDateCondition(None, 4, 30),
-        LimitedDateCondition(
-          SimpleDateCondition(None, None, None, weekdays=[0]),
-          maxMatches = 1),
-        scanBack=True)
-      lastAprilMondays = list(itertools.islice(cond.scan(self.startDate), 2))
-      self.assertEqual(lastAprilMondays, [
-        datetime.date(2010, 4, 26),
-        datetime.date(2011, 4, 25),
-      ])
 
     def test_combinedRepeat(self):
       dates = CombinedDateCondition(
