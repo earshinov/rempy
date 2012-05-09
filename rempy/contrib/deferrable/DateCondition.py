@@ -6,7 +6,9 @@ import datetime
 import itertools
 import unittest
 
-from rempy.DateCondition import DateCondition, SimpleDateCondition
+from rempy.DateCondition import \
+  CombinedDateCondition, DateCondition, \
+  RepeatDateCondition, SimpleDateCondition
 from rempy.Runner import RunnerMode
 
 
@@ -118,3 +120,14 @@ class DeferrableDateCondition(DateCondition):
     def test_eventsMode(self):
       self.__simpleTest(datetime.date(2010, 5, 14),
         RunnerMode.EVENTS)
+
+
+    def test_repeated(self):
+      cond = DeferrableDateCondition(
+        CombinedDateCondition(
+          SimpleDateCondition(2012, 2, 11),
+          RepeatDateCondition(28)),
+        RunnerMode.REMIND,
+        doneDate=datetime.date(2012, 4, 14))
+      date = iter(cond.scan(datetime.date(2012, 5, 9))).next()
+      self.assertEquals(date, datetime.date(2012, 5, 5))

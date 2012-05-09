@@ -1057,8 +1057,20 @@ class CombinedDateCondition(DateCondition):
 
   def __scan(self, startDate, back=False):
     if back:
-      for date in self.__applyCond(startDate, back):
-        for date2 in self.__applyCond2(date):
+      try:
+        # take ONE step back on the first DateCondition
+        date = iter(self.__applyCond(startDate, back)).next()
+      except StopIteration:
+        pass
+      else:
+        # run the second DateCondition forward and reverse the result
+        gen = self.__applyCond2(date)
+        gen = itertools.takewhile(lambda date: date <= startDate, gen)
+        # use a temporary list for reversion because using built-in
+        # reversed() function on a `takewhile` object leads to an error
+        dates = list(gen)
+        dates.reverse()
+        for date2 in dates:
           yield date2
     else:
 
