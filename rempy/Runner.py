@@ -22,7 +22,7 @@ import utils.dates as dateutils
 
 
 def _parseDate(string):
-  if pdt is not None:
+  if pdt is None:
     return dateutils.parseIsoDate(string)
   else:
     try:
