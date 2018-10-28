@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 '''Содержит класс L{DeferrableDateCondition}'''
 
 import datetime
@@ -51,7 +49,7 @@ class DeferrableDateCondition(DateCondition):
 
       try:
         backDate = startDate - datetime.timedelta(days=1)
-        lastUndone = iter(self.cond.scanBack(backDate)).next()
+        lastUndone = next(iter(self.cond.scanBack(backDate)))
       except StopIteration:
         lastUndone = None
       if lastUndone is not None \
@@ -60,7 +58,7 @@ class DeferrableDateCondition(DateCondition):
         lastUndone = None
 
       try:
-        first = gen.next()
+        first = next(gen)
       except StopIteration:
         first = None
 
@@ -90,8 +88,8 @@ class DeferrableDateCondition(DateCondition):
 
     def __simpleTest(self, firstReturnedDate, runnerMode=RunnerMode.REMIND, *args, **kwargs):
       cond = DeferrableDateCondition(self.simpleCond, runnerMode, *args, **kwargs)
-      date = iter(cond.scan(self.startDate)).next()
-      self.assertEquals(date, firstReturnedDate)
+      date = next(iter(cond.scan(self.startDate)))
+      self.assertEqual(date, firstReturnedDate)
 
 
     def test_undone(self):
@@ -129,5 +127,5 @@ class DeferrableDateCondition(DateCondition):
           RepeatDateCondition(28)),
         RunnerMode.REMIND,
         doneDate=datetime.date(2012, 4, 14))
-      date = iter(cond.scan(datetime.date(2012, 5, 9))).next()
-      self.assertEquals(date, datetime.date(2012, 5, 5))
+      date = next(iter(cond.scan(datetime.date(2012, 5, 9))))
+      self.assertEqual(date, datetime.date(2012, 5, 5))

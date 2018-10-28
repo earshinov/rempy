@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 '''Вспомогательные функции и классы'''
 
 class FormatError(Exception):

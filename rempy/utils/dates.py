@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 '''Функции и классы для работы с датами'''
 
 import datetime
@@ -76,7 +74,7 @@ def weekno(date, startWeekday=0):
   weekday = date.weekday()
   beginWeekday = (weekday - diff) % 7
 
-  ret = diff / 7 + 1
+  ret = diff // 7 + 1
   if weekday > beginWeekday:
     if startWeekday > beginWeekday and startWeekday <= weekday:
       ret += 1
@@ -105,7 +103,7 @@ class _Test_weekno(unittest.TestCase):
     self.assertEqual(weekno(datetime.date(2008, 1, 7), 3), 2)
 
 
-class UnsafeDate(object):
+class UnsafeDate:
   '''Класс, который хранит год, месяц и день, но не проверяет, составляют ли
   они существующую дату
 

@@ -1,13 +1,13 @@
-# -*- coding: utf-8 -*-
-
 '''При запуске из командной строки запускает все unit-тесты,
 объявленные в пакете и подпакетах.  Создан просто для удобства.
+
+Запуск: `PYTHONPATH=. python rempy/tests.py` в корне проекта.
 '''
 
-import DateCondition
-import StringParser
-import utils.dates as dateutils
-import contrib.deferrable.tests
+from rempy import DateCondition
+from rempy import StringParser
+from rempy.utils import dates as dateutils
+from rempy.contrib.deferrable import tests as contrib_deferrable_tests
 
 import unittest
 
@@ -18,7 +18,7 @@ def additional_tests():
   @returns: экземпляр класса C{unittest.TestSuite}
   '''
   subsuites = [
-    contrib.deferrable.tests.additional_tests(),
+    contrib_deferrable_tests.additional_tests(),
   ]
   loader = unittest.TestLoader()
   testCases = [

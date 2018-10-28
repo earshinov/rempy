@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 '''Содержит иерархию классов L{Runner} и функцию L{main}
 
 При запуске из командной строки запускает функцию L{main}.'''
@@ -18,7 +16,7 @@ try:
 except ImportError:
   pdt = None
 
-import utils.dates as dateutils
+from .utils import dates as dateutils
 
 
 def _parseDate(string):
@@ -30,7 +28,7 @@ def _parseDate(string):
       if flag != 1:
         raise ValueError('Incorrect date string: %s' + string)
       return datetime.date(*values[:3])
-    except ValueError, e:
+    except ValueError as e:
       try:
         return dateutils.parseIsoDate(string)
       except ValueError:
@@ -49,7 +47,7 @@ class RunnerMode:
   предупреждает о событиях предварительно'''
 
 
-class Runner(object):
+class Runner:
   '''Класс, собирающий список напоминалок и затем выполняющий связанные с ними
   действия в порядке возрастания дат соответствующих событий.  При этом
   выполнение действий и некоторые другие действия делегируются классу-наследнику.
@@ -86,7 +84,7 @@ class Runner(object):
       to = toDate + datetime.timedelta(days=reminder.advanceWarningValue()) \
         if mode == RunnerMode.REMIND else toDate
       try:
-        date = gen.next()
+        date = next(gen)
       except StopIteration:
         return
       if date <= to:
@@ -129,7 +127,7 @@ class PrintRunner(Runner):
   сообщения в поток вывода).'''
 
   def _handleNextDate(self, date):
-    print 'Reminders for %s' % date.isoformat()
+    print('Reminders for %s' % date.isoformat())
 
   def _executeReminder(self, reminder, date):
     reminder.execute(date)
@@ -166,8 +164,8 @@ COMMAND = { remind | events }
 OPTIONS = [ --from=DATE ] [ --to=DATE | --future=N_DAYS ]''' % args[0]
 
   if len(args) < 2:
-    print >> sys.stderr, 'A command is required'
-    print >> sys.stderr, USAGE
+    print('A command is required', file=sys.stderr)
+    print(USAGE, file=sys.stderr)
     return 1
 
   if args[1] == 'remind':
@@ -175,34 +173,34 @@ OPTIONS = [ --from=DATE ] [ --to=DATE | --future=N_DAYS ]''' % args[0]
   elif args[1] == 'events':
     mode = RunnerMode.EVENTS
   else:
-    print >> sys.stderr, 'Unknown command: "%s"' % args[1]
-    print >> sys.stderr, USAGE
+    print('Unknown command: "%s"' % args[1], file=sys.stderr)
+    print(USAGE, file=sys.stderr)
     return 1
 
   try:
     longopts = ['help', 'usage', 'from=', 'to=', 'future=']
     options, args = getopt.gnu_getopt(args[2:], 'h', longopts)
-  except getopt.GetoptError, err:
-    print >> sys.stderr, `err`
-    print >> sys.stderr, USAGE
+  except getopt.GetoptError as err:
+    print(repr(err), file=sys.stderr)
+    print(USAGE, file=sys.stderr)
     return 1
 
   if len(args) == 0:
-    print >> sys.stderr, 'Filename is required'
-    print >> sys.stderr, USAGE
+    print('Filename is required', file=sys.stderr)
+    print(USAGE, file=sys.stderr)
     return 1
 
   from_ = datetime.date.today()
   to = future = None
   for option, value in options:
     if option in ('-h', '--help', '--usage'):
-      print USAGE
+      print(USAGE)
       return 0
     elif option == '--from':
       try:
         from_ = _parseDate(value)
       except ValueError:
-        print >> sys.stderr, 'Can\'t parse date %s' % value
+        print('Can\'t parse date %s' % value, file=sys.stderr)
         return 1
     elif option == '--to':
       future = None
@@ -217,7 +215,7 @@ OPTIONS = [ --from=DATE ] [ --to=DATE | --future=N_DAYS ]''' % args[0]
     try:
       to = _parseDate(to)
     except ValueError:
-      print >> sys.stderr, 'Can\'t parse date %s' % to
+      print('Can\'t parse date %s' % to, file=sys.stderr)
       return 1
   elif future is not None:
     try:
@@ -225,21 +223,23 @@ OPTIONS = [ --from=DATE ] [ --to=DATE | --future=N_DAYS ]''' % args[0]
       if future < 0:
         raise ValueError()
     except ValueError:
-      print >> sys.stderr, 'Invalid integer: %s' % future
+      print('Invalid integer: %s' % future, file=sys.stderr)
       return 1
     to = from_ + datetime.timedelta(days=future)
   else:
     to = from_
 
   runner = runnerFactory()
-  from Reminder import ShortcutReminder
-  from contrib.deferrable.Reminder import DeferrableReminder
+  from .Reminder import ShortcutReminder
+  from .contrib.deferrable.Reminder import DeferrableReminder
   def rem(*args, **kwargs):
     return runner.add(ShortcutReminder.fromString(*args, **kwargs))
   def deferrable(*args, **kwargs):
     return runner.add(DeferrableReminder.fromString(*args, **kwargs))
   for filename in args:
-    execfile(filename, {
+    with open(filename, encoding='utf-8') as f:
+      content = f.read()
+    exec(compile(content, filename, 'exec'), {
       'runner': runner,
       'rem': rem,
       'deferrable': deferrable,

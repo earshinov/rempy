@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 '''Содержит иерархию классов L{DateCondition}
 
 При запуске из командной строки запускает присутствующие в модуле unit-тесты.'''
@@ -11,14 +9,14 @@ import itertools
 import operator
 import unittest
 
-from utils import FormatError
-from utils.algorithms import sortedUnique
-from utils.dates import UnsafeDate, NonExistingDaysHandling
-from utils.functional import all
-import utils.dates as dateutils
+from .utils import FormatError
+from .utils.algorithms import sortedUnique
+from .utils.dates import UnsafeDate, NonExistingDaysHandling
+from .utils.functional import all
+from .utils import dates as dateutils
 
 
-class DateCondition(object):
+class DateCondition:
   '''Базовый класс для классов, которые могут хранить условия на дату и
   находить даты, удовлетворяющие этим условиям.'''
 
@@ -101,10 +99,10 @@ class SimpleDateCondition(DateCondition):
       подходящей даты не накладывается.
 
     @param nonexistingDaysHandling:  Второстепенный параметр класса
-      L{utils.dates.NonExistingDaysHandling}, влияющий на то,
+      L{utils.dateutils.NonExistingDaysHandling}, влияющий на то,
       как обрабатываются несуществующие даты.  Имеют смысл значения
-      L{WRAP<utils.dates.NonExistingDaysHandling.WRAP>} (умолчание) и
-      L{SKIP<utils.dates.NonExistingDaysHandling.SKIP>}.  Как они работают,
+      L{WRAP<utils.dateutils.NonExistingDaysHandling.WRAP>} (умолчание) и
+      L{SKIP<utils.dateutils.NonExistingDaysHandling.SKIP>}.  Как они работают,
       проще всего продемострировать на примере.  Если у нас есть
       C{SimpleDateCondition(day=31)}, то в первом случае в результат методов
       L{scan} и L{scanBack} для каждого года будет включён последний день
@@ -132,7 +130,7 @@ class SimpleDateCondition(DateCondition):
       self.weekdays_diff = None
     else:
       self.weekdays_diff = []
-      for i in xrange(len(self.weekdays) - 1):
+      for i in range(len(self.weekdays) - 1):
         increment = self.weekdays[i + 1] - self.weekdays[i]
         self.weekdays_diff.append(datetime.timedelta(days=increment))
       increment = self.weekdays[0] + 7 - self.weekdays[-1]
@@ -215,7 +213,7 @@ class SimpleDateCondition(DateCondition):
       задающий начальную дату для поиска
     @param back: если C{True}, поиск ведётся в направлении прошлого,
       иначе в направлении будущего
-    @returns: объект класса L{UnsafeDate<utils.dates.UnsafeDate>} или C{None},
+    @returns: объект класса L{UnsafeDate<utils.dateutils.UnsafeDate>} или C{None},
       если подходящих дат не найдено
     '''
     op = operator.lt if not back else operator.gt
@@ -278,7 +276,7 @@ class SimpleDateCondition(DateCondition):
     '''Генератор лет, используемый, если в условии задан фиксированный год.
 
     @param monthGenerator: генератор месяцев
-    @param unsafeDate: объект класса L{Unsafedate<utils.dates.UnsafeDate>},
+    @param unsafeDate: объект класса L{Unsafedate<utils.dateutils.UnsafeDate>},
       задающий начальную дату
     @returns: Iterable по датам (объектам класса C{datetime.date}).  Для
       взаимодействия с вышестоящим генератором Iterable может также
@@ -295,7 +293,7 @@ class SimpleDateCondition(DateCondition):
     '''Генератор лет, используемый, если год не фиксирован.
 
     @param monthGenerator: генератор месяцев
-    @param unsafeDate: объект класса L{Unsafedate<utils.dates.UnsafeDate>},
+    @param unsafeDate: объект класса L{Unsafedate<utils.dateutils.UnsafeDate>},
       задающий начальную дату
     @param back: если C{True}, поиск ведётся в направлении прошлого,
       иначе в направлении будущего
@@ -317,7 +315,7 @@ class SimpleDateCondition(DateCondition):
     '''Генератор месяцев, используемый, если в условии задан фиксированный месяц.
 
     @param dayGenerator: генератор дней
-    @param unsafeDate: объект класса L{Unsafedate<utils.dates.UnsafeDate>},
+    @param unsafeDate: объект класса L{Unsafedate<utils.dateutils.UnsafeDate>},
       задающий начальную дату
     @returns: Iterable по датам (объектам класса C{datetime.date}).  Для
       взаимодействия с вышестоящим генератором Iterable может также
@@ -337,7 +335,7 @@ class SimpleDateCondition(DateCondition):
     '''Генератор лет, используемый, если месяц не фиксирован.
 
     @param dayGenerator: генератор дней
-    @param unsafeDate: объект класса L{Unsafedate<utils.dates.UnsafeDate>},
+    @param unsafeDate: объект класса L{Unsafedate<utils.dateutils.UnsafeDate>},
       задающий начальную дату
     @param back: если C{True}, поиск ведётся в направлении прошлого,
       иначе в направлении будущего
@@ -366,7 +364,7 @@ class SimpleDateCondition(DateCondition):
   def __fixedDayGenerator(self, unsafeDate_):
     '''Генератор дней, используемый, если в условии задан фиксированный номер дня.
 
-    @param unsafeDate_: объект класса L{Unsafedate<utils.dates.UnsafeDate>},
+    @param unsafeDate_: объект класса L{Unsafedate<utils.dateutils.UnsafeDate>},
       задающий начальную дату
     @returns: Iterable по датам (объектам класса C{datetime.date}).  Для
       взаимодействия с вышестоящим генератором Iterable может также
@@ -382,7 +380,7 @@ class SimpleDateCondition(DateCondition):
       (unsafeDate.year, unsafeDate.month) = (yield None); yield None
 
 
-  class _DayGeneratorHelper(object):
+  class _DayGeneratorHelper:
     '''Базовый класс для вспомогательных классов, которые используются в
     генераторах дней для того, чтобы в случае, если в условии задан список
     дней недели, сократить перебор дат, рассматривая только те, которые
@@ -514,7 +512,7 @@ class SimpleDateCondition(DateCondition):
   def __dayGenerator(self, unsafeDate, back):
     '''Генератор дней, используемый, если номер дня не фиксирован.
 
-    @param unsafeDate: объект класса L{Unsafedate<utils.dates.UnsafeDate>},
+    @param unsafeDate: объект класса L{Unsafedate<utils.dateutils.UnsafeDate>},
       задающий начальную дату
     @param back: если C{True}, поиск ведётся в направлении прошлого,
       иначе в направлении будущего
@@ -572,12 +570,12 @@ class SimpleDateCondition(DateCondition):
 
     def test_000(self):
       gen = SimpleDateCondition(None, None, None).scan(self.startDate)
-      date = itertools.islice(gen, 365*2, None).next()
+      date = next(itertools.islice(gen, 365*2, None))
       self.assertEqual(date, datetime.date(2012, 1, 10))
 
     def test_001(self):
       gen = SimpleDateCondition(None, None, 17).scan(self.startDate)
-      date = itertools.islice(gen, 13, None).next()
+      date = next(itertools.islice(gen, 13, None))
       self.assertEqual(date, datetime.date(2011, 2, 17))
 
     def test_010(self):
@@ -678,7 +676,7 @@ class SimpleDateCondition(DateCondition):
     def test_nonexisting_skip(self):
       gen = self.__nonexistingDays(dateutils.NonExistingDaysHandling.SKIP);
       months = list(date.month for date in gen)
-      self.assertEquals(months, [1,3,5,7,8,10,12])
+      self.assertEqual(months, [1,3,5,7,8,10,12])
     def test_nonexisting_raise(self):
       self.assertRaises(ValueError, lambda: \
         list(self.__nonexistingDays(dateutils.NonExistingDaysHandling.RAISE)))
@@ -727,8 +725,8 @@ class SimpleDateCondition(DateCondition):
         datetime.date(2009, 12, 27),
         datetime.date(2009, 12, 28),
         datetime.date(2009, 12, 30),
-        datetime.date(2010, 01, 3),
-        datetime.date(2010, 01, 4),
+        datetime.date(2010,  1, 3),
+        datetime.date(2010,  1, 4),
       ])
     def test_weekdays_startDayMatch(self):
       cond = SimpleDateCondition(2010, 1, None, weekdays=[5,6])
@@ -899,7 +897,7 @@ class ShiftDateCondition(DateCondition):
 
     def test_wrapStartDate_back(self):
       cond = ShiftDateCondition(SimpleDateCondition(2010, None, 30), 2)
-      date = iter(cond.scanBack(self.startDate)).next()
+      date = next(iter(cond.scanBack(self.startDate)))
       self.assertEqual(date, datetime.date(2010, 3, 2))
 
     def test_wrapStartDate_back2(self):
@@ -967,18 +965,18 @@ class SatisfyDateCondition(DateCondition):
       everyMonday = SimpleDateCondition(2010, None, None, weekdays=[0])
       everySecondMonday = SatisfyDateCondition(everyMonday, self.__Odd())
       gen = iter(everySecondMonday.scan(datetime.date(2010, 1, 1)))
-      the2ndMonday = gen.next()
+      the2ndMonday = next(gen)
       self.assertEqual(the2ndMonday, datetime.date(2010, 1, 11))
-      the20thMonday = itertools.islice(gen, 8, None).next()
+      the20thMonday = next(itertools.islice(gen, 8, None))
       self.assertEqual(the20thMonday, datetime.date(2010, 5, 17))
 
     def test_none(self):
       everySecondDay = SatisfyDateCondition(None, self.__Odd())
       gen = everySecondDay.scanBack(datetime.date(2009, 12, 31))
-      the6thDayBack = itertools.islice(gen, 2, None).next()
+      the6thDayBack = next(itertools.islice(gen, 2, None))
       self.assertEqual(the6thDayBack, datetime.date(2009, 12, 26))
 
-    class __Odd(object):
+    class __Odd:
       '''Вспомогательный функтор.  Если порядковый номер вызова нечётный,
       возвращает C{True}, иначе C{False}.  Номера вызовов считаются с единицы,
       то есть при первом вызове будет возвращено C{True}.'''
@@ -1059,7 +1057,7 @@ class CombinedDateCondition(DateCondition):
     if back:
       try:
         # take ONE step back on the first DateCondition
-        date = iter(self.__applyCond(startDate, back)).next()
+        date = next(iter(self.__applyCond(startDate, back)))
       except StopIteration:
         pass
       else:
@@ -1082,7 +1080,7 @@ class CombinedDateCondition(DateCondition):
 
       if firstDate is None or firstDate != startDate:
         try:
-          lastDate = iter(self.__applyCond(startDate, not back)).next()
+          lastDate = next(iter(self.__applyCond(startDate, not back)))
         except StopIteration:
           pass
         else:
@@ -1150,7 +1148,7 @@ class CombinedDateCondition(DateCondition):
       ])
 
 
-from StringParser import DateConditionParser
+from .StringParser import DateConditionParser
 
 
 if __name__ == '__main__':

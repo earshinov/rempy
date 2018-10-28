@@ -1,14 +1,12 @@
-# -*- coding: utf-8 -*-
-
 '''Содержит иерархию классов L{Reminder}'''
 
-from Action import MessagePrinter
-from DateCondition import SatisfyDateCondition
-from StringParser import DateConditionParser, ReminderParser
-from utils import FormatError
+from .Action import MessagePrinter
+from .DateCondition import SatisfyDateCondition
+from .StringParser import DateConditionParser, ReminderParser
+from .utils import FormatError
 
 
-class Reminder(object):
+class Reminder:
   '''Базовый класс напоминалки.  Напоминалка объединяет условие, согласно
   которому выбираются даты; действие, которое надо выполнить для каждой даты
   (обычно печать сообщения); количество дней для заблаговременного
@@ -100,11 +98,11 @@ class ShortcutReminder(BasicReminder):
       C{True} или C{False} в зависимости от того, нужно ли считать дату
       подпадающей под напоминатель.
     '''
-    if isinstance(dateCondition, basestring):
+    if isinstance(dateCondition, str):
       dateCondition = DateConditionParser().parse(dateCondition)
     if satisfy is not None:
       dateCondition = SatisfyDateCondition(dateCondition, satisfy)
-    if isinstance(action, basestring):
+    if isinstance(action, str):
       action = MessagePrinter(action)
     super(ShortcutReminder, self).__init__(dateCondition, action, advanceWarningValue)
 

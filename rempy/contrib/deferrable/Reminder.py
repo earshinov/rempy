@@ -1,12 +1,10 @@
-# -*- coding: utf-8 -*-
-
 '''Содержит класс L{DeferrableReminder}'''
 
 from rempy.Reminder import Reminder, ShortcutReminder
 from rempy.StringParser import ReminderParser
 
-from DateCondition import DeferrableDateCondition
-from StringParser import DeferrableParser
+from .DateCondition import DeferrableDateCondition
+from .StringParser import DeferrableParser
 
 
 class DeferrableReminder(Reminder):

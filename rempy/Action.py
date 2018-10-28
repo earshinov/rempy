@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
-
 '''Содержит иерархию классов L{Action}'''
 
-class Action(object):
+class Action:
   '''Базовый класс для классов, реализующих действия, которые выполняются,
   когда для напоминалки находится подходящая дата.  Фактически, просто
   callable, а класс объявляется просто для удобства документирования.'''
@@ -27,4 +25,4 @@ class MessagePrinter(Action):
     self.message = message
 
   def __call__(self, date):
-    print self.message
+    print(self.message)

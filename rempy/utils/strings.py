@@ -1,12 +1,10 @@
-# -*- coding: utf-8 -*-
-
 '''Функции и классы для работы со строками'''
 
 import functools
 import re
 
 
-class TokenWithPosition(object):
+class TokenWithPosition:
   '''Класс, экземпляры которого ведут себя как строки, но при этом сохраняют
   дополнительный атрибут - позицию.  Может быть полезен, если к строке
   необходимо прикрепить, к примеру, её позицию в другой строке.
@@ -48,7 +46,7 @@ class TokenWithPosition(object):
       @functools.wraps(attr)
       def positionPropagator(*args, **kwargs):
         ret = attr(*args, **kwargs)
-        if isinstance(ret, basestring):
+        if isinstance(ret, str):
           return TokenWithPosition(ret, self._pos)
         else:
           return ret
@@ -60,11 +58,11 @@ class TokenWithPosition(object):
     return TokenWithPosition(self._string[key], self._pos)
 
 
-  def __cmp__(self, other):
-    if isinstance(other, basestring):
-      return cmp(self._string, other)
+  def __eq__(self, other):
+    if isinstance(other, str):
+      return self._string == other
     else:
-      return cmp(id(self), id(other))
+      return id(self) == id(other)
 
   def __hash__(self):
     return hash(self._string)
@@ -74,7 +72,7 @@ class TokenWithPosition(object):
     return str(self._string)
 
   def __unicode__(self):
-    return unicode(self._string)
+    return str(self._string)
 
 
 _NONSPACES_REGEXP = re.compile('(\S+)')
@@ -89,10 +87,10 @@ def splitWithPositions(string):
   pos = 0
   it = iter(re.split(_NONSPACES_REGEXP, string))
   while True:
-    space = it.next()
+    space = next(it)
     pos += len(space)
     try:
-      token = it.next()
+      token = next(it)
     except StopIteration:
       break
     yield TokenWithPosition(token, pos)

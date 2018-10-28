@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
-
 '''При запуске из командной строки запускает все unit-тесты,
 объявленные в пакете C{rempy.contrib.deferred}.  Создан просто для удобства.
 '''
 
-from DateCondition import DeferrableDateCondition
-from StringParser import DeferrableParser
+from .DateCondition import DeferrableDateCondition
+from .StringParser import DeferrableParser
 
 import unittest
 

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 '''Содержит иерархию классов L{StringParser}.  Полезен разработчикам классов
 напоминалок, в том числе разработчикам расширений.  Конечным пользователям
 должен быть необходим редко.
@@ -10,10 +8,10 @@ import copy
 import datetime
 import unittest
 
-from utils import FormatError
-from utils.functional import find_not_if
-import utils.dates as dateutils
-import utils.strings as strings
+from .utils import FormatError
+from .utils.functional import find_not_if
+from .utils import dates as dateutils
+from .utils import strings
 
 
 def parseDate(token):
@@ -25,11 +23,11 @@ def parseDate(token):
   '''
   try:
     return dateutils.parseIsoDate(token.string())
-  except ValueError, e:
+  except ValueError as e:
     raise FormatError('at "%s": Can\'t parse date: %s' % (token, e.message))
 
 
-class DateNamedOptionParser(object):
+class DateNamedOptionParser:
   '''Класс для разбора длинной опции, в которой лежит один токен,
   содержащий дату в формате ISO
 
@@ -50,7 +48,7 @@ class DateNamedOptionParser(object):
       raise FormatError('at "%s": "%s" already specified' % (token, self.name))
     self.val = parseDate(token)
     try:
-      token = tokens.next()
+      token = next(tokens)
     except StopIteration:
       token = None
       pass
@@ -65,7 +63,7 @@ class DateNamedOptionParser(object):
     return self.val
 
 
-class ChainData(object):
+class ChainData:
   '''Вспомогательный класс для хранения параметров, которые могут передаваться в
   объект класса L{DateConditionParser} и использоваться там для расширения
   набора конструкций, поддерживаемых парсером
@@ -126,7 +124,7 @@ class ChainData(object):
       self.unparsedRemainderHandler)
 
 
-class StringParser(object):
+class StringParser:
   '''Базовый класс для классов, выполняющий разбор строки
   с описанием напоминалки'''
 
@@ -192,9 +190,9 @@ class DateConditionParser(StringParser):
     tokens = (token.lower() for token in strings.splitWithPositions(string))
 
     try:
-      token = tokens.next()
+      token = next(tokens)
       if token == 'rem':
-        token = tokens.next()
+        token = next(tokens)
     except StopIteration:
       return SimpleDateCondition()
 
@@ -237,7 +235,7 @@ class DateConditionParser(StringParser):
       return self.chainData.unparsedRemainderHandler(cond, token, tokens, string)
 
 
-  class _SimpleDate(object):
+  class _SimpleDate:
     '''Класс, который умеет конструировать объект класса
     L{DateCondition<DateCondition.DateCondition>} по значением года, месяца,
     дня и списку дней недели.  Установка этих параметров осуществляется
@@ -289,6 +287,7 @@ class DateConditionParser(StringParser):
 
     weekdays_set = set()
     def handle_weekday(token):
+      token = str(token)
       for weekday, names in enumerate(weekday_names):
         if token in names:
           weekdays_set.add(weekday)
@@ -344,7 +343,7 @@ class DateConditionParser(StringParser):
           month = found_mon + 1
         else:
           break
-        token = tokens.next()
+        token = next(tokens)
     except StopIteration:
       token = None
       pass
@@ -363,13 +362,13 @@ class DateConditionParser(StringParser):
         if handler is None:
           break
         handler(token)
-        token = tokens.next()
+        token = next(tokens)
     except StopIteration:
       token = None
       pass
     return token
 
-  class _DeltaParser(object):
+  class _DeltaParser:
     '''Парсер короткой опции <Delta>
 
     Использование:
@@ -412,7 +411,7 @@ class DateConditionParser(StringParser):
       return cond if self.delta == 0 else \
         ShiftDateCondition(cond, -self.delta)
 
-  class _RepeatParser(object):
+  class _RepeatParser:
     '''Парсер короткой опции <Repeat>
 
     Использование:
@@ -458,7 +457,7 @@ class DateConditionParser(StringParser):
       if handler is None:
         break
       try:
-        token = tokens.next()
+        token = next(tokens)
       except StopIteration:
         raise FormatError('Unexpected end')
       token = handler(token, tokens)
@@ -475,12 +474,12 @@ class DateConditionParser(StringParser):
       self.startDate = datetime.date(2010, 1, 1)
 
     def test_shortDateFormat(self):
-      gen = self.parser.parse('REM 2010-06-12').scan(datetime.date(2010, 06, 12))
-      self.assertEqual(list(gen), [datetime.date(2010, 06, 12)])
+      gen = self.parser.parse('REM 2010-06-12').scan(datetime.date(2010, 6, 12))
+      self.assertEqual(list(gen), [datetime.date(2010, 6, 12)])
 
     def test_fromUntil(self):
-      str = 'Mon Wed Jan FROM 2010-01-12 UNTIL 2011-01-10'
-      gen = self.parser.parse(str).scan(self.startDate)
+      s = 'Mon Wed Jan FROM 2010-01-12 UNTIL 2011-01-10'
+      gen = self.parser.parse(s).scan(self.startDate)
       self.assertEqual(list(gen), [
         datetime.date(2010, 1, 13),
         datetime.date(2010, 1, 18),
@@ -493,8 +492,8 @@ class DateConditionParser(StringParser):
       ])
 
     def test_shiftRepeat(self):
-      str = 'June 12 2010 --12 *5'
-      gen = self.parser.parse(str).scan(self.startDate)
+      s = 'June 12 2010 --12 *5'
+      gen = self.parser.parse(s).scan(self.startDate)
       self.assertEqual(list(itertools.islice(gen, 3)), [
         datetime.date(2010, 5, 31),
         datetime.date(2010, 6, 5),
@@ -502,8 +501,8 @@ class DateConditionParser(StringParser):
       ])
 
     def test_weekdaysWithDay1(self):
-      str = 'Wed 1'
-      firstWedEveryMonth = self.parser.parse(str).scan(self.startDate)
+      s = 'Wed 1'
+      firstWedEveryMonth = self.parser.parse(s).scan(self.startDate)
       self.assertEqual(list(itertools.islice(firstWedEveryMonth, 4)), [
         datetime.date(2010, 1, 6),
         datetime.date(2010, 2, 3),
@@ -511,17 +510,17 @@ class DateConditionParser(StringParser):
         datetime.date(2010, 4, 7),
       ])
     def test_weekdaysWithDay2(self):
-      str = 'Wed Fri 2010-06-12'
-      dates = list(self.parser.parse(str).scan(self.startDate))
+      s = 'Wed Fri 2010-06-12'
+      dates = list(self.parser.parse(s).scan(self.startDate))
       self.assertEqual(dates, [datetime.date(2010, 6, 16)])
 
     def test_formatError(self):
-      str = '2010-01-12 **5'
-      self.assertRaises(FormatError, lambda: self.parser.parse(str))
+      s = '2010-01-12 **5'
+      self.assertRaises(FormatError, lambda: self.parser.parse(s))
 
     def test_unparsedRemainder(self):
-      str = 'REM 2010-01-12 MSG Unparsed remainder'
-      self.assertRaises(FormatError, lambda: self.parser.parse(str))
+      s = 'REM 2010-01-12 MSG Unparsed remainder'
+      self.assertRaises(FormatError, lambda: self.parser.parse(s))
 
 
 class ReminderParser(StringParser):
@@ -541,7 +540,7 @@ class ReminderParser(StringParser):
       методы L{advanceWarningValue} и L{message}
   '''
 
-  class _AdvanceWarningParser(object):
+  class _AdvanceWarningParser:
     '''Парсер для короткой опции <AdvanceWarningValue>
 
     Использование:
@@ -604,7 +603,7 @@ class ReminderParser(StringParser):
     '''
     try:
       if token == 'msg':
-        token = tokens.next()
+        token = next(tokens)
     except StopIteration:
       pass
     else:
@@ -642,7 +641,7 @@ class ReminderParser(StringParser):
       self.assertEqual(self.parser.message(), 'New Year')
 
 
-from DateCondition import *
+from .DateCondition import *
 
 
 if __name__ == '__main__':

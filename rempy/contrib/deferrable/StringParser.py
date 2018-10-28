@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 '''Содержит класс L{DeferrableParser}'''
 
 import datetime
@@ -50,11 +48,11 @@ class DeferrableParser(StringParser):
       self.parser = DeferrableParser()
 
     def test_undone(self):
-      str = 'REM 2010-12-10 -5 +5 *5 FROM 2010-12-01 UNTIL 2010-12-31 MSG Message'
-      self.parser.parse(str)
+      s = 'REM 2010-12-10 -5 +5 *5 FROM 2010-12-01 UNTIL 2010-12-31 MSG Message'
+      self.parser.parse(s)
       self.assertEqual(self.parser.doneDate(), None)
 
     def test_done(self):
-      str = 'REM 2010-12-10 -5 +5 *5 DONE 2010-12-20 UNTIL 2010-12-31 MSG Message'
-      self.parser.parse(str)
+      s = 'REM 2010-12-10 -5 +5 *5 DONE 2010-12-20 UNTIL 2010-12-31 MSG Message'
+      self.parser.parse(s)
       self.assertEqual(self.parser.doneDate(), datetime.date(2010, 12, 20))

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 '''Функции для программирования «в функциональном стиле»'''
 
 def all(iterable, unary_predicate):

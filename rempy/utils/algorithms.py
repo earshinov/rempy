@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 '''Функции и классы, реализующие различные алгоритмы'''
 
 def sortedUnique(mylist):
@@ -10,7 +8,7 @@ def sortedUnique(mylist):
   if mylist == []:
     return
   last = mylist[-1]
-  for i in xrange(len(mylist)-2, -1, -1):
+  for i in range(len(mylist)-2, -1, -1):
     if last == mylist[i]:
       del mylist[i]
     else:
