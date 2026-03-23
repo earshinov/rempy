@@ -1,0 +1,21 @@
+[project]
+name = "rempy"
+description = "Console reminder program inspired by remind"
+authors = [{ name = "Evgeny Arshinov", email = "earshinov@gmail.com" }]
+license = "GPL-2.0-only"
+requires-python = ">=3.8"
+dynamic = ["version"]
+classifiers = ["Programming Language :: Python :: 3 :: Only"]
+
+[project.optional-dependencies]
+natural-language = ["parsedatetime", "PyICU"]
+
+[project.scripts]
+rempy = "rempy.Runner:_cli"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "rempy/__init__.py"

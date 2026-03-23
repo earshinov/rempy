@@ -248,5 +248,9 @@ OPTIONS = [ --from=DATE ] [ --to=DATE | --future=N_DAYS ]''' % args[0]
   return 0
 
 
-if __name__ == '__main__':
+def _cli():
   sys.exit(main())
+
+
+if __name__ == '__main__':
+  _cli()
