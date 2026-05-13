@@ -1,6 +1,5 @@
+.venv/
+*.egg-info/
 *.pyc
 build/
 dist/
-*.egg-info/
-.venv/
-uv.lock
